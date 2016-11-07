@@ -1,0 +1,11 @@
+#
+######## Requierement package for TrajectoryClustering.py ######
+#
+#To use it, simply write "sudo pip install -r requirements.txt"
+###### Requirements without Version Specifiers ######
+argparse
+cython
+mdtraj >= 1.7
+progressbar
+matplotlib
+scipy
