@@ -115,7 +115,7 @@ If you choose to use the matplotlib windows for the final clustering or a cutoff
 (with the **-cc** argument), you will have a picture of the dendrogram.  
 The name of this file will be the same as the logfile with a ".png" extension 
 example: example.log --> example.png
-![alt text](https://github.com/tubiana/TrajectoryClustering/examples/example.png "Dendrogram example")  
+![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/example.png "Dendrogram example")  
 The grey horizontal line is the cutoff value used
 
 ## License
