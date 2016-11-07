@@ -3,7 +3,7 @@
 ## DESCRIPTION
 It uses the MDTraj package so you can use a lot of different type of files (
 This program was developped in order to clusterize molecular dynamic trajectories.
-Amber, gromacs, chamm, namd...)
+Amber, gromacs, chamm, namd, PDB...)
 
 ### Python Compatibility 
 This program is compatible with python 2.7.x and 3.x.
@@ -99,6 +99,8 @@ the interactive prompt.
 ```
 python TrajectoryClustering.py -f traj.xtc -t TOPOL.pdb -st protein -sr backbone
 python TrajectoryClustering.py -f traj.trr -t TOPOL.pdb -sr residue 10 to 30 and chainid 1 -l clustB.log -cc 5 -i n
+#For PDB trajectory, d'ont use the **-t** argument
+python TrajectoryClustering.py -f traj.pdb -st protein -sr backbone
 ```
 
 ## OUTPUT EXAMPLE
