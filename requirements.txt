@@ -4,6 +4,7 @@
 #To use it, simply write "sudo pip install -r requirements.txt"
 ###### Requirements without Version Specifiers ######
 argparse
+argcomplete
 cython
 mdtraj >= 1.7
 progressbar

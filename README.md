@@ -12,6 +12,7 @@ You can have a warning for matplotlib with python 3.x but the program still work
 ### Dependancies: 
 Following packages are needed: 
   - argparse
+  - argcomplete (for autocompletion, optional)
   - cython (for mdtraj)
   - mdtraj
   - progressbar
@@ -22,6 +23,9 @@ Following packages are needed:
   
 You will find a file **requirements.txt**. You can install all requiered 
 package wich this PIP:  `sudo pip install -r requirements.txt`
+
+To activate autocompletion for the argpase module you have to use this command 
+(only once) `sudo activate-global-python-argcomplete`
 
 #### Atoms selection
 For Selection syntax, use the one from MDTraj (http://mdtraj.org/latest/atom_selection.html).

@@ -20,6 +20,13 @@ import glob
 import matplotlib.pyplot as plt
 import scipy.cluster.hierarchy as sch
 
+try:
+    import argcomplete
+except:
+    print("argcomplete not detected, if you want to use autocompletetion")
+    print("install argcomplete module.")
+    print("See https://github.com/kislyuk/argcomplete for more info")
+    pass
 #==============================================================================
 #                     GLOBAL VARIABLES                            
 #==============================================================================
@@ -181,8 +188,12 @@ def parseArg():
     python Cluster_Analysis.py -f *.pdb -s A:1-30:CA
     """
     arguments=argparse.ArgumentParser(description="\
-            Description\
-            ")
+          This program was developped in order to clusterize molecular dynamic\
+          trajectories. Amber, gromacs, chamm, namd, PDB")
+    try:
+        argcomplete.autocomplete(arguments)
+    except:
+        pass
     arguments.add_argument('-f', "--traj", help="trajectory file", required=True)
     arguments.add_argument('-t','--top', help="topfile", default=None)
     arguments.add_argument('-l','--logfile', help="logfile (logfile.txt)", default="logfile.txt")
