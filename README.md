@@ -4,6 +4,25 @@
 It uses the MDTraj package so you can use a lot of different type of files (
 This program was developped in order to clusterize molecular dynamic trajectories.
 Amber, gromacs, chamm, namd...)
+
+### Python Compatibility 
+This program is compatible with python 2.7.x and 3.x.
+You can have a warning for matplotlib with python 3.x but the program still works
+
+### Dependancies: 
+Following packages are needed: 
+  - argparse
+  - cython (for mdtraj)
+  - mdtraj
+  - progressbar
+  - datetime *(present in default python library)*
+  - glob *(present in default python library)*
+  - matplotlib
+  - scipy
+  
+You will find a file **requirements.txt**. You can install all requiered 
+package wich this PIP:  `sudo pip install -r requirements.txt`
+
 #### Atoms selection
 For Selection syntax, use the one from MDTraj (http://mdtraj.org/latest/atom_selection.html).
 You can specify different selections for the calculation: 
@@ -46,19 +65,7 @@ matrix (N) or choose an other matrix (O). If you want to use the saved matrix wi
 interactive this interactive question) add in argument **-i n** which will desactivate
 the interactive prompt.
 
-## DEPENDANCIES: 
-Following packages are needed: 
-  - argparse
-  - cython (for mdtraj)
-  - mdtraj
-  - progressbar
-  - datetime *(present in default python library)*
-  - glob *(present in default python library)*
-  - matplotlib
-  - scipy
-  
-You will find a file **requirements.txt**. You can install all requiered 
-package wich this PIP:  `sudo pip install -r requirements.txt`
+
 
 ## ARGUMENTS 
 ```text
