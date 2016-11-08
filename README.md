@@ -136,3 +136,6 @@ This program is under the GNU GPLv3 license, which means that anyone who
 distributes your code or a derivative work to make the source available under 
 the same terms, and also provides an express grant of patent rights from 
 contributors to users.
+
+## TODO
+ - add quote in commande line writing (in logfile)

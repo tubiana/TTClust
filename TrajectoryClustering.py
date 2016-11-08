@@ -58,6 +58,7 @@ def printScreenLogfile(string):
     """
     print(string)
     LOGFILE.write("{}\n".format(string))
+    LOGFILE.flush()  # forcing the writing by flushing the buffer
 
 def init_log(args):
     """
@@ -453,9 +454,13 @@ def create_cluster_table(traj,args):
     ncluster = args["ngroup"]
     output_graph_name = args["logfile"][:-4]
     #Creation of the distance matrix
+    print("         creating distance matrix")
     distances=create_DM(traj, select_align, select_rmsd,args)
     try:
+        print("         Scipy linkage in progress. Please wait")
+        print("         with matrix of {}".format(distances.shape))
         linkage=sch.linkage(distances, method=args["method"])
+        print("         >Done!")
     except:
         printScreenLogfile("ERROR : method name given for clustering didn't recognized")
         printScreenLogfile("      : methods are : single; complete; average; weighted; centroid; ward.")
@@ -542,7 +547,6 @@ def Cluster_analysis_call(args):
     
     print("====== Clustering ========")
     distances,clusters_labels=create_cluster_table(traj,args)
-    print("         >done")        
 
     printScreenLogfile( "\n**** Cluster Results")
     clusters_list = return_mapping_cluster(clusters_labels)
@@ -573,3 +577,4 @@ if __name__ == "__main__":
     global LOGFILE  
     LOGFILE=open("{}".format(args["logfile"]),"w")
     Cluster_analysis_call(args)
+    LOGFILE.close()
