@@ -60,7 +60,7 @@ def printScreenLogfile(string):
     LOGFILE.write("{}\n".format(string))
     LOGFILE.flush()  # forcing the writing by flushing the buffer
 
-def init_log(args):
+def init_log(args, mdtrajectory):
     """
     DESCRIPTION
     initialyse the logfile with some information
@@ -83,15 +83,17 @@ def init_log(args):
     LOGFILE.write("************ General information ************\n")
     LOGFILE.write("software version : {}\n".format(__version__))
     LOGFILE.write("Created on       : {}\n".format(datetime.datetime.now()))
-    LOGFILE.write("command line     : {}\n".format(" ".join(sys.argv)))
+    LOGFILE.write("command line     : python {}\n".format(" ".join(sys.argv)))
     LOGFILE.write("ARGUMENTS : \n")
     LOGFILE.write("  Selection string :\n")
-    LOGFILE.write("    Atoms selected in trajectory = {} \n".format(
+    LOGFILE.write("      Atoms selected in trajectory = {} \n".format(
                                                         selection_string))
-    LOGFILE.write("    Atoms selected for alignement = {} \n".format(
+    LOGFILE.write("      Atoms selected for alignement = {} \n".format(
                                                         select_align))
-    LOGFILE.write("    Atoms selected for RMSD = {} \n".format(select_rmsd))
+    LOGFILE.write("      Atoms selected for RMSD = {} \n".format(select_rmsd))
     LOGFILE.write("  trajectory file  : {} \n".format(traj))
+    LOGFILE.write("   Number of frames  : {} \n".format(mdtrajectory.n_frames))
+    LOGFILE.write("   Number of atoms  : {} \n".format(mdtrajectory.n_atoms))
     LOGFILE.write("  topology file    : {} \n".format(topo))
     LOGFILE.write("  method used of clusterring : {}".format(args["method"]))
     LOGFILE.write("\n\n")
@@ -457,8 +459,9 @@ def create_cluster_table(traj,args):
     print("         creating distance matrix")
     distances=create_DM(traj, select_align, select_rmsd,args)
     try:
-        print("         Scipy linkage in progress. Please wait")
-        print("         with matrix of {}".format(distances.shape))
+        print("         Matrix shape: {}".format(distances.shape))
+        print("         Scipy linkage in progress. Please wait. It can be long")
+        print("         (approximatly 2mn30 for a 5000,5000 sized matrix)")
         linkage=sch.linkage(distances, method=args["method"])
         print("         >Done!")
     except:
@@ -532,7 +535,6 @@ def Cluster_analysis_call(args):
     topfile=args["top"]
     select_traj=args["select_traj"]
 
-    init_log(args)
     
     print("======= TRAJECTORY READING =======")
     if topfile == None and trajfile[-4:] == ".pdb":
@@ -540,9 +542,12 @@ def Cluster_analysis_call(args):
     else:
         traj=md.load(trajfile,\
                      top=topfile)
-    print("======= EXTRACTION OF SELECTED ATOMS =======")
-    traj=extract_selected_atoms(select_traj,\
-                                traj)      
+                     
+    init_log(args, traj)
+    
+    if not select_traj == "all":
+        print("======= EXTRACTION OF SELECTED ATOMS =======")
+        traj=extract_selected_atoms(select_traj, traj)      
     
     
     print("====== Clustering ========")
