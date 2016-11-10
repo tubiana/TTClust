@@ -61,6 +61,21 @@ def printScreenLogfile(string):
     LOGFILE.write("{}\n".format(string))
     LOGFILE.flush()  # forcing the writing by flushing the buffer
 
+def write_command_line():
+    """
+    DESCRIPTION
+    Write commande line with quote for -st, -sr and -sa arguments
+    """
+    LOGFILE.write("command line     : python ")
+    i = 0
+    while i < len(sys.argv):
+        LOGFILE.write("{} ".format(sys.argv[i]))
+        if sys.argv[i] in ["-st","-sr","-sa"]:
+            i+=1
+            LOGFILE.write("\"{}\" ".format(sys.argv[i]))
+        i += 1
+    LOGFILE.write("\n")
+    
 def init_log(args, mdtrajectory):
     """
     DESCRIPTION
@@ -84,7 +99,7 @@ def init_log(args, mdtrajectory):
     LOGFILE.write("************ General information ************\n")
     LOGFILE.write("software version : {}\n".format(__version__))
     LOGFILE.write("Created on       : {}\n".format(datetime.datetime.now()))
-    LOGFILE.write("command line     : python {}\n".format(" ".join(sys.argv)))
+    write_command_line()
     LOGFILE.write("ARGUMENTS : \n")
     LOGFILE.write("  Selection string :\n")
     LOGFILE.write("      Atoms selected in trajectory = {} \n".format(
