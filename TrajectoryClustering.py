@@ -18,6 +18,7 @@ import progressbar as pg
 import datetime
 import glob
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import scipy.cluster.hierarchy as sch
 
 try:
@@ -523,6 +524,41 @@ def write_representative_frame(traj, cluster):
     traj[frame].save_pdb("Cluster_PDB/C%i-f%i-s%i.pdb" %(cluster_num,\
                                                                 frame, size))
 
+def create_linear_cluster_mapping_graph(clusters_labels, output):
+    """
+    DESCRIPTION
+    Create a linear cluster mapping graph where every frame is printed as a 
+    colored barplot
+    Args:
+        clusters_labels (list): list of cluster number per frame
+        output (string) output name for graph
+    """
+    # DEFINE COLOR MAP
+    # if two much cluster number to define colours by hand
+    n_clusters = len(set(clusters_labels))
+    if n_clusters > 8 : 
+        cmap = "hsv"
+    else:
+        # imshow take the last color for the last group (if 3 cluster, color of
+        # clusters 3 will be brown")
+        color_list = ["red","blue","lime","gold", 
+                      "darkorchid", "orange","deepskyblue", "brown"]
+        color_list = color_list[:n_clusters]
+        cmap = mpl.colors.ListedColormap(color_list)
+        
+        
+    data = np.asmatrix(clusters_labels)
+    fig = plt.figure(figsize=(10,1))
+    #move the graphic into the corner
+    ax = plt.Axes(fig, [0., 0., 1., 1.])
+    #remove axes
+    ax.set_axis_off()
+    #set axes
+    fig.add_axes(ax)
+    #create graphic
+    ax.imshow(data,aspect='auto', interpolation='none', cmap=cmap)
+    plt.savefig("{}-linear.png".format(output[:-4]), dpi=300)
+    plt.close()
 
 def Cluster_analysis_call(args):
     """
@@ -552,7 +588,8 @@ def Cluster_analysis_call(args):
     
     print("====== Clustering ========")
     distances,clusters_labels=create_cluster_table(traj,args)
-
+    create_linear_cluster_mapping_graph(clusters_labels, args["logfile"])
+    
     printScreenLogfile( "\n**** Cluster Results")
     clusters_list = return_mapping_cluster(clusters_labels)
             
