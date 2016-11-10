@@ -134,17 +134,15 @@ The grey horizontal line is the cutoff value used
 #### LinearProjection representation
 A linear projection of cluster is made for the trajectory.
 ![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/example-linear.png "Dendrogram example")
-Every barline is represent a frame and the color the cluster number.
+Every barlineis represents a frame and the color a cluster number.
 Note that : 
  - If less or equal than 8 clusters : a defined color map was made in this order :
    red, blue, lime, gold, darkorchid, orange, deepskyblue, brown 
- - Else, the matplotlib "hsv" color map is used.
+ - Else, the matplotlib "hsv" colormap is used but the color change according
+   the number of clusters.
 
 ## License
 This program is under the GNU GPLv3 license, which means that anyone who 
 distributes your code or a derivative work to make the source available under 
 the same terms, and also provides an express grant of patent rights from 
 contributors to users.
-
-## TODO
- - add quote in commande line writing (in logfile)
