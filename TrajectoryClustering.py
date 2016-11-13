@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = 3.0
+__version__  = 3.1
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -615,7 +615,7 @@ def Cluster_analysis_call(args):
           printScreenLogfile( "    size = {}".format(cluster.size))
           printScreenLogfile( "    representative frame={}".format(
             cluster.representative))
-          printScreenLogfile( "    Members : {} ".format(str(cluster.frames)))
+          printScreenLogfile( "    Members : {} ".format(str([x+1 for x in cluster.frames])))
           printScreenLogfile( "    spread  : {} ".format(cluster.spread))
           write_representative_frame(traj, cluster)
 
