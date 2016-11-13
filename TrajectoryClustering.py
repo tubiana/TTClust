@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = 3.1
+__version__  = 3.2
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -20,6 +20,7 @@ import glob
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import scipy.cluster.hierarchy as sch
+import operator
 
 try:
     import argcomplete
@@ -193,7 +194,31 @@ def save_dist_mat(distmat, rmsd_string):
     else:
         name="matrix_all"
     np.save(name, distmat)
-    printScreenLogfile("Saving distance matrix : {0}.npy".format(name))                
+    printScreenLogfile("Saving distance matrix : {0}.npy".format(name))           
+
+
+def reorder_cluster(clusters):
+    """
+    DESCRIPTION
+    Reorder the clusters number to have the first frame belonging to the
+    cluster 1.
+    ---
+    Args : 
+        Clusters_labels(list): list of clusters label.
+    returns: 
+        clusters_labels_order(list): list of reorder clusters label
+    """
+    dict_order = {}
+    for cluster in clusters:
+        dict_order[cluster.id] = cluster.frames[0]
+    #Evaluate order
+    sorted_clusters = sorted(dict_order.items(), key=operator.itemgetter(1))
+    for i in range(len(sorted_clusters)):
+        dict_order[sorted_clusters[i][0]] = i+1 #  i+1 == reorder cluster number
+    #reordering
+    for cluster in clusters:
+        cluster.id = dict_order[cluster.id]
+                
 #==============================================================================
 #                     FONCTIONS
 #==============================================================================
@@ -539,7 +564,7 @@ def write_representative_frame(traj, cluster):
     traj[frame].save_pdb("Cluster_PDB/C%i-f%i-s%i.pdb" %(cluster_num,\
                                                                 frame, size))
 
-def create_linear_cluster_mapping_graph(clusters_labels, output):
+def create_linear_cluster_mapping_graph(clusters_list, output, size):
     """
     DESCRIPTION
     Create a linear cluster mapping graph where every frame is printed as a 
@@ -548,9 +573,15 @@ def create_linear_cluster_mapping_graph(clusters_labels, output):
         clusters_labels (list): list of cluster number per frame
         output (string) output name for graph
     """
+    
+    #order clusters_labels by order of appearance in the trajectory
+    clusters_number_ordered = [0] * size
+    for cluster in clusters_list:
+        for frame in cluster.frames:
+            clusters_number_ordered[frame-1] = cluster.id
     # DEFINE COLOR MAP
     # if two much cluster number to define colours by hand
-    n_clusters = len(set(clusters_labels))
+    n_clusters = len(set(clusters_number_ordered))
     if n_clusters > 8 : 
         cmap = "hsv"
     else:
@@ -562,7 +593,7 @@ def create_linear_cluster_mapping_graph(clusters_labels, output):
         cmap = mpl.colors.ListedColormap(color_list)
         
         
-    data = np.asmatrix(clusters_labels)
+    data = np.asmatrix(clusters_number_ordered)
     fig = plt.figure(figsize=(10,1))
     #move the graphic into the corner
     ax = plt.Axes(fig, [0., 0., 1., 1.])
@@ -603,11 +634,16 @@ def Cluster_analysis_call(args):
     
     print("====== Clustering ========")
     distances,clusters_labels=create_cluster_table(traj,args)
-    create_linear_cluster_mapping_graph(clusters_labels, args["logfile"])
     
     printScreenLogfile( "\n**** Cluster Results")
     clusters_list = return_mapping_cluster(clusters_labels)
-            
+
+    print("====== Reordering clusters ======")    
+    reorder_cluster(clusters_list)
+    # reordering the list by the cluster number
+    clusters_list.sort(key = operator.attrgetter("id"))
+    
+    create_linear_cluster_mapping_graph(clusters_list, args["logfile"], traj.n_frames)
     calculate_representative_frame_spread(clusters_list, distances)
     
     for cluster in clusters_list:
@@ -615,7 +651,7 @@ def Cluster_analysis_call(args):
           printScreenLogfile( "    size = {}".format(cluster.size))
           printScreenLogfile( "    representative frame={}".format(
             cluster.representative))
-          printScreenLogfile( "    Members : {} ".format(str([x+1 for x in cluster.frames])))
+          printScreenLogfile( "    Frames : {} ".format(str([x+1 for x in cluster.frames])))
           printScreenLogfile( "    spread  : {} ".format(cluster.spread))
           write_representative_frame(traj, cluster)
 
