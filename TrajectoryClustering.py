@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = 3.2
+__version__  = "3.2.1"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -92,7 +92,8 @@ def init_log(args, mdtrajectory):
     select_rmsd = args["select_rmsd"]
     
     LOGFILE.write("========================================================\n")
-    LOGFILE.write("============  3D STRUCTURES CLUSTERING %.1f  ============\n" %__version__)
+    LOGFILE.write("============  3D STRUCTURES CLUSTERING {}  ============\n"\
+        .format(__version__))
     LOGFILE.write("========================================================\n")
     LOGFILE.write("\n")
     
@@ -588,7 +589,7 @@ def create_linear_cluster_mapping_graph(clusters_list, output, size):
         # imshow take the last color for the last group (if 3 cluster, color of
         # clusters 3 will be brown")
         color_list = ["red","blue","lime","gold", 
-                      "darkorchid", "orange","deepskyblue", "brown"]
+                      "darkorchid", "deepskyblue", "orange","brown"]
         color_list = color_list[:n_clusters]
         cmap = mpl.colors.ListedColormap(color_list)
         
@@ -661,7 +662,7 @@ def Cluster_analysis_call(args):
 ###############################################################################
 if __name__ == "__main__":
     print("********************************************************")
-    print("**********  3D STRUCTURES CLUSTERING {:.1f} **************".format(\
+    print("**********  3D STRUCTURES CLUSTERING {} **************".format(\
               __version__))
     print("********************************************************")
     print("")

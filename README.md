@@ -134,7 +134,7 @@ The grey horizontal line is the cutoff value used
 #### LinearProjection representation
 A linear projection of cluster is made for the trajectory.
 ![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/example-linear.png "Dendrogram example")
-Every barlineis represents a frame and the color a cluster number.
+Every barline represents a frame and the color a cluster number.
 Note that : 
  - If less or equal than 8 clusters : a defined color map was made in this order :
    red, blue, lime, gold, darkorchid, orange, deepskyblue, brown 
