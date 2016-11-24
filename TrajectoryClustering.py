@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "3.2.1"
+__version__  = "3.2.2"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -241,10 +241,17 @@ def parseArg():
         pass
     arguments.add_argument('-f', "--traj", help="trajectory file", required=True)
     arguments.add_argument('-t','--top', help="topfile", default=None)
-    arguments.add_argument('-l','--logfile', help="logfile (logfile.txt)", default="logfile.txt")
-    arguments.add_argument('-st','--select_traj', help="selection syntaxe for trajectory extraction (all)", default="all")
-    arguments.add_argument('-sa','--select_alignement', help="selection syntaxe for alignement (backbone)", default="backbone")
-    arguments.add_argument('-sr','--select_rmsd', help="selection syntaxe for RMSD", default=None)
+    arguments.add_argument('-l','--logfile', help="logfile (logfile.txt). The \
+        name of your output file will be the basename (name before the extention\
+        of this logfile", default="logfile.txt")
+    arguments.add_argument('-st','--select_traj', help="selection syntaxe for\
+        Don't forget to add QUOTES besite this selection string.\
+        trajectory extraction (all).", default="all")
+    arguments.add_argument('-sa','--select_alignement', help="selection syntaxe\
+        for alignement (backbone). Don't forget to add QUOTES besite this \
+        selection string.", default="backbone")
+    arguments.add_argument('-sr','--select_rmsd', help="selection syntaxe for \
+    RMSD. Don't forget to add QUOTES besite this selection string.", default=None)
     
     #Clustering arguments
     arguments.add_argument('-m','--method', help="method for clustering : single\

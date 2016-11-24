@@ -79,11 +79,11 @@ the interactive prompt.
   -o OUTPUT, --output OUTPUT
                         logfile (logfile.txt)
   -st SELECT_TRAJ, --select_traj SELECT_TRAJ
-                        selection syntax for trajectory extraction (all)
+                        selection syntax for trajectory extraction, with QUOTE (all)
   -sa SELECT_ALIGNEMENT, --select_alignement SELECT_ALIGNEMENT
-                        selection syntax for alignement (backbone)
+                        selection syntax for alignement with QUOTE(backbone)
   -sr SELECT_RMSD, --select_rmsd SELECT_RMSD
-                        selection syntax for RMSD
+                        selection syntax for RMSD with QUOTE (backbone)
   -m METHOD, --method METHOD
                         method for clustering: single; complete; average;
                         weighted; centroid; median and ward
@@ -101,10 +101,11 @@ the interactive prompt.
     
 ## USAGE : 
 ```
-python TrajectoryClustering.py -f traj.xtc -t TOPOL.pdb -st protein -sr backbone
-python TrajectoryClustering.py -f traj.trr -t TOPOL.pdb -sr residue 10 to 30 and chainid 1 -l clustB.log -cc 5 -i n
+Caution : You have to put quote beside your selection string (for *sr*, *st*, and *sa* arguments) 
+python TrajectoryClustering.py -f traj.xtc -t TOPOL.pdb -st "protein" -sr "backbone"
+python TrajectoryClustering.py -f traj.trr -t TOPOL.pdb -sr "residue 10 to 30" and "chainid 1" -l clustB.log -cc 5 -i n
 #For PDB trajectory, d'ont use the **-t** argument
-python TrajectoryClustering.py -f traj.pdb -st protein -sr backbone
+python TrajectoryClustering.py -f traj.pdb -st "protein" -sr "backbone"
 ```
 
 ## OUTPUT EXAMPLE
