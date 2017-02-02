@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "3.2.2"
+__version__  = "3.2.3"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -13,7 +13,8 @@ __date__ = "2016/11"
 import argparse
 import mdtraj as md
 import numpy as np
-import os,sys
+import os
+import sys
 import progressbar as pg
 import datetime
 import glob
@@ -368,7 +369,8 @@ def calculate_representative_frame_spread(clusters_list, DM):
             # Representative frame = frame with lower RMSD between all other
             # frame of the cluster
             repre = min(mean_rmsd_per_frame, key=mean_rmsd_per_frame.get)
-            cluster.representative = repre
+            cluster.representative = repre+1 # Don't forget +1 to get the 
+                                             # real frame number
             
             # spread = mean rmsd in all the cluster (*10 to have angstöm)
             cluster.spread = sum(mean_rmsd_per_frame.values()) / len(frames) 
@@ -581,8 +583,7 @@ def create_linear_cluster_mapping_graph(clusters_list, output, size):
         clusters_labels (list): list of cluster number per frame
         output (string) output name for graph
     """
-    
-    #order clusters_labels by order of appearance in the trajectory
+    # order clusters_labels by order of appearance in the trajectory
     clusters_number_ordered = [0] * size
     for cluster in clusters_list:
         for frame in cluster.frames:
@@ -599,17 +600,16 @@ def create_linear_cluster_mapping_graph(clusters_list, output, size):
                       "darkorchid", "deepskyblue", "orange","brown"]
         color_list = color_list[:n_clusters]
         cmap = mpl.colors.ListedColormap(color_list)
-        
-        
+
     data = np.asmatrix(clusters_number_ordered)
     fig = plt.figure(figsize=(10,1))
-    #move the graphic into the corner
+    # move the graphic into the corner
     ax = plt.Axes(fig, [0., 0., 1., 1.])
-    #remove axes
+    # remove axes
     ax.set_axis_off()
-    #set axes
+    # set axes
     fig.add_axes(ax)
-    #create graphic
+    # create graphic
     ax.imshow(data,aspect='auto', interpolation='none', cmap=cmap)
     plt.savefig("{}-linear.png".format(output[:-4]), dpi=300)
     plt.close()
