@@ -283,7 +283,7 @@ def ask_choice(args,name):
         name (string): if we use the matrix file we send back the file name
         None (None): otherwise we send back nothing
     """
-    if not args["interactive"].upper() == "Y":
+    if args["interactive"].upper() == "Y":
         print("Interactive mode desactived. I will use the existing distance matrix")
         return name
         
@@ -292,7 +292,10 @@ def ask_choice(args,name):
     print("    n/N - NO")
     print("    o/O - find all other .npy distance matrix")
     # aks the user what to do!
-    choice = raw_input()
+    if sys.version_info[0] == 2:
+        choice = raw_input()
+    else:
+        choice = input()
     # evaluate answer.
     if choice.upper() == "Y":  # I want to use it!
         printScreenLogfile(" >Distance matrix file detected : {0}".format(name))
@@ -541,7 +544,7 @@ def create_cluster_table(traj,args):
     #write graphic
     fig = plt.figure()
     sch.dendrogram(linkage)
-    plt.axhline(y=cutoff, color = "grey")
+    plt.axhline(y=int(cutoff), color = "grey")
     
     #Graph parameters
     plt.title("Clustering Dendrogram")
@@ -550,7 +553,7 @@ def create_cluster_table(traj,args):
     ax.set_ylabel("Distance (AU)")
     ax.set_xlabel("Frames")
     
-    plt.savefig("{}.png".format(output_graph_name), format="png", dpi=72, transparent=True)
+    plt.savefig("{}.png".format(output_graph_name), format="png", dpi=300, transparent=True)
         
     printScreenLogfile("  cutoff for clustering : {0}".format(cutoff))
     return distances,clustering_result
@@ -591,13 +594,14 @@ def create_linear_cluster_mapping_graph(clusters_list, output, size):
     # DEFINE COLOR MAP
     # if two much cluster number to define colours by hand
     n_clusters = len(set(clusters_number_ordered))
-    if n_clusters > 8 : 
+    if n_clusters > 10 : 
         cmap = "hsv"
     else:
         # imshow take the last color for the last group (if 3 cluster, color of
         # clusters 3 will be brown")
         color_list = ["red","blue","lime","gold", 
-                      "darkorchid", "deepskyblue", "orange","brown"]
+                      "darkorchid", "deepskyblue",
+                      "orange","brown", "gray","black"]
         color_list = color_list[:n_clusters]
         cmap = mpl.colors.ListedColormap(color_list)
 
