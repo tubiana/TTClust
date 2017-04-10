@@ -594,14 +594,15 @@ def create_linear_cluster_mapping_graph(clusters_list, output, size):
     # DEFINE COLOR MAP
     # if two much cluster number to define colours by hand
     n_clusters = len(set(clusters_number_ordered))
-    if n_clusters > 10 : 
+    if n_clusters > 12 : 
         cmap = "hsv"
     else:
         # imshow take the last color for the last group (if 3 cluster, color of
         # clusters 3 will be brown")
         color_list = ["red","blue","lime","gold", 
                       "darkorchid", "deepskyblue",
-                      "orange","brown", "gray","black"]
+                      "orange","brown", "gray","black",
+                      "darkgreen","navy"]
         color_list = color_list[:n_clusters]
         cmap = mpl.colors.ListedColormap(color_list)
 
