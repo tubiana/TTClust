@@ -20,6 +20,7 @@ Following packages are needed:
   - glob *(present in default python library)*
   - matplotlib
   - scipy
+  - prettytable
   
 You will find a file **requirements.txt**. You can install all requiered 
 package wich this PIP:  `sudo pip install -r requirements.txt`

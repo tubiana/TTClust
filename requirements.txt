@@ -10,3 +10,4 @@ mdtraj >= 1.7
 progressbar
 matplotlib
 scipy
+prettytable

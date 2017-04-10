@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "3.4"
+__version__  = "3.6"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -22,6 +22,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import scipy.cluster.hierarchy as sch
 import operator
+from prettytable import PrettyTable
 
 try:
     import argcomplete
@@ -630,6 +631,44 @@ def create_linear_cluster_mapping_graph(clusters_list, output, size):
     plt.savefig("{}-linear.png".format(output[:-4]), dpi=300)
     plt.close()
 
+def get_RMSD_cross_cluster(clusters_list, distances):
+    """
+    DESCRIPTION
+    This function will get the RMSD between all representativ frames of all
+    clusters. Print it to the console and write it on the logfile
+    Args:
+        Clusters_list (list) : list of all clusters
+        distances (np matrix) : rmsd matrix
+    returns:
+        None
+    """
+    # 1 - table preparation
+    table = PrettyTable()
+    n_clusters = len(clusters_list)
+    field_names = ["Clusters"] + ["C"+str(x) for x in range(1,n_clusters+1)]
+    table.field_names = field_names
+    table.float_format = ".2"
+    
+    # 2 - RMSD "calculation"
+    RMSD_matrix = np.zeros((n_clusters,n_clusters))
+    for i in range(n_clusters):
+        repr1 = clusters_list[i].representative
+        for j in range(n_clusters):
+            repr2 = clusters_list[j].representative
+            #reprx-1 to correspond with the numpy index
+            RMSD_matrix[i][j] = distances[repr1-1][repr2-1]*10
+    
+    # 3 - PrettyTable creation
+    for i in range(n_clusters):
+        table.add_row(["C"+str(i+1)] + RMSD_matrix[i].tolist())
+        
+    # 4 - print table
+    printScreenLogfile("----------------------------")
+    printScreenLogfile("RMSD MATRIX BETWEEN CLUSTERS")
+    printScreenLogfile(table)
+    np.savetxt("RMSD_between_clusters.csv",RMSD_matrix,delimiter=";")
+    
+
 def Cluster_analysis_call(args):
     """
     DESCRIPTION
@@ -678,7 +717,13 @@ def Cluster_analysis_call(args):
           printScreenLogfile( "    Frames : {} ".format(str([x+1 for x in cluster.frames])))
           printScreenLogfile( "    spread  : {} ".format(cluster.spread))
           write_representative_frame(traj, cluster)
+  
+    get_RMSD_cross_cluster(clusters_list, distances)
 
+
+
+    
+    
         
 ###############################################################################
 #####                               MAIN                                 ######
