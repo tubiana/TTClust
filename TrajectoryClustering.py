@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "3.3"
+__version__  = "3.4"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -330,14 +330,17 @@ def search_dist_mat(rmsd_string, args):
         rmsd_string (str) : name of the numpy matrix
     """
     if rmsd_string:
-        name=rmsd_string.replace(" ","_")+".npy"
+        name=rmsd_string.replace(" ","_")
     else:
         name="matrix_all.npy"
     #Searching all npy file in the folder
     npy_files=glob.glob("*.npy")
     
+    name = name+".npy"
     if name in npy_files:
        return ask_choice(args, name)
+    else:
+        return None
             
 
 def calculate_representative_frame_spread(clusters_list, DM):
@@ -512,18 +515,26 @@ def create_cluster_table(traj,args):
     #Creation of the distance matrix
     print("         creating distance matrix")
     distances=create_DM(traj, select_align, select_rmsd,args)
-    try:
+    linkage_file=search_dist_mat(select_rmsd+" linkage "+args["method"],args)
+    if linkage_file:
+        linkage = np.load(linkage_file)
+    else:
         print("         Matrix shape: {}".format(distances.shape))
         print("         Scipy linkage in progress. Please wait. It can be long")
         print("         (approximatly 2mn30 for a 5000,5000 sized matrix)")
-        linkage=sch.linkage(distances, method=args["method"])
+        try:
+            linkage=sch.linkage(distances, method=args["method"])
+        except:
+            printScreenLogfile("ERROR : method name given for clustering didn't recognized")
+            printScreenLogfile("      : methods are : single; complete; average; weighted; centroid; ward.")
+            printScreenLogfile("      : check https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/sc"
+            "ipy.cluster.hierarchy.linkage.html for more info")
+            sys.exit(1)
         print("         >Done!")
-    except:
-        printScreenLogfile("ERROR : method name given for clustering didn't recognized")
-        printScreenLogfile("      : methods are : single; complete; average; weighted; centroid; ward.")
-        printScreenLogfile("      : check https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/sc\
-            ipy.cluster.hierarchy.linkage.html for more info")
-        sys.exit(1)
+        print("         ...Saving linkage matrix...")
+        save_dist_mat(linkage,select_rmsd+" linkage "+args["method"])
+        print("         >Done!")
+        
     #If a number of wanted cluster is given
     if ncluster:
         clustering_result = sch.fcluster(linkage,t=ncluster, criterion="maxclust")
