@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "3.6.1"
+__version__  = "3.7"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -603,7 +603,7 @@ def create_linear_cluster_mapping_graph(clusters_list, output, size):
     clusters_number_ordered = [0] * size
     for cluster in clusters_list:
         for frame in cluster.frames:
-            clusters_number_ordered[frame-1] = cluster.id
+            clusters_number_ordered[frame] = cluster.id
     # DEFINE COLOR MAP
     # if two much cluster number to define colours by hand
     n_clusters = len(set(clusters_number_ordered))
@@ -628,6 +628,7 @@ def create_linear_cluster_mapping_graph(clusters_list, output, size):
     # set axes
     fig.add_axes(ax)
     # create graphic
+    print(data.shape)
     ax.imshow(data,aspect='auto', interpolation='none', cmap=cmap)
     plt.savefig("{}-linear.png".format(output[:-4]), dpi=300)
     plt.close()
