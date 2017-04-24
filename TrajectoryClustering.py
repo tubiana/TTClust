@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "3.6"
+__version__  = "3.6.1"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -240,6 +240,7 @@ def parseArg():
     try:
         argcomplete.autocomplete(arguments)
     except:
+        print("Warning : argcomplete module not detected")
         pass
     arguments.add_argument('-f', "--traj", help="trajectory file", required=True)
     arguments.add_argument('-t','--top', help="topfile", default=None)
@@ -648,6 +649,9 @@ def get_RMSD_cross_cluster(clusters_list, distances):
     field_names = ["Clusters"] + ["C"+str(x) for x in range(1,n_clusters+1)]
     table.field_names = field_names
     table.float_format = ".2"
+    # + variable which countains all value except 0.0 values (for 
+    # average calculation)
+    non_diag_value = []
     
     # 2 - RMSD "calculation"
     RMSD_matrix = np.zeros((n_clusters,n_clusters))
@@ -655,8 +659,14 @@ def get_RMSD_cross_cluster(clusters_list, distances):
         repr1 = clusters_list[i].representative
         for j in range(n_clusters):
             repr2 = clusters_list[j].representative
-            #reprx-1 to correspond with the numpy index
-            RMSD_matrix[i][j] = distances[repr1-1][repr2-1]*10
+            if i == j :
+                RMSD_matrix[i][j] = 0.00
+            else:
+                #reprx-1 to correspond with the numpy index
+                rmsd = distances[repr1-1][repr2-1]*10
+                RMSD_matrix[i][j] = rmsd
+                non_diag_value.append(rmsd)
+                           
     
     # 3 - PrettyTable creation
     for i in range(n_clusters):
@@ -666,6 +676,8 @@ def get_RMSD_cross_cluster(clusters_list, distances):
     printScreenLogfile("----------------------------")
     printScreenLogfile("RMSD MATRIX BETWEEN CLUSTERS")
     printScreenLogfile(table)
+    printScreenLogfile("\nAVERAGE RSMD BETWEEN CLUSTERS : {:.2f}".format(
+                                                np.mean(non_diag_value)))
     np.savetxt("RMSD_between_clusters.csv",RMSD_matrix,delimiter=";")
     
 
