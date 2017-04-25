@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "3.7"
+__version__  = "3.8"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -401,9 +401,8 @@ def create_DM(traj, alignement_string, rmsd_string,args):
     """
     #Get Atoms indices from selection string
     if rmsd_string:
-        rmsd_selection = return_selection_atom(use_for = "RMSD",\
-                                               traj   = traj,\
-                                               selection_string=rmsd_string)
+        print("NOTE : Extraction of subtrajectory for time optimisation")
+        traj = extract_selected_atoms(rmsd_string, traj)
 
     alignement_selection = return_selection_atom(use_for = "ALIGNEMENT",\
                                             traj   = traj,\
@@ -429,16 +428,7 @@ def create_DM(traj, alignement_string, rmsd_string,args):
         counter=0
         # Pairwise RMSD calculation (matrix n²) 
         for i in range(traj.n_frames):
-            if rmsd_string:
-                distances[i]=md.rmsd(traj_aligned,traj_aligned,\
-                                        frame=i,\
-                                        atom_indices=rmsd_selection,\
-                                        ref_atom_indices=rmsd_selection,\
-                                        precentered=True)
-            else:
-                distances[i]=md.rmsd(traj_aligned,traj_aligned,\
-                                    frame=i,\
-                                    precentered=True)
+            distances[i]=md.rmsd(traj_aligned,traj_aligned, frame=i)
             pbar.update(counter)
             counter+=1
         pbar.finish()
@@ -517,7 +507,16 @@ def create_cluster_table(traj,args):
     #Creation of the distance matrix
     print("         creating distance matrix")
     distances=create_DM(traj, select_align, select_rmsd,args)
+    if select_rmsd == None:
+        select_rmsd = "None"
+        
     linkage_file=search_dist_mat(select_rmsd+" linkage "+args["method"],args)
+    
+    #If a number of wanted cluster is given
+    if ncluster:
+        clustering_result = sch.fcluster(linkage,t=ncluster, criterion="maxclust")
+        return distances,clustering_result
+    
     if linkage_file:
         linkage = np.load(linkage_file)
     else:
@@ -537,12 +536,9 @@ def create_cluster_table(traj,args):
         save_dist_mat(linkage,select_rmsd+" linkage "+args["method"])
         print("         >Done!")
         
-    #If a number of wanted cluster is given
-    if ncluster:
-        clustering_result = sch.fcluster(linkage,t=ncluster, criterion="maxclust")
-        return distances,clustering_result
+
     #if a cuttof for distance cuting is given
-    elif cutoff:
+    if cutoff:
         clustering_result = sch.fcluster(linkage, cutoff, "distance")
     #otherwise we choose it on the screen by cliking on the matplotlib windows
     else:
