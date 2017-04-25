@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "3.8.1"
+__version__  = "3.8.2"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -339,7 +339,7 @@ def search_dist_mat(rmsd_string, args):
     npy_files=glob.glob("*.npy")
     
     name = name+".npy"
-    if name in npy_files:
+    if name in npy_files and not args["interactive"].lower() == "n":
        return ask_choice(args, name)
     else:
         return None
