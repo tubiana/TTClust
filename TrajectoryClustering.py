@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "3.8"
+__version__  = "3.8.1"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -512,11 +512,7 @@ def create_cluster_table(traj,args):
         
     linkage_file=search_dist_mat(select_rmsd+" linkage "+args["method"],args)
     
-    #If a number of wanted cluster is given
-    if ncluster:
-        clustering_result = sch.fcluster(linkage,t=ncluster, criterion="maxclust")
-        return distances,clustering_result
-    
+ 
     if linkage_file:
         linkage = np.load(linkage_file)
     else:
@@ -541,6 +537,10 @@ def create_cluster_table(traj,args):
     if cutoff:
         clustering_result = sch.fcluster(linkage, cutoff, "distance")
     #otherwise we choose it on the screen by cliking on the matplotlib windows
+    #If a number of wanted cluster is given
+    elif ncluster:
+        clustering_result = sch.fcluster(linkage,t=ncluster, criterion="maxclust")
+        return distances,clustering_result
     else:
         fig = plt.figure()
         fig.canvas.mpl_connect('button_press_event',onclick)
