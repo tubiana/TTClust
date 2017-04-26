@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "3.8.2"
+__version__  = "3.9"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -36,6 +36,10 @@ except:
 #==============================================================================
 WIDGETS = [pg.Bar('>'), ' ', pg.ETA(), ' ', pg.ReverseBar('<')]
 COORDS=[]
+COLOR_LIST = ["red","blue","lime","gold",
+              "darkorchid", "deepskyblue",
+              "orange","brown", "gray","black",
+              "darkgreen","navy"]
 
 class Cluster_class():
     """
@@ -540,7 +544,8 @@ def create_cluster_table(traj,args):
     #If a number of wanted cluster is given
     elif ncluster:
         clustering_result = sch.fcluster(linkage,t=ncluster, criterion="maxclust")
-        return distances,clustering_result
+        n_group=len(np.unique(clustering_result))
+        cutoff = linkage[-(n_group-1),2]
     else:
         fig = plt.figure()
         fig.canvas.mpl_connect('button_press_event',onclick)
@@ -552,7 +557,8 @@ def create_cluster_table(traj,args):
     
     #write graphic
     fig = plt.figure()
-    sch.dendrogram(linkage)
+     
+    den = sch.dendrogram(linkage, color_threshold=cutoff)
     plt.axhline(y=int(cutoff), color = "grey")
     
     #Graph parameters
@@ -595,6 +601,7 @@ def create_linear_cluster_mapping_graph(clusters_list, output, size):
         clusters_labels (list): list of cluster number per frame
         output (string) output name for graph
     """
+    global COLOR_LIST
     # order clusters_labels by order of appearance in the trajectory
     clusters_number_ordered = [0] * size
     for cluster in clusters_list:
@@ -608,12 +615,8 @@ def create_linear_cluster_mapping_graph(clusters_list, output, size):
     else:
         # imshow take the last color for the last group (if 3 cluster, color of
         # clusters 3 will be brown")
-        color_list = ["red","blue","lime","gold", 
-                      "darkorchid", "deepskyblue",
-                      "orange","brown", "gray","black",
-                      "darkgreen","navy"]
-        color_list = color_list[:n_clusters]
-        cmap = mpl.colors.ListedColormap(color_list)
+        COLOR_LIST = COLOR_LIST[:n_clusters]
+        cmap = mpl.colors.ListedColormap(COLOR_LIST)
 
     data = np.asmatrix(clusters_number_ordered)
     fig = plt.figure(figsize=(10,1))
