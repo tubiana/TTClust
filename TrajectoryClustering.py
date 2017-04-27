@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "3.9"
+__version__  = "3.9.1"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -558,7 +558,7 @@ def create_cluster_table(traj,args):
     #write graphic
     fig = plt.figure()
      
-    den = sch.dendrogram(linkage, color_threshold=cutoff)
+    den = sch.dendrogram(linkage, color_threshold=float(cutoff))
     plt.axhline(y=int(cutoff), color = "grey")
     
     #Graph parameters
