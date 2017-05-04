@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.0"
+__version__  = "4.0.1"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -553,7 +553,7 @@ def create_cluster_table(traj,args):
         cutoff=COORDS[0][1]
         clustering_result = sch.fcluster(linkage, cutoff, "distance")
 
-    printScreenLogfile("  cutoff for clustering : {:.2f}".format(cutoff))
+    printScreenLogfile("  cutoff for clustering : {:.2f}".format(float(cutoff)))
     return distances,clustering_result, linkage, cutoff
 
 
