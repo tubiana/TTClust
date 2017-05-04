@@ -2,26 +2,26 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "3.9.1"
+__version__  = "4.0"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
 
 #==============================================================================
-#                     MODULES                            
+#                     MODULES
 #==============================================================================
-import argparse
-import mdtraj as md
-import numpy as np
+import operator
 import os
 import sys
-import progressbar as pg
-import datetime
+import argparse
 import glob
+import datetime
+import numpy as np
+import progressbar as pg
+import mdtraj as md
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import scipy.cluster.hierarchy as sch
-import operator
 from prettytable import PrettyTable
 
 try:
@@ -32,19 +32,19 @@ except:
     print("See https://github.com/kislyuk/argcomplete for more info")
     pass
 #==============================================================================
-#                     GLOBAL VARIABLES                            
+#                     GLOBAL VARIABLES
 #==============================================================================
 WIDGETS = [pg.Bar('>'), ' ', pg.ETA(), ' ', pg.ReverseBar('<')]
 COORDS=[]
-COLOR_LIST = ["red","blue","lime","gold",
+COLOR_LIST = ["red","blue","lime","yellow",
               "darkorchid", "deepskyblue",
               "orange","brown", "gray","black",
               "darkgreen","navy"]
 
 class Cluster_class():
     """
-    DESCRIPTION 
-    Simple cluster class object (countains frames numbers, spread, size, ID 
+    DESCRIPTION
+    Simple cluster class object (countains frames numbers, spread, size, ID
     and representative frame)
     """
     def __init__(self, num):
@@ -82,7 +82,7 @@ def write_command_line():
             LOGFILE.write("\"{}\" ".format(sys.argv[i]))
         i += 1
     LOGFILE.write("\n")
-    
+
 def init_log(args, mdtrajectory):
     """
     DESCRIPTION
@@ -96,14 +96,14 @@ def init_log(args, mdtrajectory):
     selection_string = args["select_traj"]
     select_align = args["select_alignement"]
     select_rmsd = args["select_rmsd"]
-    
+
     LOGFILE.write("========================================================\n")
     LOGFILE.write("============  3D STRUCTURES CLUSTERING {}  ============\n"\
         .format(__version__))
     LOGFILE.write("========================================================\n")
     LOGFILE.write("\n")
-    
-    
+
+
     LOGFILE.write("************ General information ************\n")
     LOGFILE.write("software version : {}\n".format(__version__))
     LOGFILE.write("Created on       : {}\n".format(datetime.datetime.now()))
@@ -125,12 +125,12 @@ def init_log(args, mdtrajectory):
         LOGFILE.write("  Number of cluster asked: {}\n".format(args["ngroup"]))
     if args["cutoff"]:
         LOGFILE.write("  cutoff for dendrogram clustering: {}\n".format("cutoff"))
-        
-        
+
+
 def extract_selected_atoms(selection, traj):
     """
     DESCRIPTION
-    Return a trajectory with only atoms given in arguments (trough the 
+    Return a trajectory with only atoms given in arguments (trough the
     selection string)
     eg: if you only want the trajectory of the chain A you can call
     traj_A = extract_selected_atoms("chainid 0", traj)
@@ -152,18 +152,18 @@ def extract_selected_atoms(selection, traj):
         print("        > Please check 'http://mdtraj.o\
                         rg/latest/atom_selection.html'")
         exit(1)
-    
+
 def send_error_message(calc_type, selection_string):
     """
     DESCRIPTION
-    Print information regarding your selection string if this one is not 
+    Print information regarding your selection string if this one is not
     recognized by mdtraj
     Args:
         calc_type
     """
     print(("ERROR : {} selection string not valid".format(calc_type)))
     print(("        >{}".format(selection_string)))
-    exit(1)   
+    exit(1)
 
 def return_selection_atom(use_for,traj, selection_string):
     """
@@ -179,19 +179,19 @@ def return_selection_atom(use_for,traj, selection_string):
         selection=traj.top.select(selection_string)
     except:
         send_error_message(use_for,selection_string)
-    
+
     if len(selection)==0:
         send_error_message(use_for,selection_string)
     else:
         return selection
-        
+
 def save_dist_mat(distmat, rmsd_string):
     """
     DESCRIPTION
     Save the numpy matrix to reused afterward
     ----
     Args:
-        distmat (numpy matrix): distance matrix 
+        distmat (numpy matrix): distance matrix
         alignement (str) : alignement string, used for the name
     return:
         None
@@ -201,7 +201,7 @@ def save_dist_mat(distmat, rmsd_string):
     else:
         name="matrix_all"
     np.save(name, distmat)
-    printScreenLogfile("Saving distance matrix : {0}.npy".format(name))           
+    printScreenLogfile("Saving distance matrix : {0}.npy".format(name))
 
 
 def reorder_cluster(clusters):
@@ -210,9 +210,9 @@ def reorder_cluster(clusters):
     Reorder the clusters number to have the first frame belonging to the
     cluster 1.
     ---
-    Args : 
+    Args :
         Clusters_labels(list): list of clusters label.
-    returns: 
+    returns:
         clusters_labels_order(list): list of reorder clusters label
     """
     dict_order = {}
@@ -225,7 +225,7 @@ def reorder_cluster(clusters):
     #reordering
     for cluster in clusters:
         cluster.id = dict_order[cluster.id]
-                
+
 #==============================================================================
 #                     FONCTIONS
 #==============================================================================
@@ -235,7 +235,7 @@ def parseArg():
     """
     This fonction will the list of pdb files and the distance
     @return: dictionnary of arguments
-    Ex : 
+    Ex :
     python Cluster_Analysis.py -f *.pdb -s A:1-30:CA
     """
     arguments=argparse.ArgumentParser(description="\
@@ -259,20 +259,20 @@ def parseArg():
         selection string.", default="backbone")
     arguments.add_argument('-sr','--select_rmsd', help="selection syntaxe for \
     RMSD. Don't forget to add QUOTES besite this selection string.", default=None)
-    
+
     #Clustering arguments
     arguments.add_argument('-m','--method', help="method for clustering : single\
        ; complete; average; weighted; centroid; median. (ward)", default="ward")
     arguments.add_argument('-cc',"--cutoff", help="cutoff for clusterization from\
                             hierarchical clusturing with Scipy", default=None)
-    arguments.add_argument('-ng',"--ngroup", help="number of group asked. Use the maxclust method to clusterize in this case", default=None)                         
+    arguments.add_argument('-ng',"--ngroup", help="number of group asked. Use the maxclust method to clusterize in this case", default=None)
 
-  
+
     #Interactive mode for distance matrix:
     arguments.add_argument('-i','--interactive', help="Interactive mode for distance matrix (Y/n)", default="Y")
     args = vars(arguments.parse_args())
     return(args)
-    
+
 
 
 def ask_choice(args,name):
@@ -292,7 +292,7 @@ def ask_choice(args,name):
     if args["interactive"].upper() == "Y":
         print("Interactive mode desactived. I will use the existing distance matrix")
         return name
-        
+
     print(" I found a distance matrix ({0}) saved. Do you want to use it ?".format(name))
     print("    y/Y - YES")
     print("    n/N - NO")
@@ -322,7 +322,7 @@ def ask_choice(args,name):
         except:
             print("I didn't understand. Please try again")
             print("........")
-            return ask_choice(args,name)               
+            return ask_choice(args,name)
     else:
         print("I didn't understand. Please try again")
         print("........")
@@ -341,33 +341,33 @@ def search_dist_mat(rmsd_string, args):
         name="matrix_all.npy"
     #Searching all npy file in the folder
     npy_files=glob.glob("*.npy")
-    
+
     name = name+".npy"
     if name in npy_files and not args["interactive"].lower() == "n":
        return ask_choice(args, name)
     else:
         return None
-            
+
 
 def calculate_representative_frame_spread(clusters_list, DM):
     """
     DESCRIPTION
-    Choose the representative frame by calculating the mean RMSD of each 
-    structures of the cluster agains the others        
+    Choose the representative frame by calculating the mean RMSD of each
+    structures of the cluster agains the others
     ----
     Args:
         Clusters (): Clusters list
         DM (Numpy matrix): distance matrix for each frames
     """
     print("Searching for representative frames")
-    
+
     for n, cluster in enumerate(clusters_list):
         frames = cluster.frames
         mean_rmsd_per_frame = {}
         # first loop  : first frame
         for frame_i in frames:
             mean_rmsd_per_frame[frame_i] = 0
-            # we will add the rmsd between theses 2 frames and then calcul the 
+            # we will add the rmsd between theses 2 frames and then calcul the
             # mean
             for frame_j in frames:
                 #We don't want to calcul the same frame.
@@ -376,28 +376,28 @@ def calculate_representative_frame_spread(clusters_list, DM):
                     # the RMSD betwween frame_i and frame_j
                     mean_rmsd_per_frame[frame_i] += DM[frame_i-1,frame_j-1]
             # mean calculation
-            mean_rmsd_per_frame[frame_i] /= len(frames)
-            
+            mean_rmsd_per_frame[frame_i] /= (len(frames))
+
             # Representative frame = frame with lower RMSD between all other
             # frame of the cluster
             repre = min(mean_rmsd_per_frame, key=mean_rmsd_per_frame.get)
-            cluster.representative = repre+1 # Don't forget +1 to get the 
+            cluster.representative = repre+1 # Don't forget +1 to get the
                                              # real frame number
-            
+
             # spread = mean rmsd in all the cluster (*10 to have angstöm)
-            cluster.spread = sum(mean_rmsd_per_frame.values()) / len(frames) 
+            cluster.spread = sum(mean_rmsd_per_frame.values()) / len(frames)
             cluster.spread *= 10
-        
-        
+
+
 def create_DM(traj, alignement_string, rmsd_string,args):
     """
-    DESCRIPTION 
+    DESCRIPTION
     Calcul the distance matrix
     ---
     Args:
         traj (mdtraj.trajectory): trajectory
         alignement_string (string): string for trajectory alignement
-        rmsd_string (string): atom selection for rmsd calculation (and 
+        rmsd_string (string): atom selection for rmsd calculation (and
                               matrix distance calculation)
         args (dict): all arguments in dictionary
     return:
@@ -410,37 +410,37 @@ def create_DM(traj, alignement_string, rmsd_string,args):
 
     alignement_selection = return_selection_atom(use_for = "ALIGNEMENT",\
                                             traj   = traj,\
-                                            selection_string=alignement_string)  
-    
+                                            selection_string=alignement_string)
+
     # Trajectory superposition  (aligment)
     traj_aligned = traj.superpose(traj[0],
                                   atom_indices=alignement_selection,\
                                   parallel=True)
-    
-    # matrix initialization                              
+
+    # matrix initialization
     distances = np.empty((traj.n_frames, traj.n_frames))
-    
-    # Searching if a distance file already exist    
+
+    # Searching if a distance file already exist
     distance_file=search_dist_mat(rmsd_string,args)
-    
+
     # If a distance matrix file was found and choosed, we load it.
     if distance_file:
         return np.load(distance_file)
         printScreenLogfile(" >Distance Matrix File Loaded!")
-    else:  # otherwise 
+    else:  # otherwise
         pbar = pg.ProgressBar(widgets=WIDGETS, maxval=traj.n_frames).start()
         counter=0
-        # Pairwise RMSD calculation (matrix n²) 
+        # Pairwise RMSD calculation (matrix n²)
         for i in range(traj.n_frames):
             distances[i]=md.rmsd(traj_aligned,traj_aligned, frame=i)
             pbar.update(counter)
             counter+=1
         pbar.finish()
-        
+
         #Finaly, we save the matrix if we want to load it again afterward
         print("Calculation ended - saving distance matrix")
         save_dist_mat(distances, rmsd_string)
-        return distances       
+        return distances
 
 def onclick(event):
     """
@@ -449,20 +449,20 @@ def onclick(event):
     windows.
     """
     ix, iy = event.xdata, event.ydata
-    
+
     global COORDS
     COORDS.append((ix,iy))
-    
+
     #juste one clic
     if len(COORDS)==1:
         plt.close(1)
-    
+
 
 
 def return_mapping_cluster(labels):
     """
     DESCRIPTION
-    assign cluster to frames. 
+    assign cluster to frames.
     ---
     Args:
         labels (list) : each "label" is the cluster number
@@ -473,50 +473,48 @@ def return_mapping_cluster(labels):
     clusters_list = []
     for cluster_num in set(labels):
         clusters_list.append(Cluster_class(cluster_num))  # create new instance of cluster
-        
+
     for i, cluster_num in enumerate(labels):
         clusters_list[cluster_num-1].frames.append(i)
         # for DEBUG
         if cluster_num != clusters_list[cluster_num-1].id :
             print ("{0} - {0}".format(cluster_num, clusters_list[cluster_num-1]))
             sys.exit(1)
-        
+
     for cluster in clusters_list:
         cluster.size = len(cluster.frames)
     #print(mapping)
     return clusters_list
-    
-    
-    
+
+
+
 def create_cluster_table(traj,args):
     """
     DESCRIPTION
     Clustering function!
-    Create a list with the cluster number of earch frame 
-    eg: [1,2,1,2,2,2,1] which mean that: 
+    Create a list with the cluster number of earch frame
+    eg: [1,2,1,2,2,2,1] which mean that:
         the cluster 1 is composed of the frames 1,3,7
         the cluster 2 is composed of the frames 2,4,5,6
     Args:
         traj (mdtraj.trajectorie): trajectory file
         args (dict): all arguments in a dictionary
     Return:
-        Distances (numpy matrix): Distance matrix 
+        Distances (numpy matrix): Distance matrix
         clustering_result (list): cluster unmber list for each frame (index)
     """
     select_align=args["select_alignement"]
     select_rmsd=args["select_rmsd"]
     cutoff=args["cutoff"]
     ncluster = args["ngroup"]
-    output_graph_name = args["logfile"][:-4]
     #Creation of the distance matrix
     print("         creating distance matrix")
     distances=create_DM(traj, select_align, select_rmsd,args)
     if select_rmsd == None:
         select_rmsd = "None"
-        
+
     linkage_file=search_dist_mat(select_rmsd+" linkage "+args["method"],args)
-    
- 
+
     if linkage_file:
         linkage = np.load(linkage_file)
     else:
@@ -535,7 +533,7 @@ def create_cluster_table(traj,args):
         print("         ...Saving linkage matrix...")
         save_dist_mat(linkage,select_rmsd+" linkage "+args["method"])
         print("         >Done!")
-        
+
 
     #if a cuttof for distance cuting is given
     if cutoff:
@@ -554,24 +552,9 @@ def create_cluster_table(traj,args):
         plt.show()
         cutoff=COORDS[0][1]
         clustering_result = sch.fcluster(linkage, cutoff, "distance")
-    
-    #write graphic
-    fig = plt.figure()
-     
-    den = sch.dendrogram(linkage, color_threshold=float(cutoff))
-    plt.axhline(y=int(cutoff), color = "grey")
-    
-    #Graph parameters
-    plt.title("Clustering Dendrogram")
-    ax = plt.axes() 
-    ax.set_xticklabels([])
-    ax.set_ylabel("Distance (AU)")
-    ax.set_xlabel("Frames")
-    
-    plt.savefig("{}.png".format(output_graph_name), format="png", dpi=300, transparent=True)
-        
-    printScreenLogfile("  cutoff for clustering : {0}".format(cutoff))
-    return distances,clustering_result
+
+    printScreenLogfile("  cutoff for clustering : {:.2f}".format(cutoff))
+    return distances,clustering_result, linkage, cutoff
 
 
 def write_representative_frame(traj, cluster):
@@ -585,39 +568,55 @@ def write_representative_frame(traj, cluster):
     """
     if not os.path.exists("Cluster_PDB"):
         os.makedirs("Cluster_PDB")
-        
+
     cluster_num = cluster.id
     frame = cluster.representative
     size = cluster.size
     traj[frame].save_pdb("Cluster_PDB/C%i-f%i-s%i.pdb" %(cluster_num,\
                                                                 frame, size))
-
-def create_linear_cluster_mapping_graph(clusters_list, output, size):
+def get_cmap(num_cluster):
     """
     DESCRIPTION
-    Create a linear cluster mapping graph where every frame is printed as a 
-    colored barplot
+    This function will return cmap that will be used for graphics
     Args:
-        clusters_labels (list): list of cluster number per frame
-        output (string) output name for graph
+        num_cluster (int) : number of cluster
+    Returns:
+        cmap (matplotlib cmap) : matplotlib color map
     """
     global COLOR_LIST
-    # order clusters_labels by order of appearance in the trajectory
-    clusters_number_ordered = [0] * size
-    for cluster in clusters_list:
-        for frame in cluster.frames:
-            clusters_number_ordered[frame] = cluster.id
     # DEFINE COLOR MAP
     # if two much cluster number to define colours by hand
-    n_clusters = len(set(clusters_number_ordered))
-    if n_clusters > 12 : 
-        cmap = "hsv"
+    
+    if num_cluster > len(COLOR_LIST) :
+        print()
+        cmap = "rainbow_r"
     else:
         # imshow take the last color for the last group (if 3 cluster, color of
         # clusters 3 will be brown")
-        COLOR_LIST = COLOR_LIST[:n_clusters]
+        COLOR_LIST = COLOR_LIST[:num_cluster]
         cmap = mpl.colors.ListedColormap(COLOR_LIST)
+    return cmap
 
+def plot_barplot(clusters_list, output, size):
+    """
+    DESCRIPTION
+    This function is used to plot the linear barplots.
+    Args:
+        cluster_number_list (list) : list of cluster label in order or appearance
+        output (str) : output logname
+    Returns:
+        colors_list (list of list) : list of colors in RGBA format
+    """
+        # order clusters_labels by order of appearance in the trajectory
+    clusters_number_ordered = [0] * size
+    # Order clusters_labels by cluster order.
+    for cluster in clusters_list:
+        for frame in cluster.frames:
+            clusters_number_ordered[frame] = cluster.id
+    
+    # DEFINE COLOR MAP
+    cmap = get_cmap(len(clusters_list))
+    
     data = np.asmatrix(clusters_number_ordered)
     fig = plt.figure(figsize=(10,1))
     # move the graphic into the corner
@@ -627,10 +626,112 @@ def create_linear_cluster_mapping_graph(clusters_list, output, size):
     # set axes
     fig.add_axes(ax)
     # create graphic
-    print(data.shape)
-    ax.imshow(data,aspect='auto', interpolation='none', cmap=cmap)
+    im = ax.imshow(data,aspect='auto', interpolation='none', cmap=cmap)
+    colors_list = (im.cmap(im.norm(np.unique(clusters_number_ordered))))
     plt.savefig("{}-linear.png".format(output[:-4]), dpi=300)
     plt.close()
+    return colors_list
+
+def plot_hist(clusters_list, output,colors_list):
+    """
+    DESCRIPTION
+    This function is used to plot a histogram with the cluster size.
+    Args:
+        cluster_number_list (list) : list of cluster label in order or appearance
+        output (str) : output logname
+    Returns:
+        None
+    """
+
+    values = []
+    labels = []
+    for cl in clusters_list:
+        #occurence.append((cl.id, cl.size))
+        values.append(cl.size)
+        labels.append(cl.id)
+    #Sorting occurence dict by cluster size
+
+    #### Configuration plot
+    width = 0.7 # bars size
+    index = np.arange(len(values)) # the x locations for the groups
+    fig, ax = plt.subplots()
+
+    bp = ax.bar(index, values, width, color=colors_list, label="Cluster size")
+    #add value on top of bars, adapted from matplotlib doc
+    for rect in bp:
+        height = rect.get_height()
+        ax.text(rect.get_x() + rect.get_width()/2., 1.0*height,
+                '%d' % int(height),
+                ha='center', va='bottom')
+    
+    plt.xlabel("Clusters")
+    plt.ylabel("Number of members")
+    plt.title("")
+    plt.xticks(index+(width/2), labels)
+    plt.tight_layout()
+    plt.savefig("{}-hist.png".format(output[:-4]), dpi=300)
+    
+    plt.close()
+
+
+def plot_dendro(linkage, output, cutoff, color_list,clusters_list):
+    """
+    DESCRIPTION
+    This function will create the dendrogram graph with the corresponding
+    cluster color.
+    Args:
+        linkage (numpy array) : linkage matrix
+        output (str) : output logfile name
+        cutoff (float) : cutoff used for clustering
+        color_list (list) : HEX code color for each cluster
+        cluster_list (list) : list of all cluster (Cluster object)
+    Returns:
+        None
+    """
+       
+    fig = plt.figure()
+    #Convert RGB color to HEX color
+    color_hex = [mpl.colors.rgb2hex(x) for x in color_list]
+    sch.set_link_color_palette(color_hex)
+    #clusters_list
+    color_member = {}
+    for cl in clusters_list:
+        for frm in cl.frames:
+            color_member[frm] = mpl.colors.rgb2hex(color_list[cl.id-1])
+
+    #Attribute the correct color for each branch.
+    #adapte from Ulrich Stern code in StackOverflow http://stackoverflow.com/a/38208611
+    link_cols = {}
+    for i, i12 in enumerate(linkage[:,:2].astype(int)):
+        c1, c2 = (link_cols[x] if x > len(linkage) else color_member[x] for x in i12)
+        link_cols[i+1+len(linkage)] = c1 if c1 == c2 else "#808080"
+
+    #Dendrogram creation
+    den = sch.dendrogram(linkage, color_threshold=float(cutoff), above_threshold_color="#808080", link_color_func=lambda x: link_cols[x])
+
+    #Graph parameters
+    plt.title("Clustering Dendrogram")
+    ax = plt.axes()
+    ax.set_xticklabels([])
+    plt.axhline(y=int(cutoff), color = "grey") # cutoff value vertical line
+    ax.set_ylabel("Distance (AU)")
+    ax.set_xlabel("Frames")
+
+    plt.savefig("{}-den.png".format(output[:-4]), format="png", dpi=300, transparent=True)
+
+def generate_graphs(clusters_list, output, size, linkage, cutoff):
+    """
+    DESCRIPTION
+    Create a linear cluster mapping graph where every frame is printed as a
+    colored barplot
+    Args:
+        clusters_labels (list): list of cluster number per frame
+        output (string) output name for graph
+    """
+    colors_list = plot_barplot(clusters_list, output, size)
+    plot_hist(clusters_list, output,colors_list)
+    plot_dendro(linkage, output, cutoff, colors_list,clusters_list)
+
 
 def get_RMSD_cross_cluster(clusters_list, distances):
     """
@@ -649,10 +750,10 @@ def get_RMSD_cross_cluster(clusters_list, distances):
     field_names = ["Clusters"] + ["C"+str(x) for x in range(1,n_clusters+1)]
     table.field_names = field_names
     table.float_format = ".2"
-    # + variable which countains all value except 0.0 values (for 
+    # + variable which countains all value except 0.0 values (for
     # average calculation)
     non_diag_value = []
-    
+
     # 2 - RMSD "calculation"
     RMSD_matrix = np.zeros((n_clusters,n_clusters))
     for i in range(n_clusters):
@@ -666,12 +767,12 @@ def get_RMSD_cross_cluster(clusters_list, distances):
                 rmsd = distances[repr1-1][repr2-1]*10
                 RMSD_matrix[i][j] = rmsd
                 non_diag_value.append(rmsd)
-                           
-    
+
+
     # 3 - PrettyTable creation
     for i in range(n_clusters):
         table.add_row(["C"+str(i+1)] + RMSD_matrix[i].tolist())
-        
+
     # 4 - print table
     printScreenLogfile("----------------------------")
     printScreenLogfile("RMSD MATRIX BETWEEN CLUSTERS")
@@ -679,7 +780,7 @@ def get_RMSD_cross_cluster(clusters_list, distances):
     printScreenLogfile("\nAVERAGE RSMD BETWEEN CLUSTERS : {:.2f}".format(
                                                 np.mean(non_diag_value)))
     np.savetxt("RMSD_between_clusters.csv",RMSD_matrix,delimiter=";")
-    
+
 
 def Cluster_analysis_call(args):
     """
@@ -688,39 +789,41 @@ def Cluster_analysis_call(args):
     Args:
         args (dict): all arguments in a dictionary
     """
-    trajfile=args["traj"]    
+    trajfile=args["traj"]
     topfile=args["top"]
     select_traj=args["select_traj"]
+    #Check if "logfile finish with ".log"
+    if not ".log" in args["logfile"]:
+        args["logfile"] = args["logfile"]+".log"
 
-    
     print("======= TRAJECTORY READING =======")
     if topfile == None and trajfile[-4:] == ".pdb":
         traj=md.load_pdb(trajfile)
     else:
         traj=md.load(trajfile,\
                      top=topfile)
-                     
+
     init_log(args, traj)
-    
+
     if not select_traj == "all":
         print("======= EXTRACTION OF SELECTED ATOMS =======")
-        traj=extract_selected_atoms(select_traj, traj)      
-    
-    
+        traj=extract_selected_atoms(select_traj, traj)
+
+
     print("====== Clustering ========")
-    distances,clusters_labels=create_cluster_table(traj,args)
-    
+    distances,clusters_labels,linkage,cutoff=create_cluster_table(traj,args)
+
     printScreenLogfile( "\n**** Cluster Results")
     clusters_list = return_mapping_cluster(clusters_labels)
 
-    print("====== Reordering clusters ======")    
+    print("====== Reordering clusters ======")
     reorder_cluster(clusters_list)
     # reordering the list by the cluster number
     clusters_list.sort(key = operator.attrgetter("id"))
-    
-    create_linear_cluster_mapping_graph(clusters_list, args["logfile"], traj.n_frames)
+
+    generate_graphs(clusters_list, args["logfile"], traj.n_frames, linkage, cutoff)
     calculate_representative_frame_spread(clusters_list, distances)
-    
+
     for cluster in clusters_list:
           printScreenLogfile( "cluster {}".format(cluster.id))
           printScreenLogfile( "    size = {}".format(cluster.size))
@@ -729,14 +832,14 @@ def Cluster_analysis_call(args):
           printScreenLogfile( "    Frames : {} ".format(str([x+1 for x in cluster.frames])))
           printScreenLogfile( "    spread  : {} ".format(cluster.spread))
           write_representative_frame(traj, cluster)
-  
+
     get_RMSD_cross_cluster(clusters_list, distances)
 
 
 
-    
-    
-        
+
+
+
 ###############################################################################
 #####                               MAIN                                 ######
 ###############################################################################
@@ -748,7 +851,7 @@ if __name__ == "__main__":
     print("")
     #We get all arguments
     args=parseArg()
-    global LOGFILE  
+    global LOGFILE
     LOGFILE=open("{}".format(args["logfile"]),"w")
     Cluster_analysis_call(args)
     LOGFILE.close()

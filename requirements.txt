@@ -9,5 +9,5 @@ cython
 mdtraj >= 1.7
 progressbar
 matplotlib
-scipy
+scipy >= 0.18
 prettytable

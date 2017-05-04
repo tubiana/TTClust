@@ -14,12 +14,12 @@ Following packages are needed:
   - argparse
   - argcomplete (for autocompletion, optional)
   - cython (for mdtraj)
-  - mdtraj
+  - mdtraj (version >= 0.17)
   - progressbar
   - datetime *(present in default python library)*
   - glob *(present in default python library)*
   - matplotlib
-  - scipy
+  - scipy (version >= 0.18)
   - prettytable
   
 You will find a file **requirements.txt**. You can install all requiered 
@@ -114,8 +114,8 @@ python TrajectoryClustering.py -f traj.pdb -st "protein" -sr "backbone"
 PDBs are saved in a new folder Cluster_PDB.  
 You can find in the PDB name the *cluster number*, *size* and the *representative frame*
 of the cluster (*ie* the frame number of the saved structure)  
-Example: C1-f78-s93.pdb correspond to the cluter 1 made of 93 structures and the
-saved frame is the frame 78.
+Example: C1-f11-s44.pdb correspond to the cluter 1 made of 44 structures and the
+saved frame (representative) is the frame 11.
 
 #### Logfile
 In the log file you will find all arguments given to the programm with
@@ -124,13 +124,14 @@ cluster information:
  - **representative frame**: frame with lowest RMSD between all other frame of the cluster
  - **Members**: all frame belonging to the cluster
  - **spread**: mean RMSD between all frame in the cluster
+ - **RMSD between clusters**: A tab with the RMSD between clusters
+ - **Average RMSD between clusters**: the average RMSD between clusters.
 
 #### Dendrogram
-If you choose to use the matplotlib windows for the final clustering or a cutoff 
-(with the **-cc** argument), you will have a picture of the dendrogram.  
+A dendrogram is generated at the end of the clustering with the corresponding cluster colors.
 The name of this file will be the same as the logfile with a ".png" extension 
 example: example.log --> example.png
-![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/example.png "Dendrogram example")  
+![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/example-den.png "Dendrogram example")  
 The grey horizontal line is the cutoff value used
 
 #### LinearProjection representation
@@ -138,10 +139,14 @@ A linear projection of cluster is made for the trajectory.
 ![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/example-linear.png "Dendrogram example")
 Every barline represents a frame and the color a cluster number.
 Note that : 
- - If less or equal than 8 clusters : a defined color map was made in this order :
-   red, blue, lime, gold, darkorchid, orange, deepskyblue, brown 
+ - If less or equal than 12 clusters : a defined color map was made in this order :
+   red, blue, lime, gold, darkorchid, orange, deepskyblue, brown, gray, black, darkgreen, navy
  - Else, the matplotlib "hsv" colormap is used but the color change according
    the number of clusters.
+
+#### Barplot representation
+A vertical barplot is generated to have a overview of the cluster size. the barcolor corresponds to the clusters color in the LinearProjection representation and dendrogram cluster's color.
+![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/example-hist.png "Dendrogram example")
 
 ## License
 This program is under the GNU GPLv3 license, which means that anyone who 
