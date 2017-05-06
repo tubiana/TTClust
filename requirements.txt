@@ -6,8 +6,9 @@
 argparse
 argcomplete
 cython
-mdtraj >= 1.7
 progressbar
 matplotlib
-scipy >= 0.18
 prettytable
+scipy >= 0.18
+sklearn >= 0.18
+mdtraj >= 1.7

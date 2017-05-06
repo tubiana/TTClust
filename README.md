@@ -21,6 +21,7 @@ Following packages are needed:
   - matplotlib
   - scipy (version >= 0.18)
   - prettytable
+  - sklean (version >= 0.18)
   
 You will find a file **requirements.txt**. You can install all requiered 
 package wich this PIP:  `sudo pip install -r requirements.txt`

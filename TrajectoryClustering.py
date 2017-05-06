@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.0.1"
+__version__  = "4.0.2"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -23,6 +23,8 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import scipy.cluster.hierarchy as sch
 from prettytable import PrettyTable
+from sklearn import manifold
+
 
 try:
     import argcomplete
@@ -666,10 +668,10 @@ def plot_hist(clusters_list, output,colors_list):
     
     plt.xlabel("Clusters")
     plt.ylabel("Number of members")
-    plt.title("")
+    plt.title("Distribution within clusters")
     plt.xticks(index+(width/2), labels)
     plt.tight_layout()
-    plt.savefig("{}-hist.png".format(output[:-4]), dpi=300)
+    plt.savefig("{}-hist.png".format(output[:-4]), dpi=72,transparent=True)
     
     plt.close()
 
@@ -719,6 +721,67 @@ def plot_dendro(linkage, output, cutoff, color_list,clusters_list):
 
     plt.savefig("{}-den.png".format(output[:-4]), format="png", dpi=300, transparent=True)
 
+def plot_2D_distance_projection(rmsd_m, clusters_list, colors, output):
+    """
+    DESCRIPTION
+    This function will create a 2D distance projection graph with the MDS methods
+    Args:
+        rmsd_m (np.array) : rmsd matrix (between clusters)
+        clusters_list (list of Cluster): list of Clusters
+    Return:
+        None
+    """
+    labels = range(1,len(clusters_list)+1)
+    # 1 - value normalisation (make value between 0 and 1) of RMSD matrix
+    #rmsd_norm = rmsd_m / np.max(rmsd_m)
+    
+    # 2 - create the MDS methods
+    mds = manifold.MDS(n_components=2, dissimilarity="euclidean", random_state=4)
+    #mds = manifold.MDS(n_components=2, dissimilarity="precomputed", random_state=2)
+    
+    #3 - MDS projection
+    #msd_mds = mds.fit(rmsd_norm)
+    rmsd_mds = mds.fit(rmsd_m)
+    
+    # 4 - get X/Y coords
+    coords = rmsd_mds.embedding_
+    
+    # 5 - get spread and normalyse
+    spreads = []
+    for clust in clusters_list:
+        spreads.append(clust.spread)
+    spreads = np.array(spreads)
+    spreads /= np.max(spreads)
+    radii = (np.pi * (10*spreads)**2) #radii = 5 to 20
+    x = coords[:,0]
+    y = coords[:,1]
+    plt.figure()
+    plt.scatter(x,y, s=radii, c=colors, alpha=0.5)
+    for label,x,y in zip(labels,x,y):
+        plt.annotate(label,
+                     xy=(x,y),
+                     textcoords='offset points', ha='left', va='bottom')
+        
+        
+    plt.tick_params(
+        axis='x',          # changes apply to the x-axis
+        which='both',      # both major and minor ticks are affected
+        bottom='off',      # ticks along the bottom edge are off
+        top='off',         # ticks along the top edge are off
+        labelbottom='off') # labels along the bottom edge are off
+    plt.tick_params(
+        axis='y',          # changes apply to the y-axis
+        which='both',      # both major and minor ticks are affected
+        left="off",
+        right="off",
+        labelleft='off') # labels along the bottom edge are off
+    plt.savefig("{}-dist.png".format(output[:-4]), format="png", dpi=300)
+    plt.close()
+    
+    
+    
+    
+
 def generate_graphs(clusters_list, output, size, linkage, cutoff):
     """
     DESCRIPTION
@@ -727,10 +790,13 @@ def generate_graphs(clusters_list, output, size, linkage, cutoff):
     Args:
         clusters_labels (list): list of cluster number per frame
         output (string) output name for graph
+    Return:
+        colors_list (list) to be used with 2D distance projection graph
     """
     colors_list = plot_barplot(clusters_list, output, size)
     plot_hist(clusters_list, output,colors_list)
     plot_dendro(linkage, output, cutoff, colors_list,clusters_list)
+    return colors_list
 
 
 def get_RMSD_cross_cluster(clusters_list, distances):
@@ -742,7 +808,7 @@ def get_RMSD_cross_cluster(clusters_list, distances):
         Clusters_list (list) : list of all clusters
         distances (np matrix) : rmsd matrix
     returns:
-        None
+        RMSD_matrix (np.array) : RMSD matrix between clusters
     """
     # 1 - table preparation
     table = PrettyTable()
@@ -780,7 +846,7 @@ def get_RMSD_cross_cluster(clusters_list, distances):
     printScreenLogfile("\nAVERAGE RSMD BETWEEN CLUSTERS : {:.2f}".format(
                                                 np.mean(non_diag_value)))
     np.savetxt("RMSD_between_clusters.csv",RMSD_matrix,delimiter=";")
-
+    return RMSD_matrix
 
 def Cluster_analysis_call(args):
     """
@@ -821,7 +887,7 @@ def Cluster_analysis_call(args):
     # reordering the list by the cluster number
     clusters_list.sort(key = operator.attrgetter("id"))
 
-    generate_graphs(clusters_list, args["logfile"], traj.n_frames, linkage, cutoff)
+    colors_list = generate_graphs(clusters_list, args["logfile"], traj.n_frames, linkage, cutoff)
     calculate_representative_frame_spread(clusters_list, distances)
 
     for cluster in clusters_list:
@@ -833,8 +899,9 @@ def Cluster_analysis_call(args):
           printScreenLogfile( "    spread  : {} ".format(cluster.spread))
           write_representative_frame(traj, cluster)
 
-    get_RMSD_cross_cluster(clusters_list, distances)
+    RMSD_matrix = get_RMSD_cross_cluster(clusters_list, distances)
 
+    plot_2D_distance_projection(RMSD_matrix, clusters_list, colors_list, args["logfile"])
 
 
 
@@ -845,7 +912,7 @@ def Cluster_analysis_call(args):
 ###############################################################################
 if __name__ == "__main__":
     print("********************************************************")
-    print("**********  3D STRUCTURES CLUSTERING {} **************".format(\
+    print("**********  TRAJECTORY CLUSTERING {} **************".format(\
               __version__))
     print("********************************************************")
     print("")
