@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.0.2"
+__version__  = "4.0.3"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -671,7 +671,7 @@ def plot_hist(clusters_list, output,colors_list):
     plt.title("Distribution within clusters")
     plt.xticks(index+(width/2), labels)
     plt.tight_layout()
-    plt.savefig("{}-hist.png".format(output[:-4]), dpi=72,transparent=True)
+    plt.savefig("{}-hist.png".format(output[:-4]), dpi=300,transparent=True)
     
     plt.close()
 
@@ -733,15 +733,17 @@ def plot_2D_distance_projection(rmsd_m, clusters_list, colors, output):
     """
     labels = range(1,len(clusters_list)+1)
     # 1 - value normalisation (make value between 0 and 1) of RMSD matrix
-    #rmsd_norm = rmsd_m / np.max(rmsd_m)
+    rmsd_norm = rmsd_m / np.max(rmsd_m)
+    rmsd_norm = np.around(rmsd_norm, 3)
     
+    print(rmsd_norm)
     # 2 - create the MDS methods
-    mds = manifold.MDS(n_components=2, dissimilarity="euclidean", random_state=4)
-    #mds = manifold.MDS(n_components=2, dissimilarity="precomputed", random_state=2)
+    #mds = manifold.MDS(n_components=2, dissimilarity="euclidean", random_state=4)
+    mds = manifold.MDS(n_components=2, dissimilarity="precomputed")#, random_state=2)
     
     #3 - MDS projection
-    #msd_mds = mds.fit(rmsd_norm)
-    rmsd_mds = mds.fit(rmsd_m)
+    rmsd_mds = mds.fit(rmsd_norm)
+    #rmsd_mds = mds.fit(rmsd_m)
     
     # 4 - get X/Y coords
     coords = rmsd_mds.embedding_

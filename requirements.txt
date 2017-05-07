@@ -6,9 +6,9 @@
 argparse
 argcomplete
 cython
-progressbar
+progressbar2
 matplotlib
 prettytable
 scipy >= 0.18
-sklearn >= 0.18
+sklearn 
 mdtraj >= 1.7
