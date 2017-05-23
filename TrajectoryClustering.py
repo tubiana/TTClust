@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.0.3"
+__version__  = "4.0.4"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -686,9 +686,10 @@ def plot_hist(clusters_list, output,colors_list):
     Returns:
         None
     """
-    STYLE = "classic"
-    if STYLE in plt.style.available:
-        plt.style.use(STYLE)
+    if sys.version_info[0] == 3:
+        STYLE = "classic"
+        if STYLE in plt.style.available:
+            plt.style.use(STYLE)
     values = []
     labels = []
     for cl in clusters_list:
@@ -734,9 +735,10 @@ def plot_dendro(linkage, output, cutoff, color_list,clusters_list):
     Returns:
         None
     """
-    STYLE = "classic"
-    if STYLE in plt.style.available:
-        plt.style.use(STYLE)
+    if sys.version_info[0] == 3:
+        STYLE = "classic"
+        if STYLE in plt.style.available:
+            plt.style.use(STYLE)
     fig = plt.figure()
     #Convert RGB color to HEX color
     color_hex = [mpl.colors.rgb2hex(x) for x in color_list]
