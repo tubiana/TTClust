@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.0.4"
+__version__  = "4.0.5"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -382,11 +382,12 @@ def search_dist_mat(rmsd_string, args):
     if rmsd_string:
         name=rmsd_string.replace(" ","_")
     else:
-        name="matrix_all.npy"
+        name="matrix_all"
     #Searching all npy file in the folder
     npy_files=glob.glob("*.npy")
+    if not name[-4:] == ".npy":
+        name += ".npy"
 
-    name = name+".npy"
     if name in npy_files and not args["interactive"].lower() == "n":
        return ask_choice(args, name)
     else:
@@ -589,14 +590,20 @@ def create_cluster_table(traj,args):
         n_group=len(np.unique(clustering_result))
         cutoff = linkage[-(n_group-1),2]
     else:
-        fig = plt.figure()
-        fig.canvas.mpl_connect('button_press_event',onclick)
-        plt.title("Please click where you wan to build clusters")
-        sch.dendrogram(linkage)
-        plt.show()
-        cutoff=COORDS[0][1]
-        clustering_result = sch.fcluster(linkage, cutoff, "distance")
-
+        clicked = False
+        while not clicked:
+            fig = plt.figure()
+            fig.canvas.mpl_connect('button_press_event',onclick)
+            plt.title("Please click where you wan to build clusters")
+            sch.dendrogram(linkage)
+            plt.show()
+            try:
+                cutoff=COORDS[0][1]
+                clicked = True
+                clustering_result = sch.fcluster(linkage, cutoff, "distance")
+            except:
+                print("ERROR : PLEASE CLICK ON THE DENDROGRAM TO CHOOSE YOUR CUTOFF VALUE")
+            plt.close()
     printScreenLogfile("  cutoff for clustering : {:.2f}".format(float(cutoff)))
     return distances,clustering_result, linkage, cutoff
 
@@ -686,7 +693,7 @@ def plot_hist(clusters_list, output,colors_list):
     Returns:
         None
     """
-    if sys.version_info[0] == 3:
+    if mpl.__version__[0] == "2":
         STYLE = "classic"
         if STYLE in plt.style.available:
             plt.style.use(STYLE)
@@ -735,7 +742,7 @@ def plot_dendro(linkage, output, cutoff, color_list,clusters_list):
     Returns:
         None
     """
-    if sys.version_info[0] == 3:
+    if mpl.__version__[0] == "2":
         STYLE = "classic"
         if STYLE in plt.style.available:
             plt.style.use(STYLE)
