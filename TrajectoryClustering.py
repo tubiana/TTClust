@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.0.5"
+__version__  = "4.1.0"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -63,40 +63,6 @@ class Cluster_class():
         self.id = num
         self.representative = -1
 
-class AnchoredHScaleBar(mpl.offsetbox.AnchoredOffsetbox):
-    """ size: length of bar in data units
-        extent : height of bar ends in axes units 
-        Class taken from http://stackoverflow.com/a/43343934
-        Thanks to the user ImportanceOfBeingErnest"""
-    def __init__(self, size=1, extent = 0.03, label="", loc=2, ax=None,
-                 pad=0.4, borderpad=0.5, ppad = 0, sep=2, prop=None, 
-                 frameon=True,font=None, **kwargs):
-        if not ax:
-            ax = plt.gca()
-        trans = ax.get_xaxis_transform()
-        size_bar = mpl.offsetbox.AuxTransformBox(trans)
-        line = Line2D([0,size],[0,0], **kwargs)
-        vline1 = Line2D([0,0],[-extent/2.,extent/2.], **kwargs)
-        vline2 = Line2D([size,size],[-extent/2.,extent/2.], **kwargs)
-        size_bar.add_artist(line)
-        size_bar.add_artist(vline1)
-        size_bar.add_artist(vline2)
-        txt = mpl.offsetbox.TextArea(label,textprops=font,minimumdescent=False)
-        self.vpac = mpl.offsetbox.VPacker(children=[size_bar,txt],  
-                                 align="center", pad=ppad, sep=sep) 
-        mpl.offsetbox.AnchoredOffsetbox.__init__(self, loc, pad=pad, 
-                 borderpad=borderpad, child=self.vpac, prop=prop, frameon=frameon)
-
-class AnchoredDrawingArea(mpl.offsetbox.AnchoredOffsetbox):
-    def __init__(self, width, height, xdescent, ydescent,
-                 loc, pad=0.4, borderpad=0.5, prop=None, frameon=True):
-
-        self.da = mpl.offsetbox.DrawingArea(width, height, xdescent, ydescent)
-
-        super(AnchoredDrawingArea, self).__init__(loc, pad=pad, borderpad=borderpad,
-                                                  child=self.da,
-                                                  prop=None,
-                                                  frameon=frameon)
 
 #==============================================================================
 #                     TOOL FONCTIONS
@@ -594,7 +560,7 @@ def create_cluster_table(traj,args):
         while not clicked:
             fig = plt.figure()
             fig.canvas.mpl_connect('button_press_event',onclick)
-            plt.title("Please click where you wan to build clusters")
+            plt.title("Please click where you want to build clusters")
             sch.dendrogram(linkage)
             plt.show()
             try:
@@ -778,13 +744,23 @@ def plot_dendro(linkage, output, cutoff, color_list,clusters_list):
     plt.savefig("{}-den.png".format(output[:-4]), format="png", dpi=300, transparent=True)
     plt.close()
 
+def symmetrize_matrix(matrix):
+    """
+    DESCRIPTION
+    This function will make a symmetric matrix from another matrix (from
+    the top part of the matrix). Usefull of multidimentional scaling.
+    Args:
+        matrix (np.array)
+    Returns:
+        matrix_sym (np.array)
+    """
+    dim=matrix.shape[0]
+    matrix_sym = np.copy(matrix)
+    for i in range(1,dim):
+        for j in range(i,dim):
+            matrix_sym[j,i] = matrix[i,j]
+    return matrix_sym            
 
-
-#def transform_rmsd_scatter(array,n):
-#    return (np.pi * (n*(spreads)**2)) #radii = 5 to 20
-#    
-#def transform_inverse_rmsd_scatter(radii,n):
-#    return (radii/N)
 def plot_2D_distance_projection(rmsd_m, clusters_list, colors, output):
     """
     DESCRIPTION
@@ -798,8 +774,9 @@ def plot_2D_distance_projection(rmsd_m, clusters_list, colors, output):
     labels = range(1,len(clusters_list)+1)
     # 1 - value normalisation (make value between 0 and 1) of RMSD matrix
     rmsd_norm = rmsd_m / np.max(rmsd_m)
-    rmsd_norm = np.around(rmsd_norm, 3)
-    
+    symmetrize_matrix(rmsd_norm)
+    #rmsd_norm = np.around(rmsd_norm, 3)
+    rmsd_norm = symmetrize_matrix(rmsd_norm)
     # 2 - create the MDS methods
     #mds = manifold.MDS(n_components=2, dissimilarity="euclidean", random_state=4)
     mds = manifold.MDS(n_components=2, dissimilarity="precomputed")#, random_state=2)
@@ -825,8 +802,12 @@ def plot_2D_distance_projection(rmsd_m, clusters_list, colors, output):
     
     
     # 6 - plot graph
-    fig, ax = plt.subplots()
+    fig = plt.figure()
+    ax = plt.subplot(111)
     
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+
 
     scatter = ax.scatter(x,y, s=radii, c=colors, alpha=0.5)
     for label,x,y in zip(labels,x,y):
@@ -857,51 +838,33 @@ def plot_2D_distance_projection(rmsd_m, clusters_list, colors, output):
         right="off",
         labelleft='off') # labels along the bottom edge are off
     
-    # 7 - scalebar (1/10 of the AXIS0)
-    offset = ax.collections[0]
-    save_offset = offset.get_offset_position()
-    offset.set_offset_position('data')
-    coords_values = offset.get_offsets()
-    offset.set_offset_position(save_offset)
-#    coords_values = coords
-
-    a=[coords_values[0][0],coords_values[0][1]]
-    b=[coords_values[1][0],coords_values[1][1]]
-    dist_ab = ((a[0] - b[0])**2 + (a[1] - b[1])**2)**0.5
-    diff_ab = rmsd_m[0,1]
-    
-    
-    print(dist_ab)
-    
-#    m = rmsd_m[rmsd_m != 0]
-    deci = (ax.get_xlim()[1] - ax.get_xlim()[0])/10
-    label_scale = (diff_ab * deci) / dist_ab
-    print(label_scale)
-    
-##    scale_leg = (np.max(m) - np.min(m)) / 10
-#    scale_leg = np.max(m) / 10
-    font = {'family': 'serif','size': 8}
-#    scale_bar = AnchoredHScaleBar(size=deci, label="rmsd : {:.2f} $\AA$".format(label_scale),
-#                       loc=4, frameon=False,font=font,ax=ax,
-#                       pad=0.6,sep=4,color="k", linewidth=0.8) 
-#    ax.add_artist(scale_bar)
-    
-    # 8 - circle bar
+    # 7 - circle bar
     max_size = max(radii)
     min_size = min(radii)
     min_color = colors[np.argmin(radii)]
     max_color = colors[np.argmax(radii)]
-    # add transparency
+    
+    #add transparency
     min_color[-1]=0.5
     max_color[-1]=0.5
     leg_min = plt.scatter([],[], s=min_size, edgecolor='black', color=min_color)
     leg_max = plt.scatter([],[], s=max_size, edgecolor='black', color=max_color)
     labels=["{:.2f}".format(min(spreads)),"{:.2f}".format(max(spreads))]
-    legend= ax.legend([leg_min, leg_max],labels,
+
+    legend = ax.legend([leg_min, leg_max],labels,
                        ncol=1, frameon=False, fontsize=8,
-                       handlelength=2, loc = 1, borderpad = 1.8,handletextpad=1,
-                       scatterpoints = 1)
+                       handlelength=2, loc = "upper right", borderpad = 1.8,handletextpad=1,
+                       scatterpoints = 1, bbox_to_anchor=(1.3,0.9))
     legend.set_title('Spread radius', prop = {"size":"small"})
+    
+    #Add Text for distance information
+    min_rmsd = np.min(rmsd_m[np.nonzero(rmsd_m)])
+    max_rmsd = np.max(rmsd_m[np.nonzero(rmsd_m)])
+    text_distance = ("Distances\n min : {:.2f}\n max : {:.2f}".format(min_rmsd, max_rmsd))
+    
+    #plt.gca().add_artist(legend1)
+    ax.annotate(text_distance, xy=(1.05,0.5), xycoords="axes fraction",fontsize="small")
+    
     
     plt.savefig("{}-dist.png".format(output[:-4]), format="png", dpi=300,transparent=True)
     plt.close()
