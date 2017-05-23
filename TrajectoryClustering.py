@@ -21,6 +21,8 @@ import progressbar as pg
 import mdtraj as md
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import matplotlib.offsetbox
+from matplotlib.lines import Line2D
 import scipy.cluster.hierarchy as sch
 from prettytable import PrettyTable
 from sklearn import manifold
@@ -43,6 +45,11 @@ COLOR_LIST = ["red","blue","lime","yellow",
               "orange","brown", "gray","black",
               "darkgreen","navy"]
 
+
+#==============================================================================
+#                          CLASS
+#==============================================================================
+
 class Cluster_class():
     """
     DESCRIPTION
@@ -55,6 +62,41 @@ class Cluster_class():
         self.size = -1
         self.id = num
         self.representative = -1
+
+class AnchoredHScaleBar(mpl.offsetbox.AnchoredOffsetbox):
+    """ size: length of bar in data units
+        extent : height of bar ends in axes units 
+        Class taken from http://stackoverflow.com/a/43343934
+        Thanks to the user ImportanceOfBeingErnest"""
+    def __init__(self, size=1, extent = 0.03, label="", loc=2, ax=None,
+                 pad=0.4, borderpad=0.5, ppad = 0, sep=2, prop=None, 
+                 frameon=True,font=None, **kwargs):
+        if not ax:
+            ax = plt.gca()
+        trans = ax.get_xaxis_transform()
+        size_bar = mpl.offsetbox.AuxTransformBox(trans)
+        line = Line2D([0,size],[0,0], **kwargs)
+        vline1 = Line2D([0,0],[-extent/2.,extent/2.], **kwargs)
+        vline2 = Line2D([size,size],[-extent/2.,extent/2.], **kwargs)
+        size_bar.add_artist(line)
+        size_bar.add_artist(vline1)
+        size_bar.add_artist(vline2)
+        txt = mpl.offsetbox.TextArea(label,textprops=font,minimumdescent=False)
+        self.vpac = mpl.offsetbox.VPacker(children=[size_bar,txt],  
+                                 align="center", pad=ppad, sep=sep) 
+        mpl.offsetbox.AnchoredOffsetbox.__init__(self, loc, pad=pad, 
+                 borderpad=borderpad, child=self.vpac, prop=prop, frameon=frameon)
+
+class AnchoredDrawingArea(mpl.offsetbox.AnchoredOffsetbox):
+    def __init__(self, width, height, xdescent, ydescent,
+                 loc, pad=0.4, borderpad=0.5, prop=None, frameon=True):
+
+        self.da = mpl.offsetbox.DrawingArea(width, height, xdescent, ydescent)
+
+        super(AnchoredDrawingArea, self).__init__(loc, pad=pad, borderpad=borderpad,
+                                                  child=self.da,
+                                                  prop=None,
+                                                  frameon=frameon)
 
 #==============================================================================
 #                     TOOL FONCTIONS
@@ -644,7 +686,9 @@ def plot_hist(clusters_list, output,colors_list):
     Returns:
         None
     """
-
+    STYLE = "classic"
+    if STYLE in plt.style.available:
+        plt.style.use(STYLE)
     values = []
     labels = []
     for cl in clusters_list:
@@ -690,7 +734,9 @@ def plot_dendro(linkage, output, cutoff, color_list,clusters_list):
     Returns:
         None
     """
-       
+    STYLE = "classic"
+    if STYLE in plt.style.available:
+        plt.style.use(STYLE)
     fig = plt.figure()
     #Convert RGB color to HEX color
     color_hex = [mpl.colors.rgb2hex(x) for x in color_list]
@@ -709,6 +755,7 @@ def plot_dendro(linkage, output, cutoff, color_list,clusters_list):
         link_cols[i+1+len(linkage)] = c1 if c1 == c2 else "#808080"
 
     #Dendrogram creation
+    # Override the default linewidth.
     den = sch.dendrogram(linkage, color_threshold=float(cutoff), above_threshold_color="#808080", link_color_func=lambda x: link_cols[x])
 
     #Graph parameters
@@ -720,7 +767,15 @@ def plot_dendro(linkage, output, cutoff, color_list,clusters_list):
     ax.set_xlabel("Frames")
 
     plt.savefig("{}-den.png".format(output[:-4]), format="png", dpi=300, transparent=True)
+    plt.close()
 
+
+
+#def transform_rmsd_scatter(array,n):
+#    return (np.pi * (n*(spreads)**2)) #radii = 5 to 20
+#    
+#def transform_inverse_rmsd_scatter(radii,n):
+#    return (radii/N)
 def plot_2D_distance_projection(rmsd_m, clusters_list, colors, output):
     """
     DESCRIPTION
@@ -736,7 +791,6 @@ def plot_2D_distance_projection(rmsd_m, clusters_list, colors, output):
     rmsd_norm = rmsd_m / np.max(rmsd_m)
     rmsd_norm = np.around(rmsd_norm, 3)
     
-    print(rmsd_norm)
     # 2 - create the MDS methods
     #mds = manifold.MDS(n_components=2, dissimilarity="euclidean", random_state=4)
     mds = manifold.MDS(n_components=2, dissimilarity="precomputed")#, random_state=2)
@@ -747,24 +801,40 @@ def plot_2D_distance_projection(rmsd_m, clusters_list, colors, output):
     
     # 4 - get X/Y coords
     coords = rmsd_mds.embedding_
+
     
     # 5 - get spread and normalyse
     spreads = []
     for clust in clusters_list:
         spreads.append(clust.spread)
     spreads = np.array(spreads)
-    spreads /= np.max(spreads)
-    radii = (np.pi * (10*spreads)**2) #radii = 5 to 20
+#    spreads_norm = spreads / np.max(spreads)
+    #minspread = np.min(spreads_norm)+0.05*np.min(spreads_norm)
+    radii = np.pi * (25*(spreads)**2) #radii = 5 to 20
     x = coords[:,0]
     y = coords[:,1]
-    plt.figure()
-    plt.scatter(x,y, s=radii, c=colors, alpha=0.5)
+    
+    
+    # 6 - plot graph
+    fig, ax = plt.subplots()
+    
+
+    scatter = ax.scatter(x,y, s=radii, c=colors, alpha=0.5)
     for label,x,y in zip(labels,x,y):
         plt.annotate(label,
                      xy=(x,y),
-                     textcoords='offset points', ha='left', va='bottom')
+                     ha='left', va='bottom',fontsize=8)
         
+    #set the same axis for X and Y
+    
+    lims = []
+    lims.extend(ax.get_xlim())
+    lims.extend(ax.get_ylim())
+    ax.set_ylim((min(lims),max(lims)))
+    ax.set_xlim((min(lims),max(lims)))
+    
         
+    plt.title("Relative distance between clusters")
     plt.tick_params(
         axis='x',          # changes apply to the x-axis
         which='both',      # both major and minor ticks are affected
@@ -777,7 +847,54 @@ def plot_2D_distance_projection(rmsd_m, clusters_list, colors, output):
         left="off",
         right="off",
         labelleft='off') # labels along the bottom edge are off
-    plt.savefig("{}-dist.png".format(output[:-4]), format="png", dpi=300)
+    
+    # 7 - scalebar (1/10 of the AXIS0)
+    offset = ax.collections[0]
+    save_offset = offset.get_offset_position()
+    offset.set_offset_position('data')
+    coords_values = offset.get_offsets()
+    offset.set_offset_position(save_offset)
+#    coords_values = coords
+
+    a=[coords_values[0][0],coords_values[0][1]]
+    b=[coords_values[1][0],coords_values[1][1]]
+    dist_ab = ((a[0] - b[0])**2 + (a[1] - b[1])**2)**0.5
+    diff_ab = rmsd_m[0,1]
+    
+    
+    print(dist_ab)
+    
+#    m = rmsd_m[rmsd_m != 0]
+    deci = (ax.get_xlim()[1] - ax.get_xlim()[0])/10
+    label_scale = (diff_ab * deci) / dist_ab
+    print(label_scale)
+    
+##    scale_leg = (np.max(m) - np.min(m)) / 10
+#    scale_leg = np.max(m) / 10
+    font = {'family': 'serif','size': 8}
+#    scale_bar = AnchoredHScaleBar(size=deci, label="rmsd : {:.2f} $\AA$".format(label_scale),
+#                       loc=4, frameon=False,font=font,ax=ax,
+#                       pad=0.6,sep=4,color="k", linewidth=0.8) 
+#    ax.add_artist(scale_bar)
+    
+    # 8 - circle bar
+    max_size = max(radii)
+    min_size = min(radii)
+    min_color = colors[np.argmin(radii)]
+    max_color = colors[np.argmax(radii)]
+    # add transparency
+    min_color[-1]=0.5
+    max_color[-1]=0.5
+    leg_min = plt.scatter([],[], s=min_size, edgecolor='black', color=min_color)
+    leg_max = plt.scatter([],[], s=max_size, edgecolor='black', color=max_color)
+    labels=["{:.2f}".format(min(spreads)),"{:.2f}".format(max(spreads))]
+    legend= ax.legend([leg_min, leg_max],labels,
+                       ncol=1, frameon=False, fontsize=8,
+                       handlelength=2, loc = 1, borderpad = 1.8,handletextpad=1,
+                       scatterpoints = 1)
+    legend.set_title('Spread radius', prop = {"size":"small"})
+    
+    plt.savefig("{}-dist.png".format(output[:-4]), format="png", dpi=300,transparent=True)
     plt.close()
     
     
@@ -796,8 +913,8 @@ def generate_graphs(clusters_list, output, size, linkage, cutoff):
         colors_list (list) to be used with 2D distance projection graph
     """
     colors_list = plot_barplot(clusters_list, output, size)
-    plot_hist(clusters_list, output,colors_list)
     plot_dendro(linkage, output, cutoff, colors_list,clusters_list)
+    plot_hist(clusters_list, output,colors_list)
     return colors_list
 
 
