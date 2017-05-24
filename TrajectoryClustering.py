@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.1.1"
+__version__  = "4.1.2"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -83,7 +83,7 @@ def write_command_line():
     DESCRIPTION
     Write commande line with quote for -st, -sr and -sa arguments
     """
-    LOGFILE.write("command line     : python ")
+    LOGFILE.write("command line       : python ")
     i = 0
     while i < len(sys.argv):
         LOGFILE.write("{} ".format(sys.argv[i]))
@@ -106,6 +106,8 @@ def init_log(args, mdtrajectory):
     selection_string = args["select_traj"]
     select_align = args["select_alignement"]
     select_rmsd = args["select_rmsd"]
+    logname = os.path.splitext(args["logfile"])[0]
+
 
     LOGFILE.write("========================================================\n")
     LOGFILE.write("============  3D STRUCTURES CLUSTERING {}  ============\n"\
@@ -115,9 +117,10 @@ def init_log(args, mdtrajectory):
 
 
     LOGFILE.write("************ General information ************\n")
-    LOGFILE.write("software version : {}\n".format(__version__))
-    LOGFILE.write("Created on       : {}\n".format(datetime.datetime.now()))
+    LOGFILE.write("software version   : {}\n".format(__version__))
+    LOGFILE.write("Created on         : {}\n".format(datetime.datetime.now()))
     write_command_line()
+    LOGFILE.write("DESTINATION FOLDER : {}\n".format(os.getcwd()+"/"+logname))
     LOGFILE.write("ARGUMENTS : \n")
     LOGFILE.write("  Selection string :\n")
     LOGFILE.write("      Atoms selected in trajectory = {} \n".format(
@@ -258,17 +261,17 @@ def parseArg():
         pass
     arguments.add_argument('-f', "--traj", help="trajectory file", required=True)
     arguments.add_argument('-t','--top', help="topfile", default=None)
-    arguments.add_argument('-l','--logfile', help="logfile (logfile.txt). The \
+    arguments.add_argument('-l','--logfile', help="logfile (default : clustering.log). The \
         name of your output file will be the basename (name before the extention\
-        of this logfile", default="logfile.txt")
+        of this logfile", default="clustering")
     arguments.add_argument('-st','--select_traj', help="selection syntaxe for\
         Don't forget to add QUOTES besite this selection string.\
-        trajectory extraction (all).", default="all")
+        trajectory extraction (default : all).", default="all")
     arguments.add_argument('-sa','--select_alignement', help="selection syntaxe\
-        for alignement (backbone). Don't forget to add QUOTES besite this \
+        for alignement (default : backbone). Don't forget to add QUOTES besite this \
         selection string.", default="backbone")
     arguments.add_argument('-sr','--select_rmsd', help="selection syntaxe for \
-    RMSD. Don't forget to add QUOTES besite this selection string.", default=None)
+    RMSD (default : backbone). Don't forget to add QUOTES besite this selection string.", default="backbone")
 
     #Clustering arguments
     arguments.add_argument('-m','--method', help="method for clustering : single\
@@ -574,7 +577,7 @@ def create_cluster_table(traj,args):
     return distances,clustering_result, linkage, cutoff
 
 
-def write_representative_frame(traj, cluster):
+def write_representative_frame(traj, cluster, logname):
     """
     DESCRIPTION
     Write representative frame of a cluster
@@ -583,13 +586,10 @@ def write_representative_frame(traj, cluster):
         traj (mdtraj.trajectory): trajectory
         cluster (Cluster_class): a Cluster object
     """
-    if not os.path.exists("Cluster_PDB"):
-        os.makedirs("Cluster_PDB")
-
     cluster_num = cluster.id
     frame = cluster.representative
     size = cluster.size
-    traj[frame].save_pdb("Cluster_PDB/C%i-f%i-s%i.pdb" %(cluster_num,\
+    traj[frame].save_pdb("{}/C{}-f{}-s{}.pdb".format(logname, cluster_num,\
                                                                 frame, size))
 def get_cmap(num_cluster):
     """
@@ -614,7 +614,7 @@ def get_cmap(num_cluster):
         cmap = mpl.colors.ListedColormap(COLOR_LIST)
     return cmap
 
-def plot_barplot(clusters_list, output, size):
+def plot_barplot(clusters_list, logname, size):
     """
     DESCRIPTION
     This function is used to plot the linear barplots.
@@ -645,11 +645,12 @@ def plot_barplot(clusters_list, output, size):
     # create graphic
     im = ax.imshow(data,aspect='auto', interpolation='none', cmap=cmap)
     colors_list = (im.cmap(im.norm(np.unique(clusters_number_ordered))))
-    plt.savefig("{}-linear.png".format(output[:-4]), dpi=300)
+
+    plt.savefig("{0}/{0}-linear.png".format(logname), dpi=300)
     plt.close()
     return colors_list
 
-def plot_hist(clusters_list, output,colors_list):
+def plot_hist(clusters_list, logname,colors_list):
     """
     DESCRIPTION
     This function is used to plot a histogram with the cluster size.
@@ -689,12 +690,12 @@ def plot_hist(clusters_list, output,colors_list):
     plt.title("Distribution within clusters")
     plt.xticks(index+(width/2), labels)
     plt.tight_layout()
-    plt.savefig("{}-hist.png".format(output[:-4]), dpi=300,transparent=True)
-    
+
+    plt.savefig("{0}/{0}-hist.png".format(logname), dpi=300,transparent=True)
     plt.close()
 
 
-def plot_dendro(linkage, output, cutoff, color_list,clusters_list):
+def plot_dendro(linkage, logname, cutoff, color_list,clusters_list):
     """
     DESCRIPTION
     This function will create the dendrogram graph with the corresponding
@@ -741,7 +742,7 @@ def plot_dendro(linkage, output, cutoff, color_list,clusters_list):
     ax.set_ylabel("Distance (AU)")
     ax.set_xlabel("Frames")
 
-    plt.savefig("{}-den.png".format(output[:-4]), format="png", dpi=300, transparent=True)
+    plt.savefig("{0}/{0}-den.png".format(logname), format="png", dpi=300, transparent=True)
     plt.close()
 
 def symmetrize_matrix(matrix):
@@ -761,7 +762,7 @@ def symmetrize_matrix(matrix):
             matrix_sym[j,i] = matrix[i,j]
     return matrix_sym            
 
-def plot_2D_distance_projection(rmsd_m, clusters_list, colors, output):
+def plot_2D_distance_projection(rmsd_m, clusters_list, colors, logname):
     """
     DESCRIPTION
     This function will create a 2D distance projection graph with the MDS methods
@@ -865,8 +866,7 @@ def plot_2D_distance_projection(rmsd_m, clusters_list, colors, output):
     #plt.gca().add_artist(legend1)
     ax.annotate(text_distance, xy=(1.05,0.5), xycoords="axes fraction",fontsize="small")
 
-    
-    plt.savefig("{}-dist.png".format(output[:-4]), format="png", dpi=300,transparent=True)
+    plt.savefig("{0}/{0}-dist.png".format(logname), format="png", dpi=300,transparent=True)
     plt.close()
     
     
@@ -950,8 +950,9 @@ def Cluster_analysis_call(args):
     topfile=args["top"]
     select_traj=args["select_traj"]
     #Check if "logfile finish with ".log"
-    if not ".log" in args["logfile"]:
-        args["logfile"] = args["logfile"]+".log"
+    
+
+    logname = os.path.splitext(args["logfile"])[0]
 
     print("======= TRAJECTORY READING =======")
     if topfile == None and trajfile[-4:] == ".pdb":
@@ -978,7 +979,7 @@ def Cluster_analysis_call(args):
     # reordering the list by the cluster number
     clusters_list.sort(key = operator.attrgetter("id"))
 
-    colors_list = generate_graphs(clusters_list, args["logfile"], traj.n_frames, linkage, cutoff)
+    colors_list = generate_graphs(clusters_list, logname, traj.n_frames, linkage, cutoff)
     calculate_representative_frame_spread(clusters_list, distances)
 
     for cluster in clusters_list:
@@ -988,11 +989,11 @@ def Cluster_analysis_call(args):
             cluster.representative))
           printScreenLogfile( "    Frames : {} ".format(str([x+1 for x in cluster.frames])))
           printScreenLogfile( "    spread  : {} ".format(cluster.spread))
-          write_representative_frame(traj, cluster)
+          write_representative_frame(traj, cluster, logname)
 
     RMSD_matrix = get_RMSD_cross_cluster(clusters_list, distances)
 
-    plot_2D_distance_projection(RMSD_matrix, clusters_list, colors_list, args["logfile"])
+    plot_2D_distance_projection(RMSD_matrix, clusters_list, colors_list, logname)
 
 
 
@@ -1010,6 +1011,21 @@ if __name__ == "__main__":
     #We get all arguments
     args=parseArg()
     global LOGFILE
-    LOGFILE=open("{}".format(args["logfile"]),"w")
+    
+    #add ".log" if the logfile doesn't have extension
+    if os.path.splitext(args["logfile"])[1] == "":
+        args["logfile"] = args["logfile"]+".log"
+        
+    #create a folder based on the logfile name and write everything inside
+    logname = os.path.splitext(args["logfile"])[0]
+    if not os.path.exists(logname):
+        os.makedirs(logname)
+    elif not os.path.isdir(logname): #If a file exist with the same foldername
+        os.rename(logname,logname+".bak")
+        print("NOTE : A file with the same folder name was found and rename "
+              "into {}.bak".format(logname))
+        os.makedirs(logname)
+        
+    LOGFILE=open("{0}/{1}".format(logname,args["logfile"]),"w")
     Cluster_analysis_call(args)
     LOGFILE.close()

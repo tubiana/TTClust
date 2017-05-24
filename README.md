@@ -27,9 +27,10 @@ You will find a file **requirements.txt**. You can install all requiered
 package wich this PIP:  `sudo pip install -r requirements.txt`
 
 #### For Mac user
-With the System Integrity Protection (SIP) the pip update can fail.
-I suggest you to install ANACONDA or MINICONDA and restart your terminal afterward. 
-Normaly, the pip command should work because your default python will be the anaconda (or miniconda) pytyhon
+If you hase issues with pip, try first to add to pip the `--ignore-installed` argument : `sudo pip install --ingore-installed -r requirements.txt`
+If it still doesn't work, it's maybe because of the System Integrity Protection (SIP).
+I suggest you in this case to install ANACONDA or MINICONDA and restart your terminal afterward. 
+Normaly, the pip command should work because your default python will be the anaconda (or miniconda) python
 
 To activate autocompletion for the argpase module you have to use this command 
 (only once) `sudo activate-global-python-argcomplete`
@@ -83,15 +84,15 @@ the interactive prompt.
   -h, --help            show this help message and exit
   -f TRAJ, --traj TRAJ  trajectory file
   -t TOP, --top TOP     topfile
-  -o OUTPUT, --output OUTPUT
-                        logfile (logfile.txt)
-  -st SELECT_TRAJ, --select_traj SELECT_TRAJ
-                        selection syntax for trajectory extraction, with QUOTE (all)
-  -sa SELECT_ALIGNEMENT, --select_alignement SELECT_ALIGNEMENT
-                        selection syntax for alignement with QUOTE(backbone)
-  -sr SELECT_RMSD, --select_rmsd SELECT_RMSD
-                        selection syntax for RMSD with QUOTE (backbone)
-  -m METHOD, --method METHOD
+  -o OUTPUT, --output OUTPUT (default: clustering.log)
+                        logfile 
+  -st SELECT_TRAJ, --select_traj SELECT_TRAJ (default: all)
+                        selection syntax for trajectory extraction, with QUOTE 
+  -sa SELECT_ALIGNEMENT, --select_alignement SELECT_ALIGNEMENT (default: backbone)
+                        selection syntax for alignement with QUOTE
+  -sr SELECT_RMSD, --select_rmsd SELECT_RMSD (default: backbone)
+                        selection syntax for RMSD with QUOTE 
+  -m METHOD, --method METHOD (default: ward)
                         method for clustering: single; complete; average;
                         weighted; centroid; median and ward
   -cc CUTOFF, --cutoff CUTOFF
