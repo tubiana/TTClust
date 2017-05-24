@@ -9,7 +9,7 @@ Amber, gromacs, chamm, namd, PDB...)
 This program is compatible with python 2.7.x and 3.x.
 You can have a warning for matplotlib with python 3.x but the program still works
 
-### Dependancies: 
+### Dependancies and installation: 
 Following packages are needed: 
   - argparse
   - argcomplete (for autocompletion, optional)
@@ -21,10 +21,15 @@ Following packages are needed:
   - matplotlib
   - scipy (version >= 0.18)
   - prettytable
-  - sklean (version >= 0.18)
+  - sklearn (version >= 0.18)
   
 You will find a file **requirements.txt**. You can install all requiered 
 package wich this PIP:  `sudo pip install -r requirements.txt`
+
+#### For Mac user
+With the System Integrity Protection (SIP) the pip update can fail.
+I suggest you to install ANACONDA or MINICONDA and restart your terminal afterward. 
+Normaly, the pip command should work because your default python will be the anaconda (or miniconda) pytyhon
 
 To activate autocompletion for the argpase module you have to use this command 
 (only once) `sudo activate-global-python-argcomplete`
@@ -137,7 +142,7 @@ The grey horizontal line is the cutoff value used
 
 #### LinearProjection representation
 A linear projection of cluster is made for the trajectory.
-![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/example-linear.png "Dendrogram example")
+![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/example-linear.png "linear-proj example")
 Every barline represents a frame and the color a cluster number.
 Note that : 
  - If less or equal than 12 clusters : a defined color map was made in this order :
@@ -147,7 +152,12 @@ Note that :
 
 #### Barplot representation
 A vertical barplot is generated to have a overview of the cluster size. the barcolor corresponds to the clusters color in the LinearProjection representation and dendrogram cluster's color.
-![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/example-hist.png "Dendrogram example")
+![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/example-hist.png "histogram example")
+
+#### 2D distance projection
+A 2D projection of the distance(RMSD) between the representative frame of each cluster is made. The method used is the multimentional scalling method from the skilearn python module.
+![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/example-dist.png "2D Distance example")
+We can follow the evolution of each clusters thanks to the relative distance between them. The color of points is the same as for other graphs (ie. cluster colors) and the radius of each point depend of the cluster spread.
 
 ## License
 This program is under the GNU GPLv3 license, which means that anyone who 

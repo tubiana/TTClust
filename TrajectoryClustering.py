@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.1.0"
+__version__  = "4.1.1"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -756,7 +756,7 @@ def symmetrize_matrix(matrix):
     """
     dim=matrix.shape[0]
     matrix_sym = np.copy(matrix)
-    for i in range(1,dim):
+    for i in range(dim):
         for j in range(i,dim):
             matrix_sym[j,i] = matrix[i,j]
     return matrix_sym            
@@ -775,7 +775,7 @@ def plot_2D_distance_projection(rmsd_m, clusters_list, colors, output):
     # 1 - value normalisation (make value between 0 and 1) of RMSD matrix
     rmsd_norm = rmsd_m / np.max(rmsd_m)
     symmetrize_matrix(rmsd_norm)
-    #rmsd_norm = np.around(rmsd_norm, 3)
+    
     rmsd_norm = symmetrize_matrix(rmsd_norm)
     # 2 - create the MDS methods
     #mds = manifold.MDS(n_components=2, dissimilarity="euclidean", random_state=4)
@@ -860,11 +860,11 @@ def plot_2D_distance_projection(rmsd_m, clusters_list, colors, output):
     #Add Text for distance information
     min_rmsd = np.min(rmsd_m[np.nonzero(rmsd_m)])
     max_rmsd = np.max(rmsd_m[np.nonzero(rmsd_m)])
-    text_distance = ("Distances\n min : {:.2f}\n max : {:.2f}".format(min_rmsd, max_rmsd))
+    text_distance = ("RMSD\n   min : {:.2f}$ \AA$\n   max : {:.2f} $\AA$".format(min_rmsd, max_rmsd))
     
     #plt.gca().add_artist(legend1)
     ax.annotate(text_distance, xy=(1.05,0.5), xycoords="axes fraction",fontsize="small")
-    
+
     
     plt.savefig("{}-dist.png".format(output[:-4]), format="png", dpi=300,transparent=True)
     plt.close()
