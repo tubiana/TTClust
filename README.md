@@ -1,9 +1,8 @@
-# TrajectorClustering
+# TTClust : A molecular simulation trajectory clustering programm
 ---
 ## DESCRIPTION
-It uses the MDTraj package so you can use a lot of different type of files (
-This program was developped in order to clusterize molecular dynamic trajectories.
-Amber, gromacs, chamm, namd, PDB...)
+TTclust is a python program used to clusterized molecular dynamics simulation trajectories. It requires just a trajectory and a topology file (compatible with most molecular dynamic packages such as Amber, Gromacs, Chramm, Namd or trajectory in PDB format thanks to the MDtraj package).
+Easy to use, the program produces a visual feedback of the clustering through a dendrogram graph. Other graphic representations are made to describe all clusters (see OUTPUT EXAMPLE part for more details).
 
 ### Python Compatibility 
 This program is compatible with python 2.7.x and 3.x.
@@ -27,10 +26,10 @@ You will find a file **requirements.txt**. You can install all requiered
 package wich this PIP:  `sudo pip install -r requirements.txt`
 
 #### For Mac user
-If you hase issues with pip, try first to add to pip the `--ignore-installed` argument : `sudo pip install --ingore-installed -r requirements.txt`
+If you have issues with pip, try first to add to pip the `--ignore-installed` argument : `sudo pip install --ignore-installed -r requirements.txt`
 If it still doesn't work, it's maybe because of the System Integrity Protection (SIP).
-I suggest you in this case to install ANACONDA or MINICONDA and restart your terminal afterward. 
-Normaly, the pip command should work because your default python will be the anaconda (or miniconda) python
+I suggest you in this case to install ANACONDA or MINICONDA and restart your terminal afterwards. 
+Normally, the pip command should work because your default python will be the anaconda (or miniconda) python
 
 To activate autocompletion for the argpase module you have to use this command 
 (only once) `sudo activate-global-python-argcomplete`
@@ -40,7 +39,7 @@ For Selection syntax, use the one from MDTraj (http://mdtraj.org/latest/atom_sel
 You can specify different selections for the calculation: 
  - **st** is used to extract a part of the trajectory (if this one is too big).
  ..* leave this blank if you want to keep your trajectory intact.
- - **sa** used to align your trajectoriy on the same reference (eg: a chain or 
+ - **sa** used to align your trajectory on the same reference (eg: a chain or 
  ..* the backbone) 
  - **sr** is used for the clustering (rmsd calculated on the atom selected with 
  ..* this string)
@@ -56,7 +55,7 @@ method used with the *-m* argument. Methods available are:
  - median
  - **ward** (DEFAULT)
 
-3 possibilites are available for the calculation: 
+3 possibilities  are available for the calculation: 
 
 1. give the number of clusters you want. Eg: if you want 3 clusters, use the argument
 ..* **-ng 3**
@@ -68,13 +67,13 @@ method used with the *-m* argument. Methods available are:
  clustering**
 
 #### Distance Matrix
-The distance matrix can be long to calculated depending on your trajectory size.
+The distance matrix can be long to calculate depending on your trajectory size.
 That's why this matrix is saved on the ".npy" format, in order to be used later.
 The name of the matrix will be the name of your selection string for clustering (*sr*)
 If you use the same selection string for clustering (*sr*) the matrix will be detected
-and the programe will ask you if you want to use it again (Y), to recalculate this
-matrix (N) or choose an other matrix (O). If you want to use the saved matrix without
-interactive this interactive question) add in argument **-i n** which will desactivate
+and the programme will ask you if you want to use it again (Y), to recalculate this
+matrix (N) or choose another matrix (O). If you want to use the saved matrix without
+interactive this interactive question) add in argument **-i n** which will deactivate
 the interactive prompt.
 
 
@@ -98,8 +97,7 @@ the interactive prompt.
   -cc CUTOFF, --cutoff CUTOFF
                         cutoff for clusterization from hierarchical clusturing
                         with Scipy. If you choose to clic on the graph, cutoff
-                        will be the clicked value otherwise the cutoff will be
-                        0.5*max Distance value
+                        will be the clicked value 
   -ng NGROUP, --ngroup NGROUP
                         number of group wanted. Use the maxclust method to
                         clusterize in this case
@@ -112,7 +110,7 @@ the interactive prompt.
 Caution : You have to put quote beside your selection string (for *sr*, *st*, and *sa* arguments) 
 python TrajectoryClustering.py -f traj.xtc -t TOPOL.pdb -st "protein" -sr "backbone"
 python TrajectoryClustering.py -f traj.trr -t TOPOL.pdb -sr "residue 10 to 30" and "chainid 1" -l clustB.log -cc 5 -i n
-#For PDB trajectory, d'ont use the **-t** argument
+#For PDB trajectory, don't use the **-t** argument
 python TrajectoryClustering.py -f traj.pdb -st "protein" -sr "backbone"
 ```
 
@@ -121,11 +119,11 @@ python TrajectoryClustering.py -f traj.pdb -st "protein" -sr "backbone"
 PDBs are saved in a new folder Cluster_PDB.  
 You can find in the PDB name the *cluster number*, *size* and the *representative frame*
 of the cluster (*ie* the frame number of the saved structure)  
-Example: C1-f11-s44.pdb correspond to the cluter 1 made of 44 structures and the
+Example: C1-f11-s44.pdb corresponds to the cluter 1 made of 44 structures and the
 saved frame (representative) is the frame 11.
 
 #### Logfile
-In the log file you will find all arguments given to the programm with
+In the log file you will find all arguments given to the program with
 cluster information:
  - **size**: number structure in the cluster
  - **representative frame**: frame with lowest RMSD between all other frame of the cluster
@@ -139,7 +137,8 @@ A dendrogram is generated at the end of the clustering with the corresponding cl
 The name of this file will be the same as the logfile with a ".png" extension 
 example: example.log --> example.png
 ![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/example-den.png "Dendrogram example")  
-The grey horizontal line is the cutoff value used
+The grey horizontal line is the cutoff value used.
+
 
 #### LinearProjection representation
 A linear projection of cluster is made for the trajectory.
@@ -148,7 +147,7 @@ Every barline represents a frame and the color a cluster number.
 Note that : 
  - If less or equal than 12 clusters : a defined color map was made in this order :
    red, blue, lime, gold, darkorchid, orange, deepskyblue, brown, gray, black, darkgreen, navy
- - Else, the matplotlib "hsv" colormap is used but the color change according
+ - Else, the matplotlib "hsv" color map is used but the color change according to
    the number of clusters.
 
 #### Barplot representation
@@ -156,12 +155,12 @@ A vertical barplot is generated to have a overview of the cluster size. the barc
 ![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/example-hist.png "histogram example")
 
 #### 2D distance projection
-A 2D projection of the distance(RMSD) between the representative frame of each cluster is made. The method used is the multimentional scalling method from the skilearn python module.
+A 2D projection of the distance(RMSD) between the representative frame of each cluster is made. The method used is the multimentional scaling method from the skilearn python module.
 ![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/example-dist.png "2D Distance example")
-We can follow the evolution of each clusters thanks to the relative distance between them. The color of points is the same as for other graphs (ie. cluster colors) and the radius of each point depend of the cluster spread.
+We can follow the evolution of each cluster thanks to the relative distance between them. The color of points is the same as for other graphs (ie. cluster colors) and the radius of each point depend on the cluster spread.
 
-## License
-This program is under the GNU GPLv3 license, which means that anyone who 
+## Licence
+This program is under the GNU GPLv3 licence, which means that anyone who 
 distributes your code or a derivative work to make the source available under 
 the same terms, and also provides an express grant of patent rights from 
 contributors to users.
