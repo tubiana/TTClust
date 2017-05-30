@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.1.2"
+__version__  = "4.1.3"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -21,8 +21,6 @@ import progressbar as pg
 import mdtraj as md
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-import matplotlib.offsetbox
-from matplotlib.lines import Line2D
 import scipy.cluster.hierarchy as sch
 from prettytable import PrettyTable
 from sklearn import manifold
@@ -303,7 +301,7 @@ def ask_choice(args,name):
         None (None): otherwise we send back nothing
     """
     if args["interactive"].upper() == "Y":
-        print("Interactive mode desactived. I will use the existing distance matrix")
+        print("Interactive mode disabled. I will use the saved matrix")
         return name
 
     print(" I found a distance matrix ({0}) saved. Do you want to use it ?".format(name))
@@ -987,8 +985,8 @@ def Cluster_analysis_call(args):
           printScreenLogfile( "    size = {}".format(cluster.size))
           printScreenLogfile( "    representative frame={}".format(
             cluster.representative))
-          printScreenLogfile( "    Frames : {} ".format(str([x+1 for x in cluster.frames])))
           printScreenLogfile( "    spread  : {} ".format(cluster.spread))
+          printScreenLogfile( "    Frames : {} ".format(str([x+1 for x in cluster.frames])))
           write_representative_frame(traj, cluster, logname)
 
     RMSD_matrix = get_RMSD_cross_cluster(clusters_list, distances)
