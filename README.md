@@ -106,13 +106,21 @@ the interactive prompt.
 ```
     
 ## USAGE : 
-```
+There is some example usage with the examples files givent on the "example" folder. 
+Please note that the trajectory is reduce to the backbone to reduce size of the git archive.
 Caution : You have to put quote beside your selection string (for *sr*, *st*, and *sa* arguments) 
-python TrajectoryClustering.py -f traj.xtc -t TOPOL.pdb -st "protein" -sr "backbone"
-python TrajectoryClustering.py -f traj.trr -t TOPOL.pdb -sr "residue 10 to 30" and "chainid 1" -l clustB.log -cc 5 -i n
-#For PDB trajectory, don't use the **-t** argument
-python TrajectoryClustering.py -f traj.pdb -st "protein" -sr "backbone"
-```
+ - Simple usage (clustering on backbone, logfile is called clustering.log, output folder is "clustering")
+ ```python ttclust.py -f examples/example.xtc -t examples/example.pdb```
+ - Clustering on residues 30 to 200 and backbone
+ ```python ttclust.py -f examples/example.xtc -t examples/example.pdb -sr "residue 30 to 200 and backbone" -l res30-200.log```
+ - Clustering on CA atom and save this part of the trajectory with a cutoff of 2.75
+ ```python ttclust.py -f examples/example.xtc -t examples/example.pdb -sr "name CA" -st "name CA" -cc 2.75 -l CA-c2.75.log```
+ - Clustering on backbone of the protein and chain A (note that with mdtraj there is no chaine name, but chaine ID starting from 0) with 10 clusters only
+ ```python ttclust.py -f examples/example.xtc -t examples/example.pdb -sr "protein and backbone and chainid 0" -l backbone-chainA.log -ng 10 ```
+Note :
+For PDB trajectory, don't use the **-t** argument
+```python TrajectoryClustering.py -f traj.pdb -st "protein" -sr "backbone"```
+
 
 ## OUTPUT EXAMPLE
 #### Cluster result (structure)
@@ -136,13 +144,13 @@ cluster information:
 A dendrogram is generated at the end of the clustering with the corresponding cluster colors.
 The name of this file will be the same as the logfile with a ".png" extension 
 example: example.log --> example.png
-![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/example-den.png "Dendrogram example")  
+![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/backbone/backbone-den.png "Dendrogram example")  
 The grey horizontal line is the cutoff value used.
 
 
 #### LinearProjection representation
 A linear projection of cluster is made for the trajectory.
-![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/example-linear.png "linear-proj example")
+![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/backbone/backbone-linear.png "linear-proj example")
 Every barline represents a frame and the color a cluster number.
 Note that : 
  - If less or equal than 12 clusters : a defined color map was made in this order :
@@ -152,11 +160,11 @@ Note that :
 
 #### Barplot representation
 A vertical barplot is generated to have a overview of the cluster size. the barcolor corresponds to the clusters color in the LinearProjection representation and dendrogram cluster's color.
-![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/example-hist.png "histogram example")
+![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/backbone/backbone-hist.png "histogram example")
 
 #### 2D distance projection
 A 2D projection of the distance(RMSD) between the representative frame of each cluster is made. The method used is the multimentional scaling method from the skilearn python module.
-![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/example-dist.png "2D Distance example")
+![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/backbone/backbone-dist.png "2D Distance example")
 We can follow the evolution of each cluster thanks to the relative distance between them. The color of points is the same as for other graphs (ie. cluster colors) and the radius of each point depend on the cluster spread.
 
 ## Licence

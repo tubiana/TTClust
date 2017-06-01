@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.1.3"
+__version__  = "4.2"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -25,14 +25,14 @@ import scipy.cluster.hierarchy as sch
 from prettytable import PrettyTable
 from sklearn import manifold
 
-
-try:
-    import argcomplete
-except:
-    print("argcomplete not detected, if you want to use autocompletetion")
-    print("install argcomplete module.")
-    print("See https://github.com/kislyuk/argcomplete for more info")
-    pass
+if os.name == "posic": #Only on linux
+    try:
+        import argcomplete
+    except:
+        print("argcomplete not detected, if you want to use autocompletetion")
+        print("install argcomplete module.")
+        print("See https://github.com/kislyuk/argcomplete for more info")
+        pass
 #==============================================================================
 #                     GLOBAL VARIABLES
 #==============================================================================
@@ -138,7 +138,7 @@ def init_log(args, mdtrajectory):
         LOGFILE.write("  cutoff for dendrogram clustering: {}\n".format("cutoff"))
 
 
-def extract_selected_atoms(selection, traj):
+def extract_selected_atoms(selection, traj, logname,save=False):
     """
     DESCRIPTION
     Return a trajectory with only atoms given in arguments (trough the
@@ -149,19 +149,25 @@ def extract_selected_atoms(selection, traj):
     Args:
         selection (string): selection string (mdtraj syntax)
         traj (mdtraj.trajectory): initial trajectory
+        logname (string): logname (basename) for folder location.
     Returns:
         subtraj (mdtraj.trajecotry): subtrajectory of selected atoms
     """
     try:
         subtraj=traj.atom_slice(traj.top.select(selection))
         subtraj.center_coordinates()
+        if save:
+            printScreenLogfile("NOTE : 'st' argument given. I will save the subtrajectory" 
+                          " in {0}/{0}.xtc and topology file as {0}/{0}.pdb".format(logname))
+            subtraj[0].save_pdb("{0}/{0}.pdb".format(logname))
+            subtraj.save_xtc("{0}/{0}.xtc".format(logname))
         return subtraj
     except:
         print("ERROR : there is an error with your selection string")
         print("        SELECTION STRING : ")
         print(("        {}".format(selection)))
-        print("        > Please check 'http://mdtraj.o\
-                        rg/latest/atom_selection.html'")
+        print("        > Please check 'http://mdtraj.o"
+                        "rg/latest/atom_selection.html'")
         exit(1)
 
 def send_error_message(calc_type, selection_string):
@@ -249,34 +255,34 @@ def parseArg():
     Ex :
     python Cluster_Analysis.py -f *.pdb -s A:1-30:CA
     """
-    arguments=argparse.ArgumentParser(description="\
-          This program was developped in order to clusterize molecular dynamic\
-          trajectories. Amber, gromacs, chamm, namd, PDB")
+    arguments=argparse.ArgumentParser(description="This program was developped in order to clusterize "
+                                      "molecular dynamictrajectories (Amber, gromacs, chamm, namd, PDB)")
     try:
         argcomplete.autocomplete(arguments)
     except:
-        print("Warning : argcomplete module not detected")
         pass
     arguments.add_argument('-f', "--traj", help="trajectory file", required=True)
     arguments.add_argument('-t','--top', help="topfile", default=None)
-    arguments.add_argument('-l','--logfile', help="logfile (default : clustering.log). The \
-        name of your output file will be the basename (name before the extention\
-        of this logfile", default="clustering")
-    arguments.add_argument('-st','--select_traj', help="selection syntaxe for\
-        Don't forget to add QUOTES besite this selection string.\
-        trajectory extraction (default : all).", default="all")
-    arguments.add_argument('-sa','--select_alignement', help="selection syntaxe\
-        for alignement (default : backbone). Don't forget to add QUOTES besite this \
-        selection string.", default="backbone")
-    arguments.add_argument('-sr','--select_rmsd', help="selection syntaxe for \
-    RMSD (default : backbone). Don't forget to add QUOTES besite this selection string.", default="backbone")
+    arguments.add_argument('-l','--logfile', help="logfile (default : clustering.log). The "
+                           "name of your output file will be the basename (name before the extention "
+                           "of this logfile", default="clustering")
+    arguments.add_argument('-st','--select_traj', help="selection syntaxe for "
+                           "Don't forget to add QUOTES besite this selection string."
+                           "trajectory extraction (default : all).", default="all")
+    arguments.add_argument('-sa','--select_alignement', help="selection syntaxe"
+                           " for alignement (default : backbone). Don't forget to add QUOTES besite this "
+                           "selection string.", default="backbone")
+    arguments.add_argument('-sr','--select_rmsd', help="selection syntaxe for "
+                           " RMSD (default : backbone). Don't forget to add QUOTES "
+                           "besite this selection string.", default="backbone")
 
     #Clustering arguments
-    arguments.add_argument('-m','--method', help="method for clustering : single\
-       ; complete; average; weighted; centroid; median. (ward)", default="ward")
-    arguments.add_argument('-cc',"--cutoff", help="cutoff for clusterization from\
-                            hierarchical clusturing with Scipy", default=None)
-    arguments.add_argument('-ng',"--ngroup", help="number of group asked. Use the maxclust method to clusterize in this case", default=None)
+    arguments.add_argument('-m','--method', help="method for clustering : single "
+                           "; complete; average; weighted; centroid; median. (ward)", default="ward")
+    arguments.add_argument('-cc',"--cutoff", help="cutoff for clusterization from "
+                           "hierarchical clusturing with Scipy", default=None)
+    arguments.add_argument('-ng',"--ngroup", help="number of group asked. Use the "
+                           "maxclust method to clusterize in this case", default=None)
 
 
     #Interactive mode for distance matrix:
@@ -418,7 +424,7 @@ def create_DM(traj, alignement_string, rmsd_string,args):
     #Get Atoms indices from selection string
     if rmsd_string:
         print("NOTE : Extraction of subtrajectory for time optimisation")
-        traj = extract_selected_atoms(rmsd_string, traj)
+        traj = extract_selected_atoms(rmsd_string, traj,args["logname"])
 
     alignement_selection = return_selection_atom(use_for = "ALIGNEMENT",\
                                             traj   = traj,\
@@ -570,6 +576,7 @@ def create_cluster_table(traj,args):
                 clustering_result = sch.fcluster(linkage, cutoff, "distance")
             except:
                 print("ERROR : PLEASE CLICK ON THE DENDROGRAM TO CHOOSE YOUR CUTOFF VALUE")
+                print("        Please wait during the dendrogram regeneration")
             plt.close()
     printScreenLogfile("  cutoff for clustering : {:.2f}".format(float(cutoff)))
     return distances,clustering_result, linkage, cutoff
@@ -736,7 +743,7 @@ def plot_dendro(linkage, logname, cutoff, color_list,clusters_list):
     plt.title("Clustering Dendrogram")
     ax = plt.axes()
     ax.set_xticklabels([])
-    plt.axhline(y=int(cutoff), color = "grey") # cutoff value vertical line
+    plt.axhline(y=float(cutoff), color = "grey") # cutoff value vertical line
     ax.set_ylabel("Distance (AU)")
     ax.set_xlabel("Frames")
 
@@ -888,7 +895,7 @@ def generate_graphs(clusters_list, output, size, linkage, cutoff):
     return colors_list
 
 
-def get_RMSD_cross_cluster(clusters_list, distances):
+def get_RMSD_cross_cluster(clusters_list, distances, logname):
     """
     DESCRIPTION
     This function will get the RMSD between all representativ frames of all
@@ -934,7 +941,7 @@ def get_RMSD_cross_cluster(clusters_list, distances):
     printScreenLogfile(table)
     printScreenLogfile("\nAVERAGE RSMD BETWEEN CLUSTERS : {:.2f}".format(
                                                 np.mean(non_diag_value)))
-    np.savetxt("RMSD_between_clusters.csv",RMSD_matrix,delimiter=";")
+    np.savetxt("{0}/RMSD_between_clusters.csv".format(logname),RMSD_matrix,delimiter=";")
     return RMSD_matrix
 
 def Cluster_analysis_call(args):
@@ -963,7 +970,7 @@ def Cluster_analysis_call(args):
 
     if not select_traj == "all":
         print("======= EXTRACTION OF SELECTED ATOMS =======")
-        traj=extract_selected_atoms(select_traj, traj)
+        traj=extract_selected_atoms(select_traj, traj, args["logname"],save=True)
 
 
     print("====== Clustering ========")
@@ -989,7 +996,7 @@ def Cluster_analysis_call(args):
           printScreenLogfile( "    Frames : {} ".format(str([x+1 for x in cluster.frames])))
           write_representative_frame(traj, cluster, logname)
 
-    RMSD_matrix = get_RMSD_cross_cluster(clusters_list, distances)
+    RMSD_matrix = get_RMSD_cross_cluster(clusters_list, distances,logname)
 
     plot_2D_distance_projection(RMSD_matrix, clusters_list, colors_list, logname)
 
@@ -1016,6 +1023,7 @@ if __name__ == "__main__":
         
     #create a folder based on the logfile name and write everything inside
     logname = os.path.splitext(args["logfile"])[0]
+    args["logname"] = logname
     if not os.path.exists(logname):
         os.makedirs(logname)
     elif not os.path.isdir(logname): #If a file exist with the same foldername
