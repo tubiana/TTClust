@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.2"
+__version__  = "4.2.1"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -271,7 +271,8 @@ def parseArg():
                            "trajectory extraction (default : all).", default="all")
     arguments.add_argument('-sa','--select_alignement', help="selection syntaxe"
                            " for alignement (default : backbone). Don't forget to add QUOTES besite this "
-                           "selection string.", default="backbone")
+                           "selection string."
+                           " If you don't want aligment use \"none\".", default="backbone")
     arguments.add_argument('-sr','--select_rmsd', help="selection syntaxe for "
                            " RMSD (default : backbone). Don't forget to add QUOTES "
                            "besite this selection string.", default="backbone")
@@ -422,19 +423,22 @@ def create_DM(traj, alignement_string, rmsd_string,args):
         distances (numpy matrix): distance matrix
     """
     #Get Atoms indices from selection string
+
+    if alignement_string != "none":
+        alignement_selection = return_selection_atom(use_for = "ALIGNEMENT",\
+                                                traj   = traj,\
+                                                selection_string=alignement_string)
+    
+        # Trajectory superposition  (aligment)
+        traj_aligned = traj.superpose(traj[0],
+                                      atom_indices=alignement_selection,\
+                                      parallel=True)
+    else :
+        traj_aligned = traj
+        
     if rmsd_string:
         print("NOTE : Extraction of subtrajectory for time optimisation")
-        traj = extract_selected_atoms(rmsd_string, traj,args["logname"])
-
-    alignement_selection = return_selection_atom(use_for = "ALIGNEMENT",\
-                                            traj   = traj,\
-                                            selection_string=alignement_string)
-
-    # Trajectory superposition  (aligment)
-    traj_aligned = traj.superpose(traj[0],
-                                  atom_indices=alignement_selection,\
-                                  parallel=True)
-
+        traj_aligned = extract_selected_atoms(rmsd_string, traj_aligned,args["logname"])
     # matrix initialization
     distances = np.empty((traj.n_frames, traj.n_frames))
 

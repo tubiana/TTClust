@@ -89,6 +89,7 @@ the interactive prompt.
                         selection syntax for trajectory extraction, with QUOTE 
   -sa SELECT_ALIGNEMENT, --select_alignement SELECT_ALIGNEMENT (default: backbone)
                         selection syntax for alignement with QUOTE
+						If you don't want alignement : use "none"
   -sr SELECT_RMSD, --select_rmsd SELECT_RMSD (default: backbone)
                         selection syntax for RMSD with QUOTE 
   -m METHOD, --method METHOD (default: ward)
