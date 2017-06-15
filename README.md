@@ -23,7 +23,8 @@ Following packages are needed:
   - sklearn (version >= 0.18)
   
 You will find a file **requirements.txt**. You can install all requiered 
-package wich this PIP:  `sudo pip install -r requirements.txt`
+package with this PIP command:  `sudo pip install -r requirements.txt`
+Note : sometimes mdtraj fails to install. Please install mannualy cython before in this case `sudo pip install cython` then `sudo pip install -r requirements.txt`
 
 #### For Mac user
 If you have issues with pip, try first to add to pip the `--ignore-installed` argument : `sudo pip install --ignore-installed -r requirements.txt`
@@ -118,8 +119,7 @@ Caution : You have to put quote beside your selection string (for *sr*, *st*, an
  ```python ttclust.py -f examples/example.xtc -t examples/example.pdb -sr "name CA" -st "name CA" -cc 2.75 -l CA-c2.75.log```
  - Clustering on backbone of the protein and chain A (note that with mdtraj there is no chaine name, but chaine ID starting from 0) with 10 clusters only
  ```python ttclust.py -f examples/example.xtc -t examples/example.pdb -sr "protein and backbone and chainid 0" -l backbone-chainA.log -ng 10 ```
-Note :
-For PDB trajectory, don't use the **-t** argument
+- Note For PDB trajectory, don't use the **-t** argument
 ```python TrajectoryClustering.py -f traj.pdb -st "protein" -sr "backbone"```
 
 
