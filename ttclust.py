@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.2.1"
+__version__  = "4.3"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -182,6 +182,32 @@ def send_error_message(calc_type, selection_string):
     print(("        >{}".format(selection_string)))
     exit(1)
 
+
+def improve_nucleic_acid(selection_string):
+    """
+    DESCRIPTION
+    improve RNA and DNA selection
+    ---
+    Args:
+        selection_string (string) : selection string (for MDtraj)
+    Return:
+        selection_string (string) : improved RNA selection string
+    """
+    dna = "(resname DA or resname DT or resname DC or resname DG)"
+    rna = "(resname A or resname U or resname C or resname G)"
+    backbone_na = "(name P or name O5' or name C5' or name C4' or name C3' or name O3')"
+    base = "(dna or rna) and not backbone_na and not (atom C1' or name O4' or name C2' or name O2')"
+            
+    if 'base' in selection_string:
+        selection_string.replace('base', base)
+    if 'backbone_na' in selection_string:
+        selection_string.replace('backbone_na',backbone_na)
+    if 'dna' in selection_string:
+        selection_string.replace('dna', dna)
+    if 'rna' in selection_string:
+        selection_string.replace('rna', rna)
+    return selection_string
+
 def return_selection_atom(use_for,traj, selection_string):
     """
     DESCRIPTION
@@ -195,7 +221,11 @@ def return_selection_atom(use_for,traj, selection_string):
     try:
         selection=traj.top.select(selection_string)
     except:
-        send_error_message(use_for,selection_string)
+        try:
+            #replace with DNA or RNA backbone
+            selection=traj.top.select("(name P or name O5' or name C5' or name C4' or name C3' or name O3')")
+        except:
+            send_error_message(use_for,selection_string)
 
     if len(selection)==0:
         send_error_message(use_for,selection_string)
@@ -284,7 +314,6 @@ def parseArg():
                            "hierarchical clusturing with Scipy", default=None)
     arguments.add_argument('-ng',"--ngroup", help="number of group asked. Use the "
                            "maxclust method to clusterize in this case", default=None)
-
 
     #Interactive mode for distance matrix:
     arguments.add_argument('-i','--interactive', help="Interactive mode for distance matrix (Y/n)", default="Y")
@@ -962,6 +991,14 @@ def Cluster_analysis_call(args):
     
 
     logname = os.path.splitext(args["logfile"])[0]
+
+    #IMPROVE DNA AND RNA SELECTION
+    
+
+    args["select_traj"] = improve_nucleic_acid(args["select_traj"])
+    args["select_alignement"] = improve_nucleic_acid(args["select_alignement"])
+    args["select_rmsd"] = improve_nucleic_acid(args["select_rmsd"])
+    
 
     print("======= TRAJECTORY READING =======")
     if topfile == None and trajfile[-4:] == ".pdb":
