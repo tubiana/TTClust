@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.3"
+__version__  = "4.3.1"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -193,20 +193,26 @@ def improve_nucleic_acid(selection_string):
     Return:
         selection_string (string) : improved RNA selection string
     """
-    dna = "(resname DA or resname DT or resname DC or resname DG)"
-    rna = "(resname A or resname U or resname C or resname G)"
-    backbone_na = "(name P or name O5' or name C5' or name C4' or name C3' or name O3')"
-    base = "(dna or rna) and not backbone_na and not (atom C1' or name O4' or name C2' or name O2')"
-            
+    dna = "(resname =~ '5?D([AUGC]){1}3?$')"
+    rna = "(resname =~ '5?R?([AUGC]){1}3?$')"
+    backbone_na = "(name =~ \"(P)|(O[35]')|(C[3-5]')\")"
+    base = "(rna or dna) and (not backbone_na and not (name =~ \"(O[24]')|(O[123]P)|(C[12]')\") and not type H)"
+    base_rna = "rna and (not backbone_na and not (name =~ \"(O[24]')|(O[123]P)|(C[12]')\") and not type H)"
+    base_dna = "dna and (not backbone_na and not (name =~ \"(O[24]')|(O[123]P)|(C[12]')\") and not type H)"
     if 'base' in selection_string:
-        selection_string.replace('base', base)
+        selection_string = selection_string.replace('base', base)
+    if 'base_rna' in selection_string:
+        selection_string = selection_string.replace('base_rna', base_rna)
+    if 'base_dna' in selection_string:
+        selection_string = selection_string.replace('base_dna', base_dna)
     if 'backbone_na' in selection_string:
-        selection_string.replace('backbone_na',backbone_na)
+        selection_string = selection_string.replace('backbone_na',backbone_na)
     if 'dna' in selection_string:
-        selection_string.replace('dna', dna)
+        selection_string = selection_string.replace('dna', dna)
     if 'rna' in selection_string:
-        selection_string.replace('rna', rna)
+        selection_string = selection_string.replace('rna', rna)
     return selection_string
+
 
 def return_selection_atom(use_for,traj, selection_string):
     """
