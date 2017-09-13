@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.3.1"
+__version__  = "4.3.2"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -193,9 +193,9 @@ def improve_nucleic_acid(selection_string):
     Return:
         selection_string (string) : improved RNA selection string
     """
-    dna = "(resname =~ '5?D([AUGC]){1}3?$')"
+    dna = "(resname =~ '5?D([ATGC]){1}3?$')"
     rna = "(resname =~ '5?R?([AUGC]){1}3?$')"
-    backbone_na = "(name =~ \"(P)|(O[35]')|(C[3-5]')\")"
+    backbone_na = "(rna or dna) and (name =~ \"(P)|(O[35]')|(C[3-5]')\")"
     base = "(rna or dna) and (not backbone_na and not (name =~ \"(O[24]')|(O[123]P)|(C[12]')\") and not type H)"
     base_rna = "rna and (not backbone_na and not (name =~ \"(O[24]')|(O[123]P)|(C[12]')\") and not type H)"
     base_dna = "dna and (not backbone_na and not (name =~ \"(O[24]')|(O[123]P)|(C[12]')\") and not type H)"
