@@ -562,7 +562,8 @@ def create_cluster_table(traj,args):
         clustering_result (list): cluster unmber list for each frame (index)
     """
     select_align=args["select_alignement"]
-    select_rmsd=args["select_rmsd"]
+    untouch_select_rmsd=args["select_rmsd"]
+    select_rmsd = improve_nucleic_acid(args["select_rmsd"])
     cutoff=args["cutoff"]
     ncluster = args["ngroup"]
     #Creation of the distance matrix
@@ -571,7 +572,7 @@ def create_cluster_table(traj,args):
     if select_rmsd == None:
         select_rmsd = "None"
 
-    linkage_file=search_dist_mat(select_rmsd+" linkage "+args["method"],args)
+    linkage_file=search_dist_mat(untouch_select_rmsd+" linkage "+args["method"],args)
 
     if linkage_file:
         linkage = np.load(linkage_file)
@@ -589,7 +590,7 @@ def create_cluster_table(traj,args):
             sys.exit(1)
         print("         >Done!")
         print("         ...Saving linkage matrix...")
-        save_dist_mat(linkage,select_rmsd+" linkage "+args["method"])
+        save_dist_mat(linkage,untouch_select_rmsd+" linkage "+args["method"])
         print("         >Done!")
 
 
@@ -1019,7 +1020,6 @@ def Cluster_analysis_call(args):
 
     args["select_traj"] = improve_nucleic_acid(args["select_traj"])
     args["select_alignement"] = improve_nucleic_acid(args["select_alignement"])
-    args["select_rmsd"] = improve_nucleic_acid(args["select_rmsd"])
     
 
     print("======= TRAJECTORY READING =======")
