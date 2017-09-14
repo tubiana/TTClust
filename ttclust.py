@@ -496,7 +496,7 @@ def create_DM(traj, alignement_string, rmsd_string,args):
 
         #Finaly, we save the matrix if we want to load it again afterward
         print("Calculation ended - saving distance matrix")
-        save_dist_mat(distances, rmsd_string)
+        save_dist_mat(distances, args["select_rmsd"])
 
         return distances
 
