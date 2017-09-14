@@ -42,7 +42,7 @@ COLOR_LIST = ["red","blue","lime","yellow",
               "darkorchid", "deepskyblue",
               "orange","brown", "gray","black",
               "darkgreen","navy"]
-
+DPI=600
 
 #==============================================================================
 #                          CLASS
@@ -497,6 +497,7 @@ def create_DM(traj, alignement_string, rmsd_string,args):
         #Finaly, we save the matrix if we want to load it again afterward
         print("Calculation ended - saving distance matrix")
         save_dist_mat(distances, rmsd_string)
+
         return distances
 
 def onclick(event):
@@ -690,7 +691,7 @@ def plot_barplot(clusters_list, logname, size):
     im = ax.imshow(data,aspect='auto', interpolation='none', cmap=cmap)
     colors_list = (im.cmap(im.norm(np.unique(clusters_number_ordered))))
 
-    plt.savefig("{0}/{0}-linear.png".format(logname), dpi=300)
+    plt.savefig("{0}/{0}-linear.png".format(logname), dpi=DPI)
     plt.close()
     return colors_list
 
@@ -735,9 +736,23 @@ def plot_hist(clusters_list, logname,colors_list):
     plt.xticks(index+(width/2), labels)
     plt.tight_layout()
 
-    plt.savefig("{0}/{0}-hist.png".format(logname), dpi=300,transparent=True)
+    plt.savefig("{0}/{0}-hist.png".format(logname), dpi=DPI,transparent=True)
     plt.close()
 
+def implot(distances, logname):
+    """
+    DESCRIPTION
+    
+    """
+    fig, ax = plt.subplots()
+
+    plt.imshow(distances, interpolation='none', origin='lower')
+    plt.colorbar()
+    plt.xlabel("Frame")
+    plt.ylabel("Frame")
+    plt.title("RMSD between frames (nm)")
+    plt.savefig("{0}/{0}-distmat.png".format(logname), dpi=DPI)
+    plt.close()
 
 def plot_dendro(linkage, logname, cutoff, color_list,clusters_list):
     """
@@ -786,7 +801,7 @@ def plot_dendro(linkage, logname, cutoff, color_list,clusters_list):
     ax.set_ylabel("Distance (AU)")
     ax.set_xlabel("Frames")
 
-    plt.savefig("{0}/{0}-den.png".format(logname), format="png", dpi=300, transparent=True)
+    plt.savefig("{0}/{0}-den.png".format(logname), format="png", dpi=DPI, transparent=True)
     plt.close()
 
 def symmetrize_matrix(matrix):
@@ -910,14 +925,14 @@ def plot_2D_distance_projection(rmsd_m, clusters_list, colors, logname):
     #plt.gca().add_artist(legend1)
     ax.annotate(text_distance, xy=(1.05,0.5), xycoords="axes fraction",fontsize="small")
 
-    plt.savefig("{0}/{0}-dist.png".format(logname), format="png", dpi=300,transparent=True)
+    plt.savefig("{0}/{0}-dist.png".format(logname), format="png", dpi=DPI,transparent=True)
     plt.close()
     
     
     
     
 
-def generate_graphs(clusters_list, output, size, linkage, cutoff):
+def generate_graphs(clusters_list, output, size, linkage, cutoff,distances):
     """
     DESCRIPTION
     Create a linear cluster mapping graph where every frame is printed as a
@@ -931,6 +946,7 @@ def generate_graphs(clusters_list, output, size, linkage, cutoff):
     colors_list = plot_barplot(clusters_list, output, size)
     plot_dendro(linkage, output, cutoff, colors_list,clusters_list)
     plot_hist(clusters_list, output,colors_list)
+    implot(distances,output)
     return colors_list
 
 
@@ -1023,6 +1039,7 @@ def Cluster_analysis_call(args):
     print("====== Clustering ========")
     distances,clusters_labels,linkage,cutoff=create_cluster_table(traj,args)
 
+
     printScreenLogfile( "\n**** Cluster Results")
     clusters_list = return_mapping_cluster(clusters_labels)
 
@@ -1031,7 +1048,7 @@ def Cluster_analysis_call(args):
     # reordering the list by the cluster number
     clusters_list.sort(key = operator.attrgetter("id"))
 
-    colors_list = generate_graphs(clusters_list, logname, traj.n_frames, linkage, cutoff)
+    colors_list = generate_graphs(clusters_list, logname, traj.n_frames, linkage, cutoff,distances)
     calculate_representative_frame_spread(clusters_list, distances)
 
     for cluster in clusters_list:
