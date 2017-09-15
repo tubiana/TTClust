@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.3.3"
+__version__  = "4.3.4"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -195,16 +195,16 @@ def improve_nucleic_acid(selection_string):
     """
     dna = "(resname =~ '5?D([ATGC]){1}3?$')"
     rna = "(resname =~ '5?R?([AUGC]){1}3?$')"
-    backbone_na = "(rna or dna) and (name =~ \"(P)|(O[35]')|(C[3-5]')\")"
-    base = "(rna or dna) and (not backbone_na and not (name =~ \"(O[24]')|(O[123]P)|(C[12]')\") and not type H)"
-    base_rna = "rna and (not backbone_na and not (name =~ \"(O[24]')|(O[123]P)|(C[12]')\") and not type H)"
-    base_dna = "dna and (not backbone_na and not (name =~ \"(O[24]')|(O[123]P)|(C[12]')\") and not type H)"
-    if 'base' in selection_string:
-        selection_string = selection_string.replace('base', base)
+    backbone_na = "rna or dna and (name =~ \"(P)|(O[35]')|(C[3-5]')\")"
+    base = "(rna or dna) and not (name =~ \"(P)|(O[35]')|(C[3-5]')\") and not (name =~ \"(O[24]')|(O[123]P)|(C[12]')\") and not type H"
+    base_rna = "(rna) and not (name =~ \"(P)|(O[35]')|(C[3-5]')\") and not (name =~ \"(O[24]')|(O[123]P)|(C[12]')\") and not type H"
+    base_dna = "dna and not (name =~ \"(P)|(O[35]')|(C[3-5]')\") and not (name =~ \"(O[24]')|(O[123]P)|(C[12]')\") and not type H"
     if 'base_rna' in selection_string:
         selection_string = selection_string.replace('base_rna', base_rna)
     if 'base_dna' in selection_string:
         selection_string = selection_string.replace('base_dna', base_dna)
+    if 'base' in selection_string:
+        selection_string = selection_string.replace('base', base)
     if 'backbone_na' in selection_string:
         selection_string = selection_string.replace('backbone_na',backbone_na)
     if 'dna' in selection_string:
@@ -496,11 +496,8 @@ def create_DM(traj, alignement_string, rmsd_string,args):
 
         #Finaly, we save the matrix if we want to load it again afterward
         print("Calculation ended - saving distance matrix")
-<<<<<<< HEAD
-        save_dist_mat(distances, rmsd_string)
-=======
         save_dist_mat(distances, args["select_rmsd"])
->>>>>>> 08f236c115f0c73d1293a105494a07f55c2aa17c
+
 
         return distances
 
