@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.3.2"
+__version__  = "4.3.3"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -496,7 +496,11 @@ def create_DM(traj, alignement_string, rmsd_string,args):
 
         #Finaly, we save the matrix if we want to load it again afterward
         print("Calculation ended - saving distance matrix")
+<<<<<<< HEAD
         save_dist_mat(distances, rmsd_string)
+=======
+        save_dist_mat(distances, args["select_rmsd"])
+>>>>>>> 08f236c115f0c73d1293a105494a07f55c2aa17c
 
         return distances
 
@@ -562,7 +566,8 @@ def create_cluster_table(traj,args):
         clustering_result (list): cluster unmber list for each frame (index)
     """
     select_align=args["select_alignement"]
-    select_rmsd=args["select_rmsd"]
+    untouch_select_rmsd=args["select_rmsd"]
+    select_rmsd = improve_nucleic_acid(args["select_rmsd"])
     cutoff=args["cutoff"]
     ncluster = args["ngroup"]
     #Creation of the distance matrix
@@ -571,7 +576,7 @@ def create_cluster_table(traj,args):
     if select_rmsd == None:
         select_rmsd = "None"
 
-    linkage_file=search_dist_mat(select_rmsd+" linkage "+args["method"],args)
+    linkage_file=search_dist_mat(untouch_select_rmsd+" linkage "+args["method"],args)
 
     if linkage_file:
         linkage = np.load(linkage_file)
@@ -589,7 +594,7 @@ def create_cluster_table(traj,args):
             sys.exit(1)
         print("         >Done!")
         print("         ...Saving linkage matrix...")
-        save_dist_mat(linkage,select_rmsd+" linkage "+args["method"])
+        save_dist_mat(linkage,untouch_select_rmsd+" linkage "+args["method"])
         print("         >Done!")
 
 
@@ -1019,7 +1024,6 @@ def Cluster_analysis_call(args):
 
     args["select_traj"] = improve_nucleic_acid(args["select_traj"])
     args["select_alignement"] = improve_nucleic_acid(args["select_alignement"])
-    args["select_rmsd"] = improve_nucleic_acid(args["select_rmsd"])
     
 
     print("======= TRAJECTORY READING =======")
