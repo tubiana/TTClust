@@ -1027,7 +1027,7 @@ def Cluster_analysis_call(args):
     """
     trajfile=args["traj"]
     topfile=args["top"]
-    select_traj=args["select_traj"]
+    select_traj=improve_nucleic_acid(args["select_traj"])
     #Check if "logfile finish with ".log"
     
 
