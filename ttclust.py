@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.3.4"
+__version__  = "4.3.5"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -193,8 +193,8 @@ def improve_nucleic_acid(selection_string):
     Return:
         selection_string (string) : improved RNA selection string
     """
-    dna = "(resname =~ '5?D([ATGC]){1}3?$')"
-    rna = "(resname =~ '5?R?([AUGC]){1}3?$')"
+    dna = "(resname =~ '(5|3)?D([ATGC]){1}(3|5)?$')"
+    rna = "(resname =~ '(3|5)?R?([AUGC]){1}(3|5)?$')"
     backbone_na = "rna or dna and (name =~ \"(P)|(O[35]')|(C[3-5]')\")"
     base = "(rna or dna) and not (name =~ \"(P)|(O[35]')|(C[3-5]')\") and not (name =~ \"(O[24]')|(O[123]P)|(C[12]')\") and not type H"
     base_rna = "(rna) and not (name =~ \"(P)|(O[35]')|(C[3-5]')\") and not (name =~ \"(O[24]')|(O[123]P)|(C[12]')\") and not type H"
@@ -214,7 +214,7 @@ def improve_nucleic_acid(selection_string):
     return selection_string
 
 
-def return_selection_atom(use_for,traj, selection_string):
+def return_selection_atom(use_for,traj, selection_string, args):
     """
     DESCRIPTION
     return indices of selected atoms.
@@ -231,17 +231,21 @@ def return_selection_atom(use_for,traj, selection_string):
             #replace with DNA or RNA backbone
             if selection_string == "backbone":
                 print("protein bacbkbone not detected, trying with DNA or RNA backbone")
-                selection=traj.top.select("rna or dna and (name =~ \"(P)|(O[35]')|(C[3-5]')\")")
+                selection=traj.top.select(improve_nucleic_acid("backbone_na"))
+                args["select_alignement"]  = "backbone_na"
+                args["select_rmsd"] = "backbone_na"
+                
         except:
             send_error_message(use_for,selection_string)
 
     if len(selection)==0:
         if selection_string == "backbone":
-            selection=traj.top.select("rna or dna and (name =~ \"(P)|(O[35]')|(C[3-5]')\")")        
+            selection=traj.top.select(improve_nucleic_acid("backbone_na"))     
+            args["select_alignement"]  = "backbone_na"
+            args["select_rmsd"] = "backbone_na"
             if len(selection)==0:
                 send_error_message(use_for,selection_string)
-    else:
-        return selection
+    return selection
 
 def save_dist_mat(distmat, rmsd_string):
     """
@@ -448,7 +452,7 @@ def calculate_representative_frame_spread(clusters_list, DM):
             cluster.spread *= 10
 
 
-def create_DM(traj, alignement_string, rmsd_string,args):
+def create_DM(traj, args):
     """
     DESCRIPTION
     Calcul the distance matrix
@@ -464,10 +468,10 @@ def create_DM(traj, alignement_string, rmsd_string,args):
     """
     #Get Atoms indices from selection string
 
-    if alignement_string != "none":
+    if args["select_alignement"] != "none":
         alignement_selection = return_selection_atom(use_for = "ALIGNEMENT",\
                                                 traj   = traj,\
-                                                selection_string=alignement_string)
+                                                args)
     
         # Trajectory superposition  (aligment)
         traj_aligned = traj.superpose(traj[0],
@@ -475,6 +479,9 @@ def create_DM(traj, alignement_string, rmsd_string,args):
                                       parallel=True)
     else :
         traj_aligned = traj
+        
+    select_align = improve_nucleic_acid(args["select_alignement"])
+    select_rmsd = improve_nucleic_acid(args["select_rmsd"])
         
     if rmsd_string:
         print("NOTE : Extraction of subtrajectory for time optimisation")
@@ -567,14 +574,17 @@ def create_cluster_table(traj,args):
         Distances (numpy matrix): Distance matrix
         clustering_result (list): cluster unmber list for each frame (index)
     """
+    print("         creating distance matrix")
+    distances=create_DM(traj, args)
+    
+    
     select_align=args["select_alignement"]
     untouch_select_rmsd=args["select_rmsd"]
     select_rmsd = improve_nucleic_acid(args["select_rmsd"])
     cutoff=args["cutoff"]
     ncluster = args["ngroup"]
     #Creation of the distance matrix
-    print("         creating distance matrix")
-    distances=create_DM(traj, select_align, select_rmsd,args)
+
     if select_rmsd == None:
         select_rmsd = "None"
 
