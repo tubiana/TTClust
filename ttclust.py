@@ -229,12 +229,17 @@ def return_selection_atom(use_for,traj, selection_string):
     except:
         try:
             #replace with DNA or RNA backbone
-            selection=traj.top.select("rna or dna and (name =~ \"(P)|(O[35]')|(C[3-5]')\")")
+            if selection_string == "backbone":
+                print("protein bacbkbone not detected, trying with DNA or RNA backbone")
+                selection=traj.top.select("rna or dna and (name =~ \"(P)|(O[35]')|(C[3-5]')\")")
         except:
             send_error_message(use_for,selection_string)
 
     if len(selection)==0:
-        send_error_message(use_for,selection_string)
+        if selection_string == "backbone":
+            selection=traj.top.select("rna or dna and (name =~ \"(P)|(O[35]')|(C[3-5]')\")")        
+            if len(selection)==0:
+                send_error_message(use_for,selection_string)
     else:
         return selection
 
