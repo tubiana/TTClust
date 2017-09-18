@@ -214,7 +214,7 @@ def improve_nucleic_acid(selection_string):
     return selection_string
 
 
-def return_selection_atom(use_for,traj, selection_string, args):
+def return_selection_atom(use_for,traj, args):
     """
     DESCRIPTION
     return indices of selected atoms.
@@ -224,6 +224,7 @@ def return_selection_atom(use_for,traj, selection_string, args):
         traj (mdtraj.trajectory): trajectory
         selection_string (string): selection string wich produce an error
     """
+    selection_string = args["select_alignement"]
     try:
         selection=traj.top.select(selection_string)
     except:
@@ -471,7 +472,7 @@ def create_DM(traj, args):
     if args["select_alignement"] != "none":
         alignement_selection = return_selection_atom(use_for = "ALIGNEMENT",\
                                                 traj   = traj,\
-                                                args)
+                                                args = args)
     
         # Trajectory superposition  (aligment)
         traj_aligned = traj.superpose(traj[0],
@@ -481,7 +482,8 @@ def create_DM(traj, args):
         traj_aligned = traj
         
     select_align = improve_nucleic_acid(args["select_alignement"])
-    select_rmsd = improve_nucleic_acid(args["select_rmsd"])
+    untouch_rmsd_string = args["select_rmsd"]
+    rmsd_string = improve_nucleic_acid(args["select_rmsd"])
         
     if rmsd_string:
         print("NOTE : Extraction of subtrajectory for time optimisation")
@@ -490,7 +492,7 @@ def create_DM(traj, args):
     distances = np.empty((traj.n_frames, traj.n_frames))
 
     # Searching if a distance file already exist
-    distance_file=search_dist_mat(rmsd_string,args)
+    distance_file=search_dist_mat(untouch_rmsd_string,args)
 
     # If a distance matrix file was found and choosed, we load it.
     if distance_file:
