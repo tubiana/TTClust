@@ -1,4 +1,4 @@
-REMARK   1 CREATED WITH MDTraj 1.8.0, 2017-07-07
+REMARK   1 CREATED WITH MDTraj 1.8.0, 2017-09-22
 CRYST1   86.265   96.864   92.882  90.00  90.00  90.00 P 1           1 
 MODEL        0
 ATOM      1  N   SER A   1      25.220  65.020  30.160  1.00  0.00          N   

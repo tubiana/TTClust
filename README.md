@@ -44,7 +44,22 @@ You can specify different selections for the calculation:
  ..* the backbone) 
  - **sr** is used for the clustering (rmsd calculated on the atom selected with 
  ..* this string)
+ 
+#### NOTE on Nucleic Acids
+MDTRAJ doesn't have nucleic acid keywords yet. We've implemented some keywords that will be altered to match DNA/RNA....
+Keywords added : 
+ - **dna** : selection based on the residue name (DA/DT/DC/DG)
+ - **rna** : selection based on the residue name (A/T/G/C or RA/RT/RG/RC)
+ - **backbone_na** : backbone of nucleic acid. Selection based on the residue name and atom name (P, O3', O5', C3', C4', C5')
+ - **base** : selection base on the residue name and atom name. select RNA or DNA and exclude backbone_na, sugar atoms and hydrogen
+ - **base_rna** : same as *base* but for RNA
+ - **base_dna** : same as *base* but for DNA
 
+ Theses selection keywords can be used with other MDTRAJ selection keywords, e.g.:
+ - "protein and not dna"
+ - "rna and not type H"
+
+ 
 #### Clustering Methods
 With the scipy module, several methods for clustering are available. Change the 
 method used with the *-m* argument. Methods available are: 
@@ -167,6 +182,12 @@ A vertical barplot is generated to have a overview of the cluster size. the barc
 A 2D projection of the distance(RMSD) between the representative frame of each cluster is made. The method used is the multimentional scaling method from the skilearn python module.
 ![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/backbone/backbone-dist.png "2D Distance example")
 We can follow the evolution of each cluster thanks to the relative distance between them. The color of points is the same as for other graphs (ie. cluster colors) and the radius of each point depend on the cluster spread.
+
+#### Distance matrix plot
+A plot of the distance matrix is also made and allow to visualize the distance between two frames easily. 
+
+![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/backbone/backbone-distmat.png "Distance Matrix plot example")
+
 
 ## Licence
 This program is under the GNU GPLv3 licence, which means that anyone who 
