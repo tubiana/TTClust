@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.4"
+__version__  = "4.4.1"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -279,16 +279,15 @@ def reorder_cluster(clusters):
         clusters_labels_order(list): list of reorder clusters label
     """
     dict_order = {}
-    for cluster in clusters:
-        dict_order[cluster.id] = cluster.frames[0]
+    for i in range(len(clusters)):
+        dict_order[clusters[i].id] = clusters[i].frames[0]
     #Evaluate order
     sorted_clusters = sorted(dict_order.items(), key=operator.itemgetter(1))
     for i in range(len(sorted_clusters)):
         dict_order[sorted_clusters[i][0]] = i+1 #  i+1 == reorder cluster number
     #reordering
-    for cluster in clusters:
-        cluster.id = dict_order[cluster.id]
-
+    for i in range(len(clusters)):
+        clusters[i].id = dict_order[clusters[i].id]
 #==============================================================================
 #                     FONCTIONS
 #==============================================================================
@@ -965,7 +964,10 @@ def generate_graphs(clusters_list, output, size, linkage, cutoff,distances):
     colors_list = plot_barplot(clusters_list, output, size)
     plot_dendro(linkage, output, cutoff, colors_list,clusters_list)
     plot_hist(clusters_list, output,colors_list)
-    implot(distances,output)
+    if (distances.shape[0] < 10000):
+        implot(distances,output)
+    else:
+        print("Too many frames! The RMSD distance matrix will not be generated")
     return colors_list
 
 
@@ -1065,8 +1067,9 @@ def Cluster_analysis_call(args):
     reorder_cluster(clusters_list)
     # reordering the list by the cluster number
     clusters_list.sort(key = operator.attrgetter("id"))
-
+    print("====== Generating Graph ======")
     colors_list = generate_graphs(clusters_list, logname, traj.n_frames, linkage, cutoff,distances)
+    print("====== Calc. repr. frame  ======")
     calculate_representative_frame_spread(clusters_list, distances)
 
     for cluster in clusters_list:
