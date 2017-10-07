@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.4.1"
+__version__  = "4.4.2"
 __copyright__ = "copyleft"
 __license__ = "GNU GPLv3"
 __date__ = "2016/11"
@@ -170,7 +170,7 @@ def extract_selected_atoms(selection, traj, logname,save=False):
                         "rg/latest/atom_selection.html'")
         exit(1)
 
-def send_error_message(calc_type, selection_string):
+def send_error_message(calc_type, selection_string, other=""):
     """
     DESCRIPTION
     Print information regarding your selection string if this one is not
@@ -180,6 +180,8 @@ def send_error_message(calc_type, selection_string):
     """
     print(("ERROR : {} selection string not valid".format(calc_type)))
     print(("        >{}".format(selection_string)))
+    if not other == "":
+        print("        >{}".format(other))
     exit(1)
 
 
@@ -227,26 +229,25 @@ def return_selection_atom(use_for,traj, args):
     selection_string = args["select_alignement"]
     try:
         selection=traj.top.select(selection_string)
-    except:
-        try:
-            #replace with DNA or RNA backbone
-            if selection_string == "backbone":
-                print("protein bacbkbone not detected, trying with DNA or RNA backbone")
-                selection=traj.top.select(improve_nucleic_acid("backbone_na"))
-                args["select_alignement"]  = "backbone_na"
-                args["select_rmsd"] = "backbone_na"
-                
-        except:
-            send_error_message(use_for,selection_string)
+    except ValueError:
+        send_error_message(use_for,selection_string, "Keyword not recognize")
 
     if len(selection)==0:
+        print("plop")
         if selection_string == "backbone":
             selection=traj.top.select(improve_nucleic_acid("backbone_na"))     
             args["select_alignement"]  = "backbone_na"
             args["select_rmsd"] = "backbone_na"
-            if len(selection)==0:
-                send_error_message(use_for,selection_string)
+        #If DNA or RNA wasn't selected, stop the program.    
+        if len(selection)==0 or selection == None:
+            send_error_message(use_for,selection_string, "Selection list EMPTY")
+        else:
+            print("NOTE : Nucleic acids found.")
+            print("       Automatic switch to nucleic acid mode")
+            
     return selection
+        
+
 
 def save_dist_mat(distmat, rmsd_string):
     """
@@ -967,7 +968,7 @@ def generate_graphs(clusters_list, output, size, linkage, cutoff,distances):
     if (distances.shape[0] < 10000):
         implot(distances,output)
     else:
-        print("Too many frames! The RMSD distance matrix will not be generated")
+        printScreenLogfile("Too many frames! The RMSD distance matrix will not be generated")
     return colors_list
 
 
