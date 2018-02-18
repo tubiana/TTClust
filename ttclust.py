@@ -2,14 +2,15 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.4.2"
-__copyright__ = "copyleft"
+__version__  = "4.5"
 __license__ = "GNU GPLv3"
-__date__ = "2016/11"
+__date__ = "2018/02"
 
 #==============================================================================
 #                     MODULES
 #==============================================================================
+import matplotlib as mpl
+mpl.use('WXAgg')
 import operator
 import os
 import sys
@@ -20,12 +21,13 @@ import numpy as np
 import progressbar as pg
 import mdtraj as md
 import matplotlib.pyplot as plt
-import matplotlib as mpl
 import scipy.cluster.hierarchy as sch
 from prettytable import PrettyTable
 from sklearn import manifold
 
-if os.name == "posic": #Only on linux
+
+
+if os.name == "posix": #Only on linux
     try:
         import argcomplete
     except:
@@ -233,7 +235,6 @@ def return_selection_atom(use_for,traj, args):
         send_error_message(use_for,selection_string, "Keyword not recognize")
 
     if len(selection)==0:
-        print("plop")
         if selection_string == "backbone":
             selection=traj.top.select(improve_nucleic_acid("backbone_na"))     
             args["select_alignement"]  = "backbone_na"
@@ -293,7 +294,8 @@ def reorder_cluster(clusters):
 #                     FONCTIONS
 #==============================================================================
 
-
+#@Gooey(progress_regex=r"\|( |>)*\| ETA: +([0-9]|-)+:([0-9]|-)+:([0-9]|-)+ \|( |<)*\|",
+#disable_progress_bar_animation=True)
 def parseArg():
     """
     This fonction will the list of pdb files and the distance
@@ -560,6 +562,48 @@ def return_mapping_cluster(labels):
     return clusters_list
 
 
+def segments_gain(p1, v, p2):
+    #From https://datascience.stackexchange.com/questions/6508/k-means-incoherent-behaviour-choosing-k-with-elbow-method-bic-variance-explain
+    vp1 = np.linalg.norm(p1 - v)
+    vp2 = np.linalg.norm(p2 - v)
+    p1p2 = np.linalg.norm(p1 - p2)
+    return np.arccos((vp1**2 + vp2**2 - p1p2**2) / (2 * vp1 * vp2)) / np.pi
+
+
+def auto_clustering(matrix):
+    """
+    DESCRIPTION
+    Autoclustering function based on sklearn (for now) and the elbow method
+    """
+    from sklearn.cluster import KMeans
+    from scipy.spatial.distance import cdist
+    
+    distorsions = []
+    K = range(2,25)
+    for k in K:
+        kmeans = KMeans(n_clusters=k)
+        kmeans.fit(matrix)
+
+        distorsions.append(sum(np.min(cdist(matrix, kmeans.cluster_centers_, 'euclidean'), axis=1)) / matrix.shape[0])
+        
+    criterion = np.array(distorsions)
+    criterion = (criterion - criterion.min()) / (criterion.max() - criterion.min())
+    
+    #Compute the angles
+    seg_gains = np.array([0, ] + [segments_gain(*
+            [np.array([K[j], criterion[j]]) for j in range(i-1, i+2)]
+        ) for i in range(len(K) - 2)] + [np.nan, ])
+    
+    #Get the first index satisfying the threshold
+    seg_threshold = 0.99 #Set this to your desired target
+
+    kIdx = np.argmax(seg_gains > seg_threshold)
+    
+    kmeans = KMeans(n_clusters=kIdx)
+    kmeans.fit(matrix)
+    #return(labels)
+    return(kIdx)
+    
 
 def create_cluster_table(traj,args):
     """
@@ -597,7 +641,6 @@ def create_cluster_table(traj,args):
     else:
         print("         Matrix shape: {}".format(distances.shape))
         print("         Scipy linkage in progress. Please wait. It can be long")
-        print("         (approximatly 2mn30 for a 5000,5000 sized matrix)")
         try:
             linkage=sch.linkage(distances, method=args["method"])
         except:
@@ -618,9 +661,15 @@ def create_cluster_table(traj,args):
     #otherwise we choose it on the screen by cliking on the matplotlib windows
     #If a number of wanted cluster is given
     elif ncluster:
+        if ncluster == "auto":
+            #clustering_result = sch.fcluster(linkage,4, 'distance')
+            #clustering_result = auto_clustering(distances)
+            ncluster=auto_clustering(distances)
         clustering_result = sch.fcluster(linkage,t=ncluster, criterion="maxclust")
+        print(len(clustering_result))
         n_group=len(np.unique(clustering_result))
         cutoff = linkage[-(n_group-1),2]
+        print("pioupiou")
     else:
         clicked = False
         while not clicked:
@@ -1078,7 +1127,7 @@ def Cluster_analysis_call(args):
           printScreenLogfile( "    size = {}".format(cluster.size))
           printScreenLogfile( "    representative frame={}".format(
             cluster.representative))
-          printScreenLogfile( "    spread  : {} ".format(cluster.spread))
+          printScreenLogfile( "    spread  : {0:.2f} ".format(cluster.spread))
           printScreenLogfile( "    Frames : {} ".format(str([x+1 for x in cluster.frames])))
           write_representative_frame(traj, cluster, logname)
 
@@ -1087,6 +1136,12 @@ def Cluster_analysis_call(args):
     plot_2D_distance_projection(RMSD_matrix, clusters_list, colors_list, logname)
 
 
+def define_LOGFILE(log):
+    """
+    Define LOGFILE if called from GUI
+    """
+    global LOGFILE
+    LOGFILE = log
 
 
 

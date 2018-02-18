@@ -21,6 +21,11 @@ Following packages are needed:
   - scipy (version >= 0.18)
   - prettytable
   - sklearn (version >= 0.18)
+  - RXPY>=0.1.0 (FOR GUI)
+  - wxpython>=4.0.0b1 (FOR GUI)
+  - Pillow>=4.3.0 (FOR GUI)
+  - psutil>=5.4.2 (FOR GUI)
+  - gooey (FOR GUI)
   
 You will find a file **requirements.txt**. You can install all requiered 
 package with this PIP command:  `sudo pip install -r requirements.txt`
@@ -117,7 +122,9 @@ the interactive prompt.
                         will be the clicked value 
   -ng NGROUP, --ngroup NGROUP
                         number of group wanted. Use the maxclust method to
-                        clusterize in this case
+                        clusterize in this case. If you specify "auto", kmeans clustering
+						with the elbow algorithm is use to find the optimal number of
+						clusters (WARNING : BETA)
   -i INTERACTIVE, --interactive INTERACTIVE
                         Interactive mode for distance matrix (Y/n)
 ```
