@@ -10,7 +10,6 @@ __date__ = "2018/02"
 #                     MODULES
 #==============================================================================
 import matplotlib as mpl
-mpl.use('WXAgg')
 import operator
 import os
 import sys
