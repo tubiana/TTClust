@@ -31,6 +31,11 @@ You will find a file **requirements.txt**. You can install all requiered
 package with this PIP command:  `sudo pip install -r requirements.txt`
 Note : sometimes mdtraj fails to install. Please install mannualy cython before in this case `sudo pip install cython` then `sudo pip install -r requirements.txt`
 
+#### For CentOS user
+If you have issues with pip, i suggest you to install ANACONDA and restart yout terminal aftewards.
+Then, you need to install wxPython with conda `conda install wxPython`.
+Finally, you can use the PIP commmand: `sudo pip install -r requirements.txt`
+
 #### For Mac user
 If you have issues with pip, try first to add to pip the `--ignore-installed` argument : `sudo pip install --ignore-installed -r requirements.txt`
 If it still doesn't work, it's maybe because of the System Integrity Protection (SIP).
