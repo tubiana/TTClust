@@ -135,7 +135,7 @@ if __name__ == '__main__':
               "into {}.bak".format(logname))
         os.makedirs(logname)    
 
-            
+    args["logfile"] = os.path.basename(args["logfile"]) 
     LOGFILE=open("{0}/{1}".format(logname,args["logfile"]),"w")
     ttclust.define_LOGFILE(LOGFILE)
     ttclust.Cluster_analysis_call(args)
