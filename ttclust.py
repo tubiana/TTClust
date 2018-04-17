@@ -758,7 +758,9 @@ def plot_barplot(clusters_list, logname, size):
     im = ax.imshow(data,aspect='auto', interpolation='none', cmap=cmap)
     colors_list = (im.cmap(im.norm(np.unique(clusters_number_ordered))))
 
-    plt.savefig("{0}/{0}-linear.png".format(logname), dpi=DPI)
+    plt.savefig("{0}/{1}-linear.png".format(logname, 
+                                            logname.split(os.sep)[-1]),
+                                            dpi=DPI)
     plt.close()
     return colors_list
 
@@ -803,7 +805,9 @@ def plot_hist(clusters_list, logname,colors_list):
     plt.xticks(index+(width/2), labels)
     plt.tight_layout()
 
-    plt.savefig("{0}/{0}-hist.png".format(logname), dpi=DPI,transparent=True)
+    plt.savefig("{0}/{1}-hist.png".format(logname,
+                                          logname.split(os.sep)[-1]),
+                                          dpi=DPI,transparent=True)
     plt.close()
 
 def implot(distances, logname):
@@ -818,7 +822,9 @@ def implot(distances, logname):
     plt.xlabel("Frame")
     plt.ylabel("Frame")
     plt.title("RMSD between frames (nm)")
-    plt.savefig("{0}/{0}-distmat.png".format(logname), dpi=DPI)
+    plt.savefig("{0}/{1}-distmat.png".format(logname,
+                                             logname.split(os.sep)[-1]),
+                                             dpi=DPI)
     plt.close()
 
 def plot_dendro(linkage, logname, cutoff, color_list,clusters_list):
@@ -868,7 +874,10 @@ def plot_dendro(linkage, logname, cutoff, color_list,clusters_list):
     ax.set_ylabel("Distance (AU)")
     ax.set_xlabel("Frames")
 
-    plt.savefig("{0}/{0}-den.png".format(logname), format="png", dpi=DPI, transparent=True)
+    plt.savefig("{0}/{1}-den.png".format(logname,
+                                         logname.split(os.sep)[-1]),
+                                         format="png", dpi=DPI,
+                                         transparent=True)
     plt.close()
 
 def symmetrize_matrix(matrix):
@@ -992,7 +1001,10 @@ def plot_2D_distance_projection(rmsd_m, clusters_list, colors, logname):
     #plt.gca().add_artist(legend1)
     ax.annotate(text_distance, xy=(1.05,0.5), xycoords="axes fraction",fontsize="small")
 
-    plt.savefig("{0}/{0}-dist.png".format(logname), format="png", dpi=DPI,transparent=True)
+    plt.savefig("{0}/{1}-dist.png".format(logname,
+                                          logname.split(os.sep)[-1]),
+                                          format="png",
+                                          dpi=DPI,transparent=True)
     plt.close()
     
     
