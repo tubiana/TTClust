@@ -149,6 +149,9 @@ Caution : You have to put quote beside your selection string (for *sr*, *st*, an
 - Note For PDB trajectory, don't use the **-t** argument
 ```python TrajectoryClustering.py -f traj.pdb -st "protein" -sr "backbone"```
 
+#### NB (For Mac User)
+You need to use pythonw instead of python.
+
 
 ## OUTPUT EXAMPLE
 #### Cluster result (structure)
