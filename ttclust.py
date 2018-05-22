@@ -13,6 +13,8 @@ import matplotlib as mpl
 import operator
 import os
 import sys
+if sys.platform == 'darwin':
+    sys.executable = 'pythonw'
 import argparse
 import glob
 import datetime
