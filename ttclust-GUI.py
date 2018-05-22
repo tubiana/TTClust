@@ -15,6 +15,9 @@ mpl.use('WXAgg')
 from gooey import Gooey, GooeyParser
 import ttclust
 import os,sys
+if sys.platform == 'darwin':
+    sys.executable = 'pythonw'
+
 #nonbuffered_stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
 #sys.stdout = nonbuffered_stdout
 LOGFILE=""
