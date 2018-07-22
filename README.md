@@ -7,11 +7,68 @@
 TTclust is a python program used to clusterize molecular dynamics simulation trajectories. It only requires a trajectory and a topology file (compatible with most molecular dynamic packages such as Amber, Gromacs, Chramm, Namd or trajectory in PDB format thanks to the MDtraj package).
 Easy to use, the program produces a visual feedback of the clustering through a dendrogram graph. Other graphic representations are made to describe all clusters (see OUTPUT EXAMPLE part for more details).
 
-### Python Compatibility 
+## Python Compatibility 
 This program is compatible with python 2.7.x and 3.x.
 You can have a warning for matplotlib with python 3.x but the program still works
 
-### Dependancies and installation: 
+
+
+
+## Installation
+
+### Instalation with PIP
+
+TTclust can be install from the Python Package index with 
+`pip install ttclust`  
+
+You can simply use ttclust then with `ttclust` or `ttclustGUI`commands.
+
+ NOTE : You need to install numpy & mdtraj first, either with pip (`pip instal numpy mdtraj`) or conda (`conda install -c omnia mdtraj`).
+ I strongly suggest you to use conda because pip will compile mdtraj and increase the the chance that the install fails (cgg/microsoft visual C++ library....).
+ 
+
+
+### Installation & usage from sources
+
+1. Clone this repo `git clone https://github.com/tubiana/ttclust`
+2. Install dependancies:
+   - Using pip (and use python environment system)  
+ `sudo pip install -r requirements.txt`
+ 
+   - using conda, suggested (and use a virtual conda environment, leaving your python installation untouched)  
+`conda env create -f environment.yml`
+     - Don't forget to activate environement with `conda activate ttclust`
+
+3. Use ttclust scripts with `python {PATH}/ttclust/ttclust.py` or `python {PATH}/ttclust/ttclustGUI.py`
+
+**Note** : sometimes mdtraj is hard to install. If you use PIP, please install manually cython before in this case `sudo pip install cython` then `sudo pip install -r requirements.txt`.  
+If you have still issues in installing mdtraj, you can install it with conda with `conda install mdtraj`
+
+
+### Possibles issues
+##### For CentOS user
+If you have issues with pip, I suggest you install ANACONDA and restart your terminal afterwards.
+Then, you need to install wxPython with conda `conda install wxPython`.
+Finally, you can use the PIP commmand: `sudo pip install -r requirements.txt`
+
+##### For Windows user
+If you have issues with pip installing mdtraj (Microsoft Visual C++ Build Tools missing), I also suggest you install ANACONDA and restart yout terminal afterwards.
+Then, you can mdtraj with conda `conda install mdtraj`.
+Finally, you can use the PIP commmand: `sudo pip install -r requirements.txt`
+
+**NOTE** if ttclust was installed with pip, ttclustGUI will not work due to the gooey package (I hope it will be fixed soon..)  
+But you can still use the GUI with the script by cloning this repo and execute `ttclustGUI.py` 
+
+##### For Mac user
+If you have issues with pip, first try to add to pip the `--ignore-installed` argument : `sudo pip install --ignore-installed -r requirements.txt`
+If it still doesn't work, it's maybe because of the System Integrity Protection (SIP).
+I suggest you in this case install ANACONDA or MINICONDA and restart your terminal afterwards. 
+Normally, the pip command should work because your default python will be the anaconda (or miniconda) python.
+
+To activate autocompletion for the argpase module, you have to use this command 
+(only once): `sudo activate-global-python-argcomplete`
+
+## Dependancies and installation: 
 Following packages are needed: 
   - argparse
   - argcomplete (for autocompletion, optional)
@@ -29,40 +86,6 @@ Following packages are needed:
   - Pillow>=4.3.0 (FOR GUI)
   - psutil>=5.4.2 (FOR GUI)
   - gooey (FOR GUI)
-
-
-### installation
-No installation is needed, only dependancies. To install dependancies you have 2 ways:
-
- - Using pip (and use python environment system)  
- `sudo pip install -r requirements.txt`
- 
- - using conda (and use a virtual conda environment, leaving your python installation untouched)  
-`conda env create -f environment.yml`
-
-**Note** : sometimes mdtraj is hard to install. If you use PIP, please install manually cython before in this case `sudo pip install cython` then `sudo pip install -r requirements.txt`.  
-If you have still issues in installing mdtraj, you can install it with conda with `conda install mdtraj`
-
-
-
-#### For CentOS user
-If you have issues with pip, I suggest you install ANACONDA and restart your terminal afterwards.
-Then, you need to install wxPython with conda `conda install wxPython`.
-Finally, you can use the PIP commmand: `sudo pip install -r requirements.txt`
-
-#### For Windows user
-If you have issues with pip installing mdtraj (Microsoft Visual C++ Build Tools missing), I also suggest you install ANACONDA and restart yout terminal afterwards.
-Then, you can mdtraj with conda `conda install mdtraj`.
-Finally, you can use the PIP commmand: `sudo pip install -r requirements.txt`
-
-#### For Mac user
-If you have issues with pip, first try to add to pip the `--ignore-installed` argument : `sudo pip install --ignore-installed -r requirements.txt`
-If it still doesn't work, it's maybe because of the System Integrity Protection (SIP).
-I suggest you in this case install ANACONDA or MINICONDA and restart your terminal afterwards. 
-Normally, the pip command should work because your default python will be the anaconda (or miniconda) python.
-
-To activate autocompletion for the argpase module, you have to use this command 
-(only once): `sudo activate-global-python-argcomplete`
 
 #### Atoms selection
 For Selection syntax, use the one from MDTraj (http://mdtraj.org/latest/atom_selection.html).
