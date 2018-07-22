@@ -6,13 +6,13 @@ dependencies:
 - cython
 - progressbar2
 - matplotlib
-- prettytable
 - numpy
 - scipy >= 0.18
 - scikit-learn 
-- mdtraj >= 1.7
+- omnia::mdtraj
 - pip
 - pip:
+  - prettytable
   - argparse
   - msgpack
   - RXPY>=0.1.0

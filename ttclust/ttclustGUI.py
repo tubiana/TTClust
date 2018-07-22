@@ -57,19 +57,20 @@ def parseArg():
     clustering_cutoff = clustering.add_mutually_exclusive_group(required=True,
                                                                 gooey_options={'initial_selection': 0}
                                                                 )
-    clustering_cutoff.add_argument("-gs","--Graphical Selection",
-                                   action="store_true", 
-                                   help="Clic on the dendrogram to clusterize")
-    clustering_cutoff.add_argument("-aa","--Auto Clustering",
-                                   action="store_true", 
-                                   help="Auto clustering",
+    clustering_cutoff.add_argument("-aa", "--Auto Clustering",
+                                   action="store_true",
+                                   help="Autoclustering with the Elbow method",
                                    default=True)
+    clustering_cutoff.add_argument("-gs","--Graphical Selection",
+                                   action="store_true",
+                                   help="Clic on the dendrogram to clusterize")
+    clustering_cutoff.add_argument('-ng', "--Number of clustering Group",
+                                   help="Number of group wanted",
+                                   default=None)
     clustering_cutoff.add_argument('-cc',"--Dendrogramme Clustering Cutoff",
                                    help="cutoff for clusterization from hierarchical clusturing with Scipy", 
                                    default=None)
-    clustering_cutoff.add_argument('-ng',"--Number of clustering Group", 
-                                   help="Number of group wanted", 
-                                   default=None)
+
     
 
 
@@ -102,9 +103,10 @@ def rename_args_keys(args):
                   "ngroup":args["Number of clustering Group"],
                   "interactive":"N",}
     return renamed_args
-    
-if __name__ == '__main__':
 
+
+def main():
+    """Execute TTclust with the GUI"""
     print("********************************************************")
     print("*****************  TTCLUST {} *********************".format(\
               __version__))
@@ -113,11 +115,11 @@ if __name__ == '__main__':
     #We get all arguments
     args=parseArg()
     args=rename_args_keys(args)
-    
+
     #add ".log" if the logfile doesn't have extension
     if os.path.splitext(args["logfile"])[1] == "":
         args["logfile"] = args["logfile"]+".log"
-        
+
     #create a folder based on the logfile name and write everything inside
     logname = os.path.splitext(args["logfile"])[0]
     args["logname"] = logname
@@ -127,11 +129,16 @@ if __name__ == '__main__':
         os.rename(logname,logname+".bak")
         print("NOTE : A file with the same folder name was found and rename "
               "into {}.bak".format(logname))
-        os.makedirs(logname)    
+        os.makedirs(logname)
 
     filename = args["logfile"].split(os.sep)[-1]
     LOGFILE=open("{0}/{1}".format(logname,filename),"w")
     ttclust.define_LOGFILE(LOGFILE)
     ttclust.Cluster_analysis_call(args)
     LOGFILE.close()
+
+
+
+if __name__ == '__main__':
+    main()
     
