@@ -1,4 +1,4 @@
-![](images/TTclust_LOGO.png "logo" )
+![](images/ttclust_logo.png "logo" )
 
 # TTClust : A molecular simulation clustering program
 
