@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.5"
+__version__  = "4.6.0"
 __license__ = "GNU GPLv3"
 __date__ = "2018/02"
 
@@ -13,6 +13,7 @@ import matplotlib as mpl
 import operator
 import os
 import sys
+
 if sys.platform == 'darwin':
     sys.executable = 'pythonw'
 import argparse
@@ -51,7 +52,7 @@ DPI=600
 #                          CLASS
 #==============================================================================
 
-class Cluster_class():
+class Cluster:
     """
     DESCRIPTION
     Simple cluster class object (countains frames numbers, spread, size, ID
@@ -227,7 +228,9 @@ def return_selection_atom(use_for,traj, args):
     Args:
         use_for (string): witch selection string was wrong ? (sr/sa/sr)
         traj (mdtraj.trajectory): trajectory
-        selection_string (string): selection string wich produce an error
+        args (dictionnary): dictionnary of all arguments
+    return:
+        selection (array): array of selected atoms (atom numbers in index 0 based).
     """
     selection_string = args["select_alignement"]
     try:
@@ -258,7 +261,7 @@ def save_dist_mat(distmat, rmsd_string):
     ----
     Args:
         distmat (numpy matrix): distance matrix
-        alignement (str) : alignement string, used for the name
+        rmsd_string (str) : selection string for rmsd calculation
     return:
         None
     """
@@ -278,8 +281,6 @@ def reorder_cluster(clusters):
     ---
     Args :
         Clusters_labels(list): list of clusters label.
-    returns:
-        clusters_labels_order(list): list of reorder clusters label
     """
     dict_order = {}
     for i in range(len(clusters)):
@@ -315,14 +316,14 @@ def parseArg():
     arguments.add_argument('-l','--logfile', help="logfile (default : clustering.log). The "
                            "name of your output file will be the basename (name before the extention "
                            "of this logfile", default="clustering")
-    arguments.add_argument('-st','--select_traj', help="selection syntaxe for "
+    arguments.add_argument('-st','--select_traj', help="selection syntax for "
                            "Don't forget to add QUOTES besite this selection string."
                            "trajectory extraction (default : all).", default="all")
-    arguments.add_argument('-sa','--select_alignement', help="selection syntaxe"
+    arguments.add_argument('-sa','--select_alignement', help="selection syntax"
                            " for alignement (default : backbone). Don't forget to add QUOTES besite this "
                            "selection string."
                            " If you don't want aligment use \"none\".", default="backbone")
-    arguments.add_argument('-sr','--select_rmsd', help="selection syntaxe for "
+    arguments.add_argument('-sr','--select_rmsd', help="selection syntax for "
                            " RMSD (default : backbone). Don't forget to add QUOTES "
                            "besite this selection string.", default="backbone")
 
@@ -333,10 +334,25 @@ def parseArg():
                            "hierarchical clusturing with Scipy", default=None)
     arguments.add_argument('-ng',"--ngroup", help="number of group asked. Use the "
                            "maxclust method to clusterize in this case", default=None)
+    arguments.add_argument('-aa',"--autoclust", help="Autoclustering (Y/n)", default="Y")
+
 
     #Interactive mode for distance matrix:
-    arguments.add_argument('-i','--interactive', help="Interactive mode for distance matrix (Y/n)", default="Y")
+    arguments.add_argument('-i','--interactive', help="Use saved distance matrix ? (Y/n)", default="Y")
+       
     args = vars(arguments.parse_args())
+    
+
+    #Activate autoclustering if autoclust is True and if no values was specified for ngroup or cutoff
+    if args["autoclust"] in ["Y,y"]:
+        args["autoclust"] = True
+    else:
+        args["autoclust"] = False
+
+    if (args["autoclust"] == True) and (args["ngroup"] == None) and (args["cutoff"] == None):
+        args["ngroup"] = "auto"
+        
+        
     return(args)
 
 
@@ -423,7 +439,7 @@ def calculate_representative_frame_spread(clusters_list, DM):
     structures of the cluster agains the others
     ----
     Args:
-        Clusters (): Clusters list
+        clusters_list (array): list of all clusters
         DM (Numpy matrix): distance matrix for each frames
     """
     print("Searching for representative frames")
@@ -463,9 +479,6 @@ def create_DM(traj, args):
     ---
     Args:
         traj (mdtraj.trajectory): trajectory
-        alignement_string (string): string for trajectory alignement
-        rmsd_string (string): atom selection for rmsd calculation (and
-                              matrix distance calculation)
         args (dict): all arguments in dictionary
     return:
         distances (numpy matrix): distance matrix
@@ -473,13 +486,13 @@ def create_DM(traj, args):
     #Get Atoms indices from selection string
 
     if args["select_alignement"] != "none":
-        alignement_selection = return_selection_atom(use_for = "ALIGNEMENT",\
-                                                traj   = traj,\
-                                                args = args)
+        alignement_selection = return_selection_atom(use_for = "ALIGNEMENT",
+                                                     traj=traj,
+                                                     args = args)
     
         # Trajectory superposition  (aligment)
         traj_aligned = traj.superpose(traj[0],
-                                      atom_indices=alignement_selection,\
+                                      atom_indices=alignement_selection,
                                       parallel=True)
     else :
         traj_aligned = traj
@@ -499,8 +512,8 @@ def create_DM(traj, args):
 
     # If a distance matrix file was found and choosed, we load it.
     if distance_file:
-        return np.load(distance_file)
         printScreenLogfile(" >Distance Matrix File Loaded!")
+        return np.load(distance_file)
     else:  # otherwise
         pbar = pg.ProgressBar(widgets=WIDGETS, maxval=traj.n_frames).start()
         counter=0
@@ -548,7 +561,7 @@ def return_mapping_cluster(labels):
     #cluster_with_frame_number = defaultdict(lambda : [])
     clusters_list = []
     for cluster_num in set(labels):
-        clusters_list.append(Cluster_class(cluster_num))  # create new instance of cluster
+        clusters_list.append(Cluster(cluster_num))  # create new instance of cluster
 
     for i, cluster_num in enumerate(labels):
         clusters_list[cluster_num-1].frames.append(i)
@@ -580,7 +593,7 @@ def auto_clustering(matrix):
     from scipy.spatial.distance import cdist
     
     distorsions = []
-    K = range(2,25)
+    K = range(2,15)
     for k in K:
         kmeans = KMeans(n_clusters=k)
         kmeans.fit(matrix)
@@ -667,10 +680,9 @@ def create_cluster_table(traj,args):
             #clustering_result = auto_clustering(distances)
             ncluster=auto_clustering(distances)
         clustering_result = sch.fcluster(linkage,t=ncluster, criterion="maxclust")
-        print(len(clustering_result))
+        #print(len(clustering_result))
         n_group=len(np.unique(clustering_result))
         cutoff = linkage[-(n_group-1),2]
-        print("pioupiou")
     else:
         clicked = False
         while not clicked:
@@ -698,13 +710,16 @@ def write_representative_frame(traj, cluster, logname):
     ----
     Args:
         traj (mdtraj.trajectory): trajectory
-        cluster (Cluster_class): a Cluster object
+        cluster (Cluster): a Cluster object
+        logname (string): output logfile
     """
     cluster_num = cluster.id
     frame = cluster.representative
     size = cluster.size
-    traj[frame].save_pdb("{}/C{}-f{}-s{}.pdb".format(logname, cluster_num,\
-                                                                frame, size))
+    traj[frame].save_pdb("{}/C{}-f{}-s{}.pdb".format(logname,
+                                                     cluster_num,
+                                                     frame,
+                                                     size))
 def get_cmap(num_cluster):
     """
     DESCRIPTION
@@ -733,8 +748,9 @@ def plot_barplot(clusters_list, logname, size):
     DESCRIPTION
     This function is used to plot the linear barplots.
     Args:
-        cluster_number_list (list) : list of cluster label in order or appearance
-        output (str) : output logname
+        clusters_list (list) : list of cluster label in order or appearance
+        logname (str) : output logname
+        size (int): number of frames
     Returns:
         colors_list (list of list) : list of colors in RGBA format
     """
@@ -771,8 +787,9 @@ def plot_hist(clusters_list, logname,colors_list):
     DESCRIPTION
     This function is used to plot a histogram with the cluster size.
     Args:
-        cluster_number_list (list) : list of cluster label in order or appearance
-        output (str) : output logname
+        clusters_list (list): list of cluster label in order or appearance
+        logname (str): output logname
+        colors_list (list): list of colors
     Returns:
         None
     """
@@ -836,10 +853,10 @@ def plot_dendro(linkage, logname, cutoff, color_list,clusters_list):
     cluster color.
     Args:
         linkage (numpy array) : linkage matrix
-        output (str) : output logfile name
+        logname (str) : output logfile name
         cutoff (float) : cutoff used for clustering
         color_list (list) : HEX code color for each cluster
-        cluster_list (list) : list of all cluster (Cluster object)
+        clusters_list (list) : list of all cluster (Cluster object)
     Returns:
         None
     """
@@ -1019,8 +1036,12 @@ def generate_graphs(clusters_list, output, size, linkage, cutoff,distances):
     Create a linear cluster mapping graph where every frame is printed as a
     colored barplot
     Args:
-        clusters_labels (list): list of cluster number per frame
-        output (string) output name for graph
+        clusters_list (list): list of cluster
+        output (string): output name for graph
+        size (int): number of frames
+        linkage (numpy array): matrix linkage
+        cutoff (float): cutoff distance value for clustering (in the dendogram)
+        distances: distance matrix
     Return:
         colors_list (list) to be used with 2D distance projection graph
     """
@@ -1040,8 +1061,9 @@ def get_RMSD_cross_cluster(clusters_list, distances, logname):
     This function will get the RMSD between all representativ frames of all
     clusters. Print it to the console and write it on the logfile
     Args:
-        Clusters_list (list) : list of all clusters
-        distances (np matrix) : rmsd matrix
+        clusters_list (list): list of all clusters
+        distances (np matrix): rmsd matrix
+        logname (string): logname (same as logfile)
     returns:
         RMSD_matrix (np.array) : RMSD matrix between clusters
     """
@@ -1109,7 +1131,7 @@ def Cluster_analysis_call(args):
     if topfile == None and trajfile[-4:] == ".pdb":
         traj=md.load_pdb(trajfile)
     else:
-        traj=md.load(trajfile,\
+        traj=md.load(trajfile,
                      top=topfile)
 
     init_log(args, traj)
@@ -1163,7 +1185,7 @@ def define_LOGFILE(log):
 ###############################################################################
 if __name__ == "__main__":
     print("********************************************************")
-    print("******************  TTCLUST {} **********************".format(\
+    print("******************  TTCLUST {} **********************".format(
               __version__))
     print("********************************************************")
     print("")

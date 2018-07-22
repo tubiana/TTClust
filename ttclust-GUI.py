@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "GUI 0.9"
+__version__  = "GUI 1.0"
 __license__ = "GNU GPLv3"
 __date__ = "2018/02"
 
@@ -25,7 +25,6 @@ LOGFILE=""
 
 @Gooey(required_cols=1,tabbed_groups=True)
 def parseArg():
-    print("TOTO")
     parser=GooeyParser(description="This program was developped in order to clusterize molecular dynamic trajectories")
 
 
@@ -40,16 +39,9 @@ def parseArg():
 
 
     selection = parser.add_argument_group("Selection")
-    selection.add_argument('-st','--Trajectory Selection', help="selection syntaxe for "
-                           "Don't forget to add QUOTES besite this selection string."
-                           "trajectory extraction (default : all).", default="all")
-    selection.add_argument('-sa','--Alignement Selection', help="selection syntaxe"
-                           " for alignement (default : backbone). Don't forget to add QUOTES besite this "
-                           "selection string."
-                           " If you don't want aligment use \"none\".", default="backbone")
-    selection.add_argument('-sr','--Selection for RMSD Calculation', help="selection syntaxe for "
-                           " RMSD (default : backbone). Don't forget to add QUOTES "
-                           "besite this selection string.", default="backbone")
+    selection.add_argument('-st','--Trajectory Selection', help="selection syntax for trajectory extraction.", default="all")
+    selection.add_argument('-sa','--Alignement Selection', help="selection syntax for alignement. use 'none' to remove alignement", default="backbone")
+    selection.add_argument('-sr','--Selection for RMSD Calculation', help="selection syntax for RMSD (used for clustering).",  default="backbone")
 
     #Clustering arguments
     clustering = parser.add_argument_group("Clustering")
@@ -67,11 +59,11 @@ def parseArg():
                                                                 )
     clustering_cutoff.add_argument("-gs","--Graphical Selection",
                                    action="store_true", 
-                                   help="Clic on the dendrogram to clusterize", 
-                                   default=True)
+                                   help="Clic on the dendrogram to clusterize")
     clustering_cutoff.add_argument("-aa","--Auto Clustering",
                                    action="store_true", 
-                                   help="Auto clustering (BETA)")
+                                   help="Auto clustering",
+                                   default=True)
     clustering_cutoff.add_argument('-cc',"--Dendrogramme Clustering Cutoff",
                                    help="cutoff for clusterization from hierarchical clusturing with Scipy", 
                                    default=None)
@@ -84,7 +76,6 @@ def parseArg():
     args = vars(parser.parse_args())
     #args = vars(parser.parse_args())
 
-    print(args)
 
     if args["Auto Clustering"] == True:
         args["Dendrogramme Clustering Cutoff"] = None
@@ -115,7 +106,7 @@ def rename_args_keys(args):
 if __name__ == '__main__':
 
     print("********************************************************")
-    print("******************  TTCLUST {} **********************".format(\
+    print("*****************  TTCLUST {} *********************".format(\
               __version__))
     print("********************************************************")
     print("")

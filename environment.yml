@@ -1,0 +1,22 @@
+name: ttclust
+channels:
+- defaults
+dependencies:
+- argcomplete
+- cython
+- progressbar2
+- matplotlib
+- prettytable
+- numpy
+- scipy >= 0.18
+- scikit-learn 
+- mdtraj >= 1.7
+- pip
+- pip:
+  - argparse
+  - msgpack
+  - RXPY>=0.1.0
+  - wxpython==4.0.0b1
+  - Pillow==4.3.0
+  - psutil==5.4.2
+  - gooey

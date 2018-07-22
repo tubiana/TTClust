@@ -1,7 +1,10 @@
-# TTClust : A molecular simulation trajectory clustering programm
+![](images/TTclust_LOGO.png "logo" )
+
+# TTClust : A molecular simulation clustering program
+
 ---
 ## DESCRIPTION
-TTclust is a python program used to clusterized molecular dynamics simulation trajectories. It requires just a trajectory and a topology file (compatible with most molecular dynamic packages such as Amber, Gromacs, Chramm, Namd or trajectory in PDB format thanks to the MDtraj package).
+TTclust is a python program used to clusterize molecular dynamics simulation trajectories. It only requires a trajectory and a topology file (compatible with most molecular dynamic packages such as Amber, Gromacs, Chramm, Namd or trajectory in PDB format thanks to the MDtraj package).
 Easy to use, the program produces a visual feedback of the clustering through a dendrogram graph. Other graphic representations are made to describe all clusters (see OUTPUT EXAMPLE part for more details).
 
 ### Python Compatibility 
@@ -15,8 +18,8 @@ Following packages are needed:
   - cython (for mdtraj)
   - mdtraj (version >= 0.17)
   - progressbar
-  - datetime *(present in default python library)*
-  - glob *(present in default python library)*
+  - datetime *(a python library standard)*
+  - glob *(a python library standard)*
   - matplotlib
   - scipy (version >= 0.18)
   - prettytable
@@ -26,24 +29,40 @@ Following packages are needed:
   - Pillow>=4.3.0 (FOR GUI)
   - psutil>=5.4.2 (FOR GUI)
   - gooey (FOR GUI)
-  
-You will find a file **requirements.txt**. You can install all requiered 
-package with this PIP command:  `sudo pip install -r requirements.txt`
-Note : sometimes mdtraj fails to install. Please install mannualy cython before in this case `sudo pip install cython` then `sudo pip install -r requirements.txt`
+
+
+### installation
+No installation is needed, only dependancies. To install dependancies you have 2 ways:
+
+ - Using pip (and use python environment system)  
+ `sudo pip install -r requirements.txt`
+ 
+ - using conda (and use a virtual conda environment, leaving your python installation untouched)  
+`conda env create -f environment.yml`
+
+**Note** : sometimes mdtraj is hard to install. If you use PIP, please install manually cython before in this case `sudo pip install cython` then `sudo pip install -r requirements.txt`.  
+If you have still issues in installing mdtraj, you can install it with conda with `conda install mdtraj`
+
+
 
 #### For CentOS user
-If you have issues with pip, i suggest you to install ANACONDA and restart yout terminal aftewards.
+If you have issues with pip, I suggest you install ANACONDA and restart your terminal afterwards.
 Then, you need to install wxPython with conda `conda install wxPython`.
 Finally, you can use the PIP commmand: `sudo pip install -r requirements.txt`
 
-#### For Mac user
-If you have issues with pip, try first to add to pip the `--ignore-installed` argument : `sudo pip install --ignore-installed -r requirements.txt`
-If it still doesn't work, it's maybe because of the System Integrity Protection (SIP).
-I suggest you in this case to install ANACONDA or MINICONDA and restart your terminal afterwards. 
-Normally, the pip command should work because your default python will be the anaconda (or miniconda) python
+#### For Windows user
+If you have issues with pip installing mdtraj (Microsoft Visual C++ Build Tools missing), I also suggest you install ANACONDA and restart yout terminal afterwards.
+Then, you can mdtraj with conda `conda install mdtraj`.
+Finally, you can use the PIP commmand: `sudo pip install -r requirements.txt`
 
-To activate autocompletion for the argpase module you have to use this command 
-(only once) `sudo activate-global-python-argcomplete`
+#### For Mac user
+If you have issues with pip, first try to add to pip the `--ignore-installed` argument : `sudo pip install --ignore-installed -r requirements.txt`
+If it still doesn't work, it's maybe because of the System Integrity Protection (SIP).
+I suggest you in this case install ANACONDA or MINICONDA and restart your terminal afterwards. 
+Normally, the pip command should work because your default python will be the anaconda (or miniconda) python.
+
+To activate autocompletion for the argpase module, you have to use this command 
+(only once): `sudo activate-global-python-argcomplete`
 
 #### Atoms selection
 For Selection syntax, use the one from MDTraj (http://mdtraj.org/latest/atom_selection.html).
@@ -61,11 +80,11 @@ Keywords added :
  - **dna** : selection based on the residue name (DA/DT/DC/DG)
  - **rna** : selection based on the residue name (A/T/G/C or RA/RT/RG/RC)
  - **backbone_na** : backbone of nucleic acid. Selection based on the residue name and atom name (P, O3', O5', C3', C4', C5')
- - **base** : selection base on the residue name and atom name. select RNA or DNA and exclude backbone_na, sugar atoms and hydrogen
+ - **base** : selection base on the residue name and atom name. Select RNA or DNA and exclude backbone_na, sugar's atoms and hydrogen
  - **base_rna** : same as *base* but for RNA
  - **base_dna** : same as *base* but for DNA
 
- Theses selection keywords can be used with other MDTRAJ selection keywords, e.g.:
+ Those selection keywords can be used with other MDTRAJ selection keywords, e.g.:
  - "protein and not dna"
  - "rna and not type H"
 
@@ -81,25 +100,26 @@ method used with the *-m* argument. Methods available are:
  - median
  - **ward** (DEFAULT)
 
-3 possibilities  are available for the calculation: 
+4 possibilities  are available for the calculation: 
 
-1. give the number of clusters you want. Eg: if you want 3 clusters, use the argument
-..* **-ng 3**
-2. give a cutoff for the clustering. The final clustering are made from a
-..* dendrogram and this cutoff is used for the distance cutoff. If you want to
-..* set this cutoff by hand, use the argument **-cc X** (X is the cutoff)
-3. Choose your cutoff by clicking on the matplotlib windows (on the dendrogram)
-..* in this case don't use the other arguments. **recommended for the first 
+1. **Autoclustering** (default method). The autoclustering uses the elbow method to find the optimum cluster numbers.
+2. Give the number of clusters you want. Eg: if you want 3 clusters, use the argument  
+**-ng 3**
+3. Give a cutoff for the clustering. The final clusters are made from a dendrogram and this cutoff is used for the distance cutoff. If you want to
+..* set this cutoff manually, use the argument  
+**-cc x.x** (x.x is the cutoff)
+4. Choose your cutoff by clicking on the matplotlib windows (on the dendrogram) in this case don't use the other arguments. **recommended for the first 
  clustering**
+ 
 
 #### Distance Matrix
 The distance matrix can be long to calculate depending on your trajectory size.
 That's why this matrix is saved on the ".npy" format, in order to be used later.
 The name of the matrix will be the name of your selection string for clustering (*sr*)
 If you use the same selection string for clustering (*sr*) the matrix will be detected
-and the programme will ask you if you want to use it again (Y), to recalculate this
+and the programme will ask you if you want to use it again (Y), recalculate this
 matrix (N) or choose another matrix (O). If you want to use the saved matrix without
-interactive this interactive question) add in argument **-i n** which will deactivate
+this interactive question) add in argument **-i n** which will deactivate
 the interactive prompt.
 
 
@@ -115,7 +135,7 @@ the interactive prompt.
                         selection syntax for trajectory extraction, with QUOTE 
   -sa SELECT_ALIGNEMENT, --select_alignement SELECT_ALIGNEMENT (default: backbone)
                         selection syntax for alignement with QUOTE
-						If you don't want alignement : use "none"
+						If you don't want alignement: use "none"
   -sr SELECT_RMSD, --select_rmsd SELECT_RMSD (default: backbone)
                         selection syntax for RMSD with QUOTE 
   -m METHOD, --method METHOD (default: ward)
@@ -123,28 +143,33 @@ the interactive prompt.
                         weighted; centroid; median and ward
   -cc CUTOFF, --cutoff CUTOFF
                         cutoff for clusterization from hierarchical clusturing
-                        with Scipy. If you choose to clic on the graph, cutoff
+                        with Scipy. If you choose to click on the graph, cutoff
                         will be the clicked value 
   -ng NGROUP, --ngroup NGROUP
                         number of group wanted. Use the maxclust method to
                         clusterize in this case. If you specify "auto", kmeans clustering
-						with the elbow algorithm is use to find the optimal number of
-						clusters (WARNING : BETA)
+						with the elbow algorithm is used to find the optimal number of
+						clusters
+  -aa AUTOCLUST, --autoclust AUTOCLUST
+                        You can activate autoclustering here as well by specifying Y or y.
+                        By default, autoclustering is activated. Autoclustering is desactivated
+                        when specifiying anything other than "Y", a cutoff value ('-cc') or a 
+                        number of group ('-ng') 
   -i INTERACTIVE, --interactive INTERACTIVE
                         Interactive mode for distance matrix (Y/n)
 ```
     
-## USAGE : 
-There is some example usage with the examples files givent on the "example" folder. 
-Please note that the trajectory is reduce to the backbone to reduce size of the git archive.
-Caution : You have to put quote beside your selection string (for *sr*, *st*, and *sa* arguments) 
+## USAGE: 
+There is some example usage with the examples files given on the "example" folder. 
+Please note that the trajectory is reduced to the backbone in order to reduce the size of the git archive.
+Caution: You have to put quote beside your selection string (for *sr*, *st*, and *sa* arguments) 
  - Simple usage (clustering on backbone, logfile is called clustering.log, output folder is "clustering")
  ```python ttclust.py -f examples/example.xtc -t examples/example.pdb```
  - Clustering on residues 30 to 200 and backbone
  ```python ttclust.py -f examples/example.xtc -t examples/example.pdb -sr "residue 30 to 200 and backbone" -l res30-200.log```
- - Clustering on CA atom and save this part of the trajectory with a cutoff of 2.75
+ - Clustering on CA atoms and save this part of the trajectory with a cutoff of 2.75
  ```python ttclust.py -f examples/example.xtc -t examples/example.pdb -sr "name CA" -st "name CA" -cc 2.75 -l CA-c2.75.log```
- - Clustering on backbone of the protein and chain A (note that with mdtraj there is no chaine name, but chaine ID starting from 0) with 10 clusters only
+ - Clustering on backbone of the protein and chain A (note that with mdtraj there is no chaine's name, but chaine ID starting from 0) with 10 clusters only
  ```python ttclust.py -f examples/example.xtc -t examples/example.pdb -sr "protein and backbone and chainid 0" -l backbone-chainA.log -ng 10 ```
 - Note For PDB trajectory, don't use the **-t** argument
 ```python TrajectoryClustering.py -f traj.pdb -st "protein" -sr "backbone"```
@@ -164,48 +189,48 @@ saved frame (representative) is the frame 11.
 #### Logfile
 In the log file you will find all arguments given to the program with
 cluster information:
- - **size**: number structure in the cluster
- - **representative frame**: frame with lowest RMSD between all other frame of the cluster
- - **Members**: all frame belonging to the cluster
- - **spread**: mean RMSD between all frame in the cluster
+ - **size**: number of structures in the cluster
+ - **representative frame**: frame with lowest RMSD between all other frames of the cluster
+ - **Members**: all frames belonging to the cluster
+ - **spread**: mean RMSD between all frames in the cluster
  - **RMSD between clusters**: A tab with the RMSD between clusters
  - **Average RMSD between clusters**: the average RMSD between clusters.
 
 #### Dendrogram
 A dendrogram is generated at the end of the clustering with the corresponding cluster colors.
-The name of this file will be the same as the logfile with a ".png" extension 
+The name of this file will be the same as the logfile with a ".png" extension. 
 example: example.log --> example.png
-![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/backbone/backbone-den.png "Dendrogram example")  
+![alt text](examples/backbone/backbone-den.png "Dendrogram example")  
 The grey horizontal line is the cutoff value used.
 
 
 #### LinearProjection representation
 A linear projection of cluster is made for the trajectory.
-![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/backbone/backbone-linear.png "linear-proj example")
+![alt text](examples/backbone/backbone-linear.png "linear-proj example")
 Every barline represents a frame and the color a cluster number.
-Note that : 
- - If less or equal than 12 clusters : a defined color map was made in this order :
+Note that: 
+ - If less or equal than 12 clusters: a defined color map was made in this order:
    red, blue, lime, gold, darkorchid, orange, deepskyblue, brown, gray, black, darkgreen, navy
  - Else, the matplotlib "hsv" color map is used but the color change according to
    the number of clusters.
 
 #### Barplot representation
-A vertical barplot is generated to have a overview of the cluster size. the barcolor corresponds to the clusters color in the LinearProjection representation and dendrogram cluster's color.
-![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/backbone/backbone-hist.png "histogram example")
+A vertical barplot is generated to have an overview of the cluster size. Each bar color corresponds to the cluster's color in the LinearProjection's representation and dendrogram cluster's color.
+![alt text](examples/backbone/backbone-hist.png "histogram example")
 
 #### 2D distance projection
-A 2D projection of the distance(RMSD) between the representative frame of each cluster is made. The method used is the multimentional scaling method from the skilearn python module.
-![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/backbone/backbone-dist.png "2D Distance example")
-We can follow the evolution of each cluster thanks to the relative distance between them. The color of points is the same as for other graphs (ie. cluster colors) and the radius of each point depend on the cluster spread.
+A 2D projection of the distance(RMSD) between the representative frame of each cluster is made. The method used is the multidimentional scaling method from the sk-learn python module.
+![alt text](examples/backbone/backbone-dist.png "2D Distance example")
+We can follow the evolution of each cluster thanks to the relative distance between them. The color of the points is the same as for other graphs (i.e. cluster's color) and the radius of each point depends on the cluster's spread.
 
 #### Distance matrix plot
-A plot of the distance matrix is also made and allow to visualize the distance between two frames easily. 
+A plot of the distance matrix is also made and allows to easily visualize the distance between two frames. 
 
-![alt text](https://github.com/tubiana/TrajectoryClustering/blob/master/examples/backbone/backbone-distmat.png "Distance Matrix plot example")
+![alt text](examples/backbone/backbone-distmat.png "Distance Matrix plot example")
 
 
 ## Licence
 This program is under the GNU GPLv3 licence, which means that anyone who 
-distributes your code or a derivative work to make the source available under 
+distributes this code or a derivative work has to make the source available under 
 the same terms, and also provides an express grant of patent rights from 
 contributors to users.
