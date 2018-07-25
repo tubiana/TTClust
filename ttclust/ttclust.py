@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.6.0"
+__version__  = "4.6.1"
 __license__ = "GNU GPLv3"
 __date__ = "2018/02"
 
@@ -745,7 +745,7 @@ def get_cmap(num_cluster):
         cmap = mpl.colors.ListedColormap(COLOR_LIST)
     return cmap
 
-def plot_barplot(clusters_list, logname, size):
+def plot_barplot(clusters_list, logname, size, traj):
     """
     DESCRIPTION
     This function is used to plot the linear barplots.
@@ -765,20 +765,39 @@ def plot_barplot(clusters_list, logname, size):
     
     # DEFINE COLOR MAP
     cmap = get_cmap(len(clusters_list))
-    
+
+
     data = np.asmatrix(clusters_number_ordered)
-    fig = plt.figure(figsize=(10,1))
-    # move the graphic into the corner
-    ax = plt.Axes(fig, [0., 0., 1., 1.])
-    # remove axes
-    ax.set_axis_off()
-    # set axes
-    fig.add_axes(ax)
-    # create graphic
-    im = ax.imshow(data,aspect='auto', interpolation='none', cmap=cmap)
+
+    fig,ax = plt.subplots(figsize=(10,1.5))
+
+    # get time if present
+    try:
+        timeMin, timeMax = traj.time[0] / 1000, traj.time[-1] / 1000  # For time in ns.
+        plt.xlabel("Time (ns)")
+        if timeMax >= 1000:
+            timeMin = timeMin/1000
+            timeMax = timeMax/1000
+            plt.xlabel("Time (µs)")
+    except:
+        timeMin, timeMax = 0,np.shape(data)[1]
+
+    im = plt.imshow(data,aspect='auto', interpolation='none', cmap=cmap, extent=[timeMin, timeMax, 1,0])
+
+
+    plt.tight_layout()
+    plt.tick_params(axis="y",
+                    which='both',
+                    left=False,
+                    right=False,
+                    labelleft=False)
+    plt.tick_params(axis="x",
+                    direction="out",
+                    which='both',
+                    top=False)
     colors_list = (im.cmap(im.norm(np.unique(clusters_number_ordered))))
 
-    plt.savefig("{0}/{1}-linear.png".format(logname, 
+    plt.savefig("{0}/{1}-linear.png".format(logname,
                                             logname.split(os.sep)[-1]),
                                             dpi=DPI)
     plt.close()
@@ -1032,7 +1051,7 @@ def plot_2D_distance_projection(rmsd_m, clusters_list, colors, logname):
     
     
 
-def generate_graphs(clusters_list, output, size, linkage, cutoff,distances):
+def generate_graphs(clusters_list, output, size, linkage, cutoff,distances, traj):
     """
     DESCRIPTION
     Create a linear cluster mapping graph where every frame is printed as a
@@ -1043,11 +1062,12 @@ def generate_graphs(clusters_list, output, size, linkage, cutoff,distances):
         size (int): number of frames
         linkage (numpy array): matrix linkage
         cutoff (float): cutoff distance value for clustering (in the dendogram)
-        distances: distance matrix
+        distances(numpy array): distance matrix
+        traj (Trajectory): trajectory for time usage in axis barplot
     Return:
         colors_list (list) to be used with 2D distance projection graph
     """
-    colors_list = plot_barplot(clusters_list, output, size)
+    colors_list = plot_barplot(clusters_list, output, size, traj)
     plot_dendro(linkage, output, cutoff, colors_list,clusters_list)
     plot_hist(clusters_list, output,colors_list)
     if (distances.shape[0] < 10000):
@@ -1113,6 +1133,8 @@ def Cluster_analysis_call(args):
     Main function of the program : call other function as a pipeline
     Args:
         args (dict): all arguments in a dictionary
+    Return:
+        traj (Trajectory): simulation trajectory
     """
     trajfile=args["traj"]
     topfile=args["top"]
@@ -1155,7 +1177,7 @@ def Cluster_analysis_call(args):
     # reordering the list by the cluster number
     clusters_list.sort(key = operator.attrgetter("id"))
     print("====== Generating Graph ======")
-    colors_list = generate_graphs(clusters_list, logname, traj.n_frames, linkage, cutoff,distances)
+    colors_list = generate_graphs(clusters_list, logname, traj.n_frames, linkage, cutoff,distances, traj)
     print("====== Calc. repr. frame  ======")
     calculate_representative_frame_spread(clusters_list, distances)
 
@@ -1171,6 +1193,8 @@ def Cluster_analysis_call(args):
     RMSD_matrix = get_RMSD_cross_cluster(clusters_list, distances,logname)
 
     plot_2D_distance_projection(RMSD_matrix, clusters_list, colors_list, logname)
+    #return trajectory for usage afterwards.
+    return traj
 
 
 def define_LOGFILE(log):
@@ -1182,7 +1206,12 @@ def define_LOGFILE(log):
 
 
 def main():
-    """Execute TTclust"""
+    """
+    Execute TTclust
+
+    Return:
+        traj (Trajectory): simulation trajectory
+    """
     print("********************************************************")
     print("******************  TTCLUST {} **********************".format(
         __version__))
@@ -1209,11 +1238,13 @@ def main():
 
     filename = args["logfile"].split(os.sep)[-1]
     LOGFILE = open("{0}/{1}".format(logname, filename), "w")
-    Cluster_analysis_call(args)
+    traj=Cluster_analysis_call(args)
     LOGFILE.close()
 
+    #return traj for usage afterwards
+    return traj
 ###############################################################################
 #####                               MAIN                                 ######
 ###############################################################################
 if __name__ == "__main__":
-    main()
+    main() #keep trajectory for usage afterwards (in shell, debug etc..)

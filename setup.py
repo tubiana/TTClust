@@ -27,9 +27,8 @@ setup(
                       'psutil==5.4.2',
                       'gooey'],
     entry_points={
-        'console_scripts':[
-            'ttclust=ttclust.ttclust:main',
-            'ttclustGUI=ttclust.ttclustGUI:main'],
+        'console_scripts':['ttclust=ttclust.ttclust:main'],
+        'gui_scripts':['ttclustGUI=ttclust.ttclustGUI:main'],
     },
 
 
