@@ -13,9 +13,16 @@ import matplotlib as mpl
 import operator
 import os
 import sys
+import shutil
+import subprocess
 
-if sys.platform == 'darwin':
-    sys.executable = 'pythonw'
+if (sys.platform == 'darwin' and
+    ('| packaged by conda-forge |' in sys.version or
+     '|Anaconda' in sys.version)):
+        
+    if 'pythonw' not in sys.executable:
+        sys.executable = shutil.which("pythonw")
+
 import argparse
 import glob
 import datetime
