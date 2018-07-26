@@ -15,8 +15,8 @@ mpl.use('WXAgg')
 from gooey import Gooey, GooeyParser
 import ttclust
 import os,sys
-if sys.platform == 'darwin':
-    sys.executable = 'pythonw'
+import subprocess
+import shutil
 
 #nonbuffered_stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
 #sys.stdout = nonbuffered_stdout
@@ -106,12 +106,26 @@ def rename_args_keys(args):
 
 
 def main():
+    
+    if (sys.platform == 'darwin' and
+        ('| packaged by conda-forge |' in sys.version or
+         '|Anaconda' in sys.version)):
+
+        # On macOS with Anaconda, GUI applications need to be run using
+        # `pythonw`. Since we have no way to determine whether this is currently
+        # the case, we run this script again -- ensuring we're definitely using
+        # pythonw.
+        
+        if 'pythonw' not in sys.executable:
+            sys.executable = shutil.which("pythonw")
+            subprocess.Popen([sys.executable, __file__])
+            sys.exit()
+    
     """Execute TTclust with the GUI"""
-    print("********************************************************")
+    print("\n********************************************************")
     print("*****************  TTCLUST {} *********************".format(\
               __version__))
-    print("********************************************************")
-    print("")
+    print("********************************************************\n")
     #We get all arguments
     args=parseArg()
     args=rename_args_keys(args)
