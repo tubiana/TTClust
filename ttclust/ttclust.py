@@ -20,6 +20,8 @@ if (sys.platform == 'darwin' and
     ('| packaged by conda-forge |' in sys.version or
      '|Anaconda' in sys.version)):
         
+    mpl.use('WXAgg')
+        
     if 'pythonw' not in sys.executable:
         sys.executable = shutil.which("pythonw")
 
@@ -1213,6 +1215,21 @@ def define_LOGFILE(log):
 
 
 def main():
+    
+        if (sys.platform == 'darwin' and
+            ('| packaged by conda-forge |' in sys.version or
+             '|Anaconda' in sys.version)):
+
+        # On macOS with Anaconda, GUI applications need to be run using
+        # `pythonw`. Since we have no way to determine whether this is currently
+        # the case, we run this script again -- ensuring we're definitely using
+        # pythonw.
+        
+        if 'pythonw' not in sys.executable:
+            sys.executable = shutil.which("pythonw")
+            subprocess.Popen([sys.executable, __file__])
+            sys.exit()
+    
     """
     Execute TTclust
 
