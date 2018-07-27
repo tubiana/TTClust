@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "GUI 1.1"
+__version__  = "GUI 1.0"
 __license__ = "GNU GPLv3"
 __date__ = "2018/02"
 
@@ -15,19 +15,17 @@ mpl.use('WXAgg')
 from gooey import Gooey, GooeyParser
 import ttclust
 import os,sys
-if sys.platform in ['darwin','win32']:
-    sys.executable = 'pythonw'
+import subprocess
+import shutil
 
 #nonbuffered_stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
 #sys.stdout = nonbuffered_stdout
 LOGFILE=""
 
-@Gooey(required_cols=1,
-       program_description='description="This program was developped in order to clusterize molecular dynamic trajectories',
-       tabbed_groups=True,
-       program_name="TTclust",)
+
+@Gooey(required_cols=1,tabbed_groups=True)
 def parseArg():
-    parser=GooeyParser()
+    parser=GooeyParser(description="This program was developped in order to clusterize molecular dynamic trajectories")
 
 
     
@@ -108,12 +106,26 @@ def rename_args_keys(args):
 
 
 def main():
+    
+    if (sys.platform == 'darwin' and
+        ('| packaged by conda-forge |' in sys.version or
+         '|Anaconda' in sys.version)):
+
+        # On macOS with Anaconda, GUI applications need to be run using
+        # `pythonw`. Since we have no way to determine whether this is currently
+        # the case, we run this script again -- ensuring we're definitely using
+        # pythonw.
+        
+        if 'pythonw' not in sys.executable:
+            sys.executable = shutil.which("pythonw")
+            subprocess.Popen([sys.executable, __file__])
+            sys.exit()
+    
     """Execute TTclust with the GUI"""
-    print("********************************************************")
+    print("\n********************************************************")
     print("*****************  TTCLUST {} *********************".format(\
               __version__))
-    print("********************************************************")
-    print("")
+    print("********************************************************\n")
     #We get all arguments
     args=parseArg()
     args=rename_args_keys(args)
