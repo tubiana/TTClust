@@ -62,8 +62,13 @@ But you can still use the GUI with the script by cloning this repo and execute `
 ##### For Mac user
 If you have issues with pip, first try to add to pip the `--ignore-installed` argument : `sudo pip install --ignore-installed -r requirements.txt`
 If it still doesn't work, it's maybe because of the System Integrity Protection (SIP).
-I suggest you in this case install ANACONDA or MINICONDA and restart your terminal afterwards. 
+I suggest you in this case install **ANACONDA** or **MINICONDA** and restart your terminal afterwards. 
 Normally, the pip command should work because your default python will be the anaconda (or miniconda) python.
+
+If you have still issues with the GUI or missing packages : install with pip :   
+`pip install wxpython==4.0.0b1`    
+`pip install pandas`    
+`pip install ttclust`
 
 To activate autocompletion for the argpase module, you have to use this command 
 (only once): `sudo activate-global-python-argcomplete`

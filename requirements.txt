@@ -9,6 +9,7 @@ cython
 progressbar2
 matplotlib
 numpy
+pandas
 prettytable
 scipy >= 0.18
 sklearn 

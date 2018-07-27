@@ -7,6 +7,7 @@ dependencies:
 - progressbar2
 - matplotlib
 - numpy
+- pandas
 - scipy >= 0.18
 - scikit-learn 
 - omnia::mdtraj

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "GUI 1.0"
+__version__  = "GUI 1.1"
 __license__ = "GNU GPLv3"
 __date__ = "2018/02"
 
@@ -15,17 +15,19 @@ mpl.use('WXAgg')
 from gooey import Gooey, GooeyParser
 import ttclust
 import os,sys
-if sys.platform == 'darwin':
+if sys.platform in ['darwin','win32']:
     sys.executable = 'pythonw'
 
 #nonbuffered_stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
 #sys.stdout = nonbuffered_stdout
 LOGFILE=""
 
-
-@Gooey(required_cols=1,tabbed_groups=True)
+@Gooey(required_cols=1,
+       program_description='description="This program was developped in order to clusterize molecular dynamic trajectories',
+       tabbed_groups=True,
+       program_name="TTclust",)
 def parseArg():
-    parser=GooeyParser(description="This program was developped in order to clusterize molecular dynamic trajectories")
+    parser=GooeyParser()
 
 
     

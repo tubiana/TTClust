@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.6.1"
+__version__  = "4.6.2"
 __license__ = "GNU GPLv3"
 __date__ = "2018/02"
 
@@ -13,9 +13,13 @@ import matplotlib as mpl
 import operator
 import os
 import sys
-
-if sys.platform == 'darwin':
-    sys.executable = 'pythonw'
+import shutil
+import subprocess
+if sys.platform == 'darwin' and ('| packaged by conda-forge |' \
+                                 in sys.version or '|Anaconda' in sys.version):
+    mpl.use('WXAgg')
+    if 'pythonw' not in sys.executable:
+        sys.executable = shutil.which("pythonw")
 import argparse
 import glob
 import datetime
@@ -26,7 +30,6 @@ import matplotlib.pyplot as plt
 import scipy.cluster.hierarchy as sch
 from prettytable import PrettyTable
 from sklearn import manifold
-
 
 
 if os.name == "posix": #Only on linux
@@ -799,7 +802,8 @@ def plot_barplot(clusters_list, logname, size, traj):
 
     plt.savefig("{0}/{1}-linear.png".format(logname,
                                             logname.split(os.sep)[-1]),
-                                            dpi=DPI)
+                                            dpi=DPI,
+                                            transparent=True)
     plt.close()
     return colors_list
 
@@ -850,7 +854,7 @@ def plot_hist(clusters_list, logname,colors_list):
                                           dpi=DPI,transparent=True)
     plt.close()
 
-def implot(distances, logname):
+def plot_distmat(distances, logname):
     """
     DESCRIPTION
     
@@ -864,7 +868,8 @@ def implot(distances, logname):
     plt.title("RMSD between frames (nm)")
     plt.savefig("{0}/{1}-distmat.png".format(logname,
                                              logname.split(os.sep)[-1]),
-                                             dpi=DPI)
+                                             dpi=DPI,
+                                             transparent=True)
     plt.close()
 
 def plot_dendro(linkage, logname, cutoff, color_list,clusters_list):
@@ -1071,7 +1076,7 @@ def generate_graphs(clusters_list, output, size, linkage, cutoff,distances, traj
     plot_dendro(linkage, output, cutoff, colors_list,clusters_list)
     plot_hist(clusters_list, output,colors_list)
     if (distances.shape[0] < 10000):
-        implot(distances,output)
+        plot_distmat(distances, output)
     else:
         printScreenLogfile("Too many frames! The RMSD distance matrix will not be generated")
     return colors_list
@@ -1212,11 +1217,23 @@ def main():
     Return:
         traj (Trajectory): simulation trajectory
     """
+    if sys.platform == 'darwin' and ('| packaged by conda-forge |' in sys.version or '|Anaconda' in sys.version):
+        # On macOS with Anaconda, GUI applications need to be run using
+        # `pythonw`. Since we have no way to determine whether this is currently
+        # the case, we run this script again -- ensuring we're definitely using
+        # pythonw.
+        if 'pythonw' not in sys.executable:
+            sys.executable = shutil.which("pythonw")
+            subprocess.Popen([sys.executable, __file__])
+            sys.exit()
     print("********************************************************")
     print("******************  TTCLUST {} **********************".format(
         __version__))
     print("********************************************************")
     print("")
+
+
+
     # We get all arguments
     args = parseArg()
     global LOGFILE

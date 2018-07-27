@@ -17,6 +17,7 @@ setup(
                       'matplotlib',
                       'numpy',
                       'prettytable',
+                      'pandas',
                       'scipy >= 0.18',
                       'sklearn ',
                       'mdtraj >= 1.7',
