@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ttclust',
-    version='4.6',
+    version='4.6.3',
     url='https://github.com/tubiana/TTClust',
     license='GPL3',
     author='Thibault Tubiana',

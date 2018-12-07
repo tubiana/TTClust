@@ -179,7 +179,6 @@ the interactive prompt.
 						with the elbow algorithm is used to find the optimal number of
 						clusters
   -aa AUTOCLUST, --autoclust AUTOCLUST
-                        You can activate autoclustering here as well by specifying Y or y.
                         By default, autoclustering is activated. Autoclustering is desactivated
                         when specifiying anything other than "Y", a cutoff value ('-cc') or a 
                         number of group ('-ng') 

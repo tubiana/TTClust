@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.6.2"
+__version__  = "4.6.3"
 __license__ = "GNU GPLv3"
 __date__ = "2018/02"
 
@@ -593,6 +593,7 @@ def auto_clustering(matrix):
     """
     DESCRIPTION
     Autoclustering function based on sklearn (for now) and the elbow method
+    Based on: https://datascience.stackexchange.com/questions/6508/k-means-incoherent-behaviour-choosing-k-with-elbow-method-bic-variance-explain
     """
     from sklearn.cluster import KMeans
     from scipy.spatial.distance import cdist
@@ -1108,15 +1109,12 @@ def get_RMSD_cross_cluster(clusters_list, distances, logname):
     RMSD_matrix = np.zeros((n_clusters,n_clusters))
     for i in range(n_clusters):
         repr1 = clusters_list[i].representative
-        for j in range(n_clusters):
+        for j in range(i+1,n_clusters):
             repr2 = clusters_list[j].representative
-            if i == j :
-                RMSD_matrix[i][j] = 0.00
-            else:
-                #reprx-1 to correspond with the numpy index
-                rmsd = distances[repr1-1][repr2-1]*10
-                RMSD_matrix[i][j] = rmsd
-                non_diag_value.append(rmsd)
+            #reprx-1 to correspond with the numpy index
+            rmsd = distances[repr1][repr2]*10
+            RMSD_matrix[i][j] = RMSD_matrix[j][i] = rmsd
+            non_diag_value.append(rmsd)
 
 
     # 3 - PrettyTable creation
