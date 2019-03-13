@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "GUI 1.0"
+__version__  = "GUI 1.0.1"
 __license__ = "GNU GPLv3"
 __date__ = "2018/02"
 
@@ -16,12 +16,24 @@ from gooey import Gooey, GooeyParser
 import ttclust
 import os,sys
 import subprocess
-import shutil
 
 #nonbuffered_stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
 #sys.stdout = nonbuffered_stdout
 LOGFILE=""
 
+def which(pgm):
+    """
+    DESCRIPTION : replace shutil.which which is not implemented in Python <3.3
+    from : https://stackoverflow.com/a/9877856/1928090
+    Args:
+        pgm (string): programme name
+    return :
+        p (string): programme path
+    """
+    path=os.getenv('PATH')
+    for p in path.split(os.path.pathsep):
+        p=os.path.join(p,pgm)
+        if os.path.exists(p) and os.access(p,os.X_OK):
 
 @Gooey(required_cols=1,tabbed_groups=True)
 def parseArg():
@@ -117,7 +129,7 @@ def main():
         # pythonw.
         
         if 'pythonw' not in sys.executable:
-            sys.executable = shutil.which("pythonw")
+            sys.executable = which("pythonw")
             subprocess.Popen([sys.executable, __file__])
             sys.exit()
     

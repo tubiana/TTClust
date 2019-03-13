@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.6.3"
+__version__  = "4.6.4"
 __license__ = "GNU GPLv3"
 __date__ = "2018/02"
 
@@ -13,7 +13,6 @@ import matplotlib as mpl
 import operator
 import os
 import sys
-import shutil
 import subprocess
 if sys.platform == 'darwin' and ('| packaged by conda-forge |' \
                                  in sys.version or '|Anaconda' in sys.version):
@@ -72,6 +71,22 @@ class Cluster:
 #==============================================================================
 #                     TOOL FONCTIONS
 #==============================================================================
+
+def which(pgm):
+    """
+    DESCRIPTION : replace shutil.which which is not implemented in Python <3.3
+    from : https://stackoverflow.com/a/9877856/1928090
+    Args:
+        pgm (string): programme name
+    return :
+        p (string): programme path
+    """
+    path=os.getenv('PATH')
+    for p in path.split(os.path.pathsep):
+        p=os.path.join(p,pgm)
+        if os.path.exists(p) and os.access(p,os.X_OK):
+            return p
+
 def printScreenLogfile(string):
     """
     DESCRIPTION
@@ -775,16 +790,22 @@ def plot_barplot(clusters_list, logname, size, traj):
 
     fig,ax = plt.subplots(figsize=(10,1.5))
 
+
     # get time if present
-    try:
-        timeMin, timeMax = traj.time[0] / 1000, traj.time[-1] / 1000  # For time in ns.
-        plt.xlabel("Time (ns)")
-        if timeMax >= 1000:
-            timeMin = timeMin/1000
-            timeMax = timeMax/1000
-            plt.xlabel("Time (µs)")
-    except:
+    if traj.time.sum() < 0.0000005:
         timeMin, timeMax = 0,np.shape(data)[1]
+        plt.xlabel("Frame")
+
+    else:
+        try:
+            timeMin, timeMax = traj.time[0] / 1000, traj.time[-1] / 1000  # For time in ns.
+            plt.xlabel("Time (ns)")
+            if timeMax >= 1000:
+                timeMin = timeMin/1000
+                timeMax = timeMax/1000
+                plt.xlabel("Time (µs)")
+        except:
+            timeMin, timeMax = 0,np.shape(data)[1]
 
     im = plt.imshow(data,aspect='auto', interpolation='none', cmap=cmap, extent=[timeMin, timeMax, 1,0])
 
@@ -1221,7 +1242,7 @@ def main():
         # the case, we run this script again -- ensuring we're definitely using
         # pythonw.
         if 'pythonw' not in sys.executable:
-            sys.executable = shutil.which("pythonw")
+            sys.executable = which("pythonw")
             subprocess.Popen([sys.executable, __file__])
             sys.exit()
     print("********************************************************")
