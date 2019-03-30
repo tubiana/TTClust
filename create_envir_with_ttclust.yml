@@ -1,0 +1,18 @@
+name: ttclust
+channels:
+- defaults
+dependencies:
+- argcomplete
+- cython
+- progressbar2
+- matplotlib
+- numpy
+- pandas
+- scipy >= 0.18
+- omnia::mdtraj
+- pip
+- pip:
+  - prettytable
+  - argparse
+  - sklearn
+  - ttclust
