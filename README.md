@@ -35,7 +35,7 @@ If you want an "easy" installation of ttclust within a conda environement, I sug
 
 1. Install miniconda (https://docs.conda.io/en/latest/miniconda.html)
 2. Download environement file  
-`wget https://raw.githubusercontent.com/tubiana/ttclustGUI/master/create_envir_with_ttclust.yml`
+`wget https://raw.githubusercontent.com/tubiana/TTClust/master/create_envir_with_ttclust.yml`
 3. install the environement (it will install ttclust from PyPI at the end):  
 `conda env create -f create_envir_with_ttclust.yml`
 4. Now TTClust is installed, just activate the environement to run `ttclust` command :  
