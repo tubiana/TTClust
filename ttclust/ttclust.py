@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__  = "4.6.4"
+__version__  = "4.6.5"
 __license__ = "GNU GPLv3"
 __date__ = "2018/02"
 
@@ -13,12 +13,6 @@ import matplotlib as mpl
 import operator
 import os
 import sys
-import subprocess
-if sys.platform == 'darwin' and ('| packaged by conda-forge |' \
-                                 in sys.version or '|Anaconda' in sys.version):
-    mpl.use('WXAgg')
-    if 'pythonw' not in sys.executable:
-        sys.executable = shutil.which("pythonw")
 import argparse
 import glob
 import datetime
@@ -71,21 +65,6 @@ class Cluster:
 #==============================================================================
 #                     TOOL FONCTIONS
 #==============================================================================
-
-def which(pgm):
-    """
-    DESCRIPTION : replace shutil.which which is not implemented in Python <3.3
-    from : https://stackoverflow.com/a/9877856/1928090
-    Args:
-        pgm (string): programme name
-    return :
-        p (string): programme path
-    """
-    path=os.getenv('PATH')
-    for p in path.split(os.path.pathsep):
-        p=os.path.join(p,pgm)
-        if os.path.exists(p) and os.access(p,os.X_OK):
-            return p
 
 def printScreenLogfile(string):
     """
@@ -1236,15 +1215,7 @@ def main():
     Return:
         traj (Trajectory): simulation trajectory
     """
-    if sys.platform == 'darwin' and ('| packaged by conda-forge |' in sys.version or '|Anaconda' in sys.version):
-        # On macOS with Anaconda, GUI applications need to be run using
-        # `pythonw`. Since we have no way to determine whether this is currently
-        # the case, we run this script again -- ensuring we're definitely using
-        # pythonw.
-        if 'pythonw' not in sys.executable:
-            sys.executable = which("pythonw")
-            subprocess.Popen([sys.executable, __file__])
-            sys.exit()
+
     print("********************************************************")
     print("******************  TTCLUST {} **********************".format(
         __version__))

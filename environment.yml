@@ -9,15 +9,9 @@ dependencies:
 - numpy
 - pandas
 - scipy >= 0.18
-- scikit-learn 
 - omnia::mdtraj
 - pip
 - pip:
   - prettytable
   - argparse
-  - msgpack
-  - RXPY>=0.1.0
-  - wxpython==4.0.0b1
-  - Pillow==4.3.0
-  - psutil==5.4.2
-  - gooey
+  - sklearn

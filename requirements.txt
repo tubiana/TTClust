@@ -3,9 +3,9 @@
 #
 #To use it, simply write "sudo pip install -r requirements.txt"
 ###### Requirements without Version Specifiers ######
+cython
 argparse
 argcomplete
-cython
 progressbar2
 matplotlib
 numpy
@@ -14,10 +14,3 @@ prettytable
 scipy >= 0.18
 sklearn 
 mdtraj >= 1.7
-### FOR THE GUI
-msgpack
-RXPY>=0.1.0
-wxpython==4.0.0b1
-Pillow==4.3.0
-psutil==5.4.2
-gooey

@@ -14,7 +14,9 @@ This program is compatible with python 2.7.x and 3.x.
 You can have a warning for matplotlib with python 3.x but the program still works
 
 
-
+##GUI
+If you want to use a Graphical User Interface instead, you can install `ttclustgui` after `ttclust` (using `pip`).  
+Link to the GUI : https://github.com/tubiana/ttclustGUI
 
 ## Installation
 
@@ -23,12 +25,22 @@ You can have a warning for matplotlib with python 3.x but the program still work
 TTclust can be install from the Python Package index with 
 `pip install ttclust`  
 
-You can simply use ttclust then with `ttclust` or `ttclustGUI`commands.
+You can simply use ttclust then with `ttclust` 
 
  NOTE : You need to install numpy & mdtraj first, either with pip (`pip instal numpy mdtraj`) or conda (`conda install -c omnia mdtraj`).
  I strongly suggest you to use conda because pip will compile mdtraj and increase the the chance that the install fails (cgg/microsoft visual C++ library....).
  
+### Instalation with Conda
+If you want an "easy" installation of ttclust within a conda environement, I suggest these steps: 
 
+1. Install miniconda (https://docs.conda.io/en/latest/miniconda.html)
+2. Download environement file  
+`wget https://raw.githubusercontent.com/tubiana/ttclustGUI/master/create_envir_with_ttclust.yml`
+3. install the environement (it will install ttclust from PyPI at the end):  
+`conda env create -f create_envir_with_ttclust.yml`
+4. Now TTClust is installed, just activate the environement to run `ttclust` command :  
+`conda activate ttclust`  
+`ttclust -f <...> -t <...>`
 
 ### Installation & usage from sources
 
