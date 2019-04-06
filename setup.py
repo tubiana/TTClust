@@ -1,8 +1,17 @@
 from setuptools import setup, find_packages
 
+MAJOR = 4
+MINOR = 6
+PATCH = 6
+VERSION = "{}.{}.{}".format(MAJOR, MINOR, PATCH)
+
+with open("ttclust/version.py", "w") as f:
+    f.write("__version__ = '{}'\n".format(VERSION))
+
+
 setup(
     name='ttclust',
-    version='4.6.5',
+    version=VERSION,
     url='https://github.com/tubiana/TTClust',
     license='GPL3',
     author='Thibault Tubiana',
@@ -19,7 +28,7 @@ setup(
                       'prettytable',
                       'pandas',
                       'scipy >= 0.18',
-                      'sklearn ',
+                      'scikit-learn',
                       'mdtraj >= 1.7'],
 
     entry_points={'console_scripts':['ttclust=ttclust.ttclust:main']},

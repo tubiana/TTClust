@@ -10,8 +10,5 @@ dependencies:
 - pandas
 - scipy >= 0.18
 - omnia::mdtraj
-- pip
-- pip:
-  - prettytable
-  - argparse
-  - sklearn
+- scikit-learn
+- conda-forge::prettytable

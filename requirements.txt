@@ -12,5 +12,5 @@ numpy
 pandas
 prettytable
 scipy >= 0.18
-sklearn 
+scitkit-learn
 mdtraj >= 1.7
