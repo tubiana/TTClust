@@ -1,0 +1,69 @@
+#{% set name = "ttclust" %}
+#{% set version = "4.5.6" %}
+{% set data = load_setup_py_data() %}
+
+package:
+  name: "ttclust"
+  version: "{{ data.get('version') }}"
+
+#source:
+#  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+#  sha256: 205a41d04f11a9e6ce25987d002887b57e584565737d023f0caae1e1152cd3d9
+
+source:
+    path: ../  
+
+    
+chanels:
+  - tubiana
+  - conda-forge
+build:
+  number: 0
+  noarch: python
+  script: "{{ PYTHON }} setup.py install --single-version-externally-managed --record=record.txt "
+  entry_points:
+    - ttclust = ttclust.ttclust:main
+
+requirements:
+  build:
+    - python
+    - cython
+    - mdtraj
+    - argcomplete
+    - progressbar2
+    - matplotlib
+    - numpy
+    - prettytable
+    - pandas
+    - scikit-learn
+    - prettytable
+    
+  run:
+    - python
+    - mdtraj
+    - argcomplete
+    - progressbar2
+    - matplotlib
+    - numpy
+    - prettytable
+    - pandas
+    - scikit-learn
+    - prettytable
+
+
+test:
+  imports:
+    - ttclust
+
+about:
+  home: 'https://github.com/tubiana/TTClust'
+  license: 'GPL-3.0'
+  license_family: 'GPL'
+  license_file: '../LICENSE'
+  summary: 'TTclust is a tool to clusterize molecular dynamic trajectories (amber, gromacs, charmm, namd, pdb...)'
+  doc_url: ''
+  dev_url: ''
+
+extra:
+  recipe-maintainers:
+    - 'tubiana.thibault@gmail.com'

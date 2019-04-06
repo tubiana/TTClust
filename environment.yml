@@ -9,6 +9,6 @@ dependencies:
 - numpy
 - pandas
 - scipy >= 0.18
-- omnia::mdtraj
+- conda-forge::mdtraj
 - scikit-learn
 - conda-forge::prettytable
