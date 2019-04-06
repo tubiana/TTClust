@@ -20,28 +20,18 @@ Link to the GUI : https://github.com/tubiana/ttclustGUI
 
 ## Installation
 
+### Instalation with Conda
+If you want an easy installation of ttclust, I suggest these steps: 
+
+1. If you don't have conda (or Python) installed, Install miniconda (https://docs.conda.io/en/latest/miniconda.html) (with Python3, it's the future...)
+2. Install with the command `conda install -c tubiana -c conda-forge ttclust`
+
 ### Instalation with PIP
+1. Install numpy and cython with pip : `pip install cython numpy`
+2. Install ttclust `pip install ttclust`
 
-TTclust can be install from the Python Package index with 
-`pip install ttclust`  
-
-You can simply use ttclust then with `ttclust` 
-
- NOTE : You need to install numpy & mdtraj first, either with pip (`pip instal numpy mdtraj`) or conda (`conda install -c omnia mdtraj`).
  I strongly suggest you to use conda because pip will compile mdtraj and increase the the chance that the install fails (cgg/microsoft visual C++ library....).
  
-### Instalation with Conda
-If you want an "easy" installation of ttclust within a conda environement, I suggest these steps: 
-
-1. Install miniconda (https://docs.conda.io/en/latest/miniconda.html)
-2. Download environement file  
-`wget https://raw.githubusercontent.com/tubiana/TTClust/master/create_envir_with_ttclust.yml`
-3. install the environement (it will install ttclust from PyPI at the end):  
-`conda env create -f create_envir_with_ttclust.yml`
-4. Now TTClust is installed, just activate the environement to run `ttclust` command :  
-`conda activate ttclust`  
-`ttclust -f <...> -t <...>`
-
 ### Installation & usage from sources
 
 1. Clone this repo `git clone https://github.com/tubiana/ttclust`

@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 __author__ = "Thibault TUBIANA"
-__version__ = "4.6.5"
 __license__ = "GNU GPLv3"
 __date__ = "2018/02"
 
@@ -22,7 +21,12 @@ import operator
 import progressbar as pg
 import scipy.cluster.hierarchy as sch
 
-from version import __version__
+try :
+    #This if the "builded" import version
+    from .version import __version__
+except:
+    #for usage from sources
+    from version import __version__
 
 from prettytable import PrettyTable
 from sklearn import manifold
