@@ -20,13 +20,13 @@ Link to the GUI : https://github.com/tubiana/ttclustGUI
 
 ## Installation
 
-### Instalation with Conda
+### Installation with Conda
 If you want an easy installation of ttclust, I suggest these steps: 
 
 1. If you don't have conda (or Python) installed, Install miniconda (https://docs.conda.io/en/latest/miniconda.html) (with Python3, it's the future...)
 2. Install with the command `conda install -c tubiana -c conda-forge ttclust`
 
-### Instalation with PIP
+### Installation with PIP
 1. Install numpy and cython with pip : `pip install cython numpy`
 2. Install ttclust `pip install ttclust`
 
