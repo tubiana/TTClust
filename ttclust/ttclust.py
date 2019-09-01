@@ -720,7 +720,8 @@ def write_representative_frame(traj, cluster, logname):
     cluster_num = cluster.id
     frame = cluster.representative
     size = cluster.size
-    traj[frame].save_pdb("{}/C{}-f{}-s{}.pdb".format(logname,
+    #bugfix in 4.6.8
+    traj[frame-1].save_pdb("{}/C{}-f{}-s{}.pdb".format(logname,
                                                      cluster_num,
                                                      frame,
                                                      size))
