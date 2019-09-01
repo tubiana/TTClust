@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 MAJOR = 4
 MINOR = 6
-PATCH = 7
+PATCH = 9
 VERSION = "{}.{}.{}".format(MAJOR, MINOR, PATCH)
 
 with open("ttclust/version.py", "w") as f:

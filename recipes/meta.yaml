@@ -11,9 +11,9 @@ package:
 #  sha256: 205a41d04f11a9e6ce25987d002887b57e584565737d023f0caae1e1152cd3d9
 
 source:
-    path: ../  
+    path: ../
 
-    
+
 chanels:
   - tubiana
   - conda-forge
@@ -37,7 +37,7 @@ requirements:
     - pandas
     - scikit-learn
     - prettytable
-    
+
   run:
     - python
     - mdtraj
@@ -67,3 +67,6 @@ about:
 extra:
   recipe-maintainers:
     - 'tubiana.thibault@gmail.com'
+
+
+

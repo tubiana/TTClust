@@ -470,8 +470,7 @@ def calculate_representative_frame_spread(clusters_list, DM):
             # Representative frame = frame with lower RMSD between all other
             # frame of the cluster
             repre = min(mean_rmsd_per_frame, key=mean_rmsd_per_frame.get)
-            cluster.representative = repre + 1  # Don't forget +1 to get the
-            # real frame number
+            cluster.representative = repre
 
             # spread = mean rmsd in all the cluster (*10 to have angstöm)
             cluster.spread = sum(mean_rmsd_per_frame.values()) / len(frames)
@@ -721,9 +720,9 @@ def write_representative_frame(traj, cluster, logname):
     frame = cluster.representative
     size = cluster.size
     #bugfix in 4.6.8
-    traj[frame-1].save_pdb("{}/C{}-f{}-s{}.pdb".format(logname,
+    traj[frame].save_pdb("{}/C{}-f{}-s{}.pdb".format(logname,
                                                      cluster_num,
-                                                     frame,
+                                                     frame+1, # +1 to get the 1 index based frame
                                                      size))
 
 
