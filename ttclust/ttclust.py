@@ -135,7 +135,7 @@ def init_log(args, mdtrajectory):
     LOGFILE.write("      Atoms selected for alignement = {} \n".format(
         select_align))
     LOGFILE.write("      Atoms selected for RMSD = {} \n".format(select_rmsd))
-    LOGFILE.write("  trajectory file  : {} \n".format(traj))
+    LOGFILE.write("  trajectory file  : {} \n".format(','.join(traj)))
     LOGFILE.write("   Number of frames  : {} \n".format(mdtrajectory.n_frames))
     LOGFILE.write("   Number of atoms  : {} \n".format(mdtrajectory.n_atoms))
     LOGFILE.write("  topology file    : {} \n".format(topo))
@@ -318,7 +318,7 @@ def parseArg():
         argcomplete.autocomplete(arguments)
     except:
         pass
-    arguments.add_argument('-f', "--traj", help="trajectory file", required=True)
+    arguments.add_argument('-f', "--traj", help="trajectory file(s). You can give a list of files.", required=True, nargs='+')
     arguments.add_argument('-t', '--top', help="topfile", default=None)
     arguments.add_argument('-l', '--logfile', help="logfile (default : clustering.log). The "
                                                    "name of your output file will be the basename (name before the extention "
@@ -1155,11 +1155,32 @@ def Cluster_analysis_call(args):
     args["select_alignement"] = improve_nucleic_acid(args["select_alignement"])
 
     print("======= TRAJECTORY READING =======")
-    if topfile == None and trajfile[-4:] == ".pdb":
-        traj = md.load_pdb(trajfile)
+    if len(trajfile) == 1:
+        trajfile = trajfile[0]
+        if topfile == None and trajfile[-4:] == ".pdb":
+            traj = md.load_pdb(trajfile)
+        else:
+
+            traj = md.load(trajfile,
+                           top=topfile)
+    elif len(trajfile) > 1:
+        print(">Several trajectories given. Will concatenate them.")
+        trajList = []
+        for t in trajfile:
+            if topfile == None and t[-4:] == ".pdb":
+                trajList.append(md.load_pdb(t))
+            else:
+                trajList.append(md.load(t,
+                               top=topfile))
+        traj = md.join(trajList)
+
+        #resting the timetable
+        if traj.timestep > 0:
+            traj.time = np.asarray(list(range(0, int(len(traj) * traj.timestep), int(traj.timestep))))
+
     else:
-        traj = md.load(trajfile,
-                       top=topfile)
+        print("ERROR: no trajectory given. TTClust will stop")
+        sys.exit(1)
 
     init_log(args, traj)
 

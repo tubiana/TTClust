@@ -159,7 +159,7 @@ the interactive prompt.
 ## ARGUMENTS 
 ```text
   -h, --help            show this help message and exit
-  -f TRAJ, --traj TRAJ  trajectory file
+  -f TRAJ, --traj TRAJ  trajectory file(s). You can give a list of trajectory (see usage example)
   -t TOP, --top TOP     topfile
   -o OUTPUT, --output OUTPUT (default: clustering.log)
                         logfile 
@@ -196,6 +196,9 @@ Please note that the trajectory is reduced to the backbone in order to reduce th
 Caution: You have to put quote beside your selection string (for *sr*, *st*, and *sa* arguments) 
  - Simple usage (clustering on backbone, logfile is called clustering.log, output folder is "clustering")
  ```python ttclust.py -f examples/example.xtc -t examples/example.pdb```
+  - Simple usage with multiple trajectories  
+ ```python ttclust.py -f traj1.xtc traj2.xtc  -t examples/example.pdb```  
+ ```python ttclust.py -f *.xtc  -t examples/example.pdb```
  - Clustering on residues 30 to 200 and backbone
  ```python ttclust.py -f examples/example.xtc -t examples/example.pdb -sr "residue 30 to 200 and backbone" -l res30-200.log```
  - Clustering on CA atoms and save this part of the trajectory with a cutoff of 2.75
