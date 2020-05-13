@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/72916546.svg)](https://zenodo.org/badge/latestdoi/72916546)
+[![DOI](https://img.shields.io/badge/DOI-10.1021%2Facs.jcim.8b00512-blue.svg)](https://doi.org/10.1021/acs.jcim.8b00512)
 
 ![](images/ttclust_logo.png "logo" )
 
@@ -261,6 +261,11 @@ We can follow the evolution of each cluster thanks to the relative distance betw
 A plot of the distance matrix is also made and allows to easily visualize the distance between two frames. 
 
 ![alt text](examples/backbone/backbone-distmat.png "Distance Matrix plot example")
+
+#CITATION
+If you use TTclust in a publication, please use this citation  
+  
+Tubiana, T., Carvaillo, J.-C., Boulard, Y., & Bressanelli, S. (2018). TTClust: A Versatile Molecular Simulation Trajectory Clustering Program with Graphical Summaries. Journal of Chemical Information and Modeling, 58(11), 2178–2182. https://doi.org/10.1021/acs.jcim.8b00512
 
 
 ## Licence
