@@ -136,6 +136,7 @@ def init_log(args, mdtrajectory):
         select_align))
     LOGFILE.write("      Atoms selected for RMSD = {} \n".format(select_rmsd))
     LOGFILE.write("  trajectory file  : {} \n".format(','.join(traj)))
+    LOGFILE.write("   Stride          : {} \n".format(args["stride"]))
     LOGFILE.write("   Number of frames  : {} \n".format(mdtrajectory.n_frames))
     LOGFILE.write("   Number of atoms  : {} \n".format(mdtrajectory.n_atoms))
     LOGFILE.write("  topology file    : {} \n".format(topo))
@@ -320,6 +321,7 @@ def parseArg():
         pass
     arguments.add_argument('-f', "--traj", help="trajectory file(s). You can give a list of files.", required=True, nargs='+')
     arguments.add_argument('-t', '--top', help="topfile", default=None)
+    arguments.add_argument('-s', '--stride', help="stride (read every Xth frames", default=1)
     arguments.add_argument('-l', '--logfile', help="logfile (default : clustering.log). The "
                                                    "name of your output file will be the basename (name before the extention "
                                                    "of this logfile", default="clustering")
@@ -1162,7 +1164,7 @@ def Cluster_analysis_call(args):
         else:
 
             traj = md.load(trajfile,
-                           top=topfile)
+                           top=topfile, stride=args["stride"])
     elif len(trajfile) > 1:
         print(">Several trajectories given. Will concatenate them.")
         trajList = []
@@ -1171,7 +1173,7 @@ def Cluster_analysis_call(args):
                 trajList.append(md.load_pdb(t))
             else:
                 trajList.append(md.load(t,
-                               top=topfile))
+                               top=topfile,stride=args["stride"]))
         traj = md.join(trajList)
 
         #resting the timetable
@@ -1236,7 +1238,7 @@ def main():
     """
 
     print("********************************************************")
-    print("******************  TTCLUST {} **********************".format(
+    print("******************  TTCLUST {} *********************".format(
         __version__))
     print("********************************************************")
     print("")

@@ -161,6 +161,7 @@ the interactive prompt.
   -h, --help            show this help message and exit
   -f TRAJ, --traj TRAJ  trajectory file(s). You can give a list of trajectory (see usage example)
   -t TOP, --top TOP     topfile
+  -s INT, --stride INT  stride, read every Xth frames
   -o OUTPUT, --output OUTPUT (default: clustering.log)
                         logfile 
   -st SELECT_TRAJ, --select_traj SELECT_TRAJ (default: all)
@@ -196,6 +197,8 @@ Please note that the trajectory is reduced to the backbone in order to reduce th
 Caution: You have to put quote beside your selection string (for *sr*, *st*, and *sa* arguments) 
  - Simple usage (clustering on backbone, logfile is called clustering.log, output folder is "clustering")
  ```python ttclust.py -f examples/example.xtc -t examples/example.pdb```
+  - Simple usage with reading every 10 frames
+ ```python ttclust.py -f examples/example.xtc -t examples/example.pdb -s 10```
   - Simple usage with multiple trajectories  
  ```python ttclust.py -f traj1.xtc traj2.xtc  -t examples/example.pdb```  
  ```python ttclust.py -f *.xtc  -t examples/example.pdb```
