@@ -789,7 +789,7 @@ def plot_barplot(clusters_list, logname, size, traj):
             if timeMax >= 1000:
                 timeMin = timeMin / 1000
                 timeMax = timeMax / 1000
-                plt.xlabel("Time (µs)")
+                plt.xlabel("Time ($\mu$s)")
         except:
             timeMin, timeMax = 0, np.shape(data)[1]
 
