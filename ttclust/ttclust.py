@@ -868,6 +868,7 @@ def plot_distmat(distances, logname):
     DESCRIPTION
     
     """
+
     fig, ax = plt.subplots()
 
     plt.imshow(distances, interpolation='none', origin='lower')
@@ -1081,10 +1082,10 @@ def generate_graphs(clusters_list, output, size, linkage, cutoff, distances, tra
     colors_list = plot_barplot(clusters_list, output, size, traj)
     plot_dendro(linkage, output, cutoff, colors_list, clusters_list)
     plot_hist(clusters_list, output, colors_list)
-    if (distances.shape[0] < 10000):
+    if (distances.shape[0] < 10002):
         plot_distmat(distances, output)
     else:
-        printScreenLogfile("Too many frames! The RMSD distance matrix will not be generated")
+        printScreenLogfile("Too many frames (>=10002)! The RMSD distance matrix will not be generated")
     return colors_list
 
 

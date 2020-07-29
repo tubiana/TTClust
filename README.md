@@ -97,7 +97,7 @@ Following packages are needed:
   - gooey (FOR GUI)
 
 #### Atoms selection
-For Selection syntax, use the one from MDTraj (http://mdtraj.org/latest/atom_selection.html).
+For Selection syntax, use the one from MDTraj (http://mdtraj.org/1.9.3/atom_selection.html).
 You can specify different selections for the calculation: 
  - **st** is used to extract a part of the trajectory (if this one is too big).
  ..* leave this blank if you want to keep your trajectory intact.
