@@ -321,7 +321,7 @@ def parseArg():
         pass
     arguments.add_argument('-f', "--traj", help="trajectory file(s). You can give a list of files.", required=True, nargs='+')
     arguments.add_argument('-t', '--top', help="topfile", default=None)
-    arguments.add_argument('-s', '--stride', help="stride (read every Xth frames", default=1)
+    arguments.add_argument('-s', '--stride', help="stride (read every Xth frames", default=1,type = int)
     arguments.add_argument('-l', '--logfile', help="logfile (default : clustering.log). The "
                                                    "name of your output file will be the basename (name before the extention "
                                                    "of this logfile", default="clustering")
