@@ -350,6 +350,13 @@ def parseArg():
     # Interactive mode for distance matrix:
     arguments.add_argument('-i', '--interactive', help="Use saved distance matrix ? (Y/n)", default="Y")
 
+
+    # Optional for graphics
+    arguments.add_argument('-axis', '--axis', help="if something is wrong in the axis of timed barplot graph "
+                                                   "(wrong time unit), and you just want 'frame' instead of time "
+                                                   " Choose 'frame' here.", default="default")
+    arguments.add_argument('-limitmat', '--limitmat', help= "If the distance matrix is too long to generate "
+                                                   "choose a limit here. Default is 100000000", default=100000000, type = int)
     args = vars(arguments.parse_args())
 
     # Activate autoclustering if autoclust is True and if no values was specified for ngroup or cutoff
@@ -752,7 +759,7 @@ def get_cmap(num_cluster):
     return cmap
 
 
-def plot_barplot(clusters_list, logname, size, traj):
+def plot_barplot(clusters_list, logname, size, traj, args):
     """
     DESCRIPTION
     This function is used to plot the linear barplots.
@@ -760,6 +767,7 @@ def plot_barplot(clusters_list, logname, size, traj):
         clusters_list (list) : list of cluster label in order or appearance
         logname (str) : output logname
         size (int): number of frames
+        args (dict): dictionnary of arguments
     Returns:
         colors_list (list of list) : list of colors in RGBA format
     """
@@ -778,7 +786,7 @@ def plot_barplot(clusters_list, logname, size, traj):
     fig, ax = plt.subplots(figsize=(10, 1.5))
 
     # get time if present
-    if traj.time.sum() < 0.0000005:
+    if traj.time.sum() < 0.0000005 or args["axis"].lower() == "frame" :
         timeMin, timeMax = 0, np.shape(data)[1]
         plt.xlabel("Frame")
 
@@ -1063,7 +1071,7 @@ def plot_2D_distance_projection(rmsd_m, clusters_list, colors, logname):
     plt.close()
 
 
-def generate_graphs(clusters_list, output, size, linkage, cutoff, distances, traj):
+def generate_graphs(clusters_list, output, size, linkage, cutoff, distances, traj, args):
     """
     DESCRIPTION
     Create a linear cluster mapping graph where every frame is printed as a
@@ -1076,13 +1084,16 @@ def generate_graphs(clusters_list, output, size, linkage, cutoff, distances, tra
         cutoff (float): cutoff distance value for clustering (in the dendogram)
         distances(numpy array): distance matrix
         traj (Trajectory): trajectory for time usage in axis barplot
+        args (dict): dictionnary of arguments.
     Return:
         colors_list (list) to be used with 2D distance projection graph
     """
-    colors_list = plot_barplot(clusters_list, output, size, traj)
+    colors_list = plot_barplot(clusters_list, output, size, traj, args)
     plot_dendro(linkage, output, cutoff, colors_list, clusters_list)
     plot_hist(clusters_list, output, colors_list)
-    if (distances.shape[0] < 10002):
+
+
+    if (distances.shape[0] < args["limitmat"]):
         plot_distmat(distances, output)
     else:
         printScreenLogfile("Too many frames (>=10002)! The RMSD distance matrix will not be generated")
@@ -1202,7 +1213,7 @@ def Cluster_analysis_call(args):
     # reordering the list by the cluster number
     clusters_list.sort(key=operator.attrgetter("id"))
     print("====== Generating Graph ======")
-    colors_list = generate_graphs(clusters_list, logname, traj.n_frames, linkage, cutoff, distances, traj)
+    colors_list = generate_graphs(clusters_list, logname, traj.n_frames, linkage, cutoff, distances, traj, args)
     print("====== Calc. repr. frame  ======")
     calculate_representative_frame_spread(clusters_list, distances)
 

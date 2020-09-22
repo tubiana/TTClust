@@ -189,6 +189,13 @@ the interactive prompt.
                         number of group ('-ng') 
   -i INTERACTIVE, --interactive INTERACTIVE
                         Interactive mode for distance matrix (Y/n)
+  -axis AXIS, --axis AXIS
+                        if something is wrong in the axis of timed barplot
+                        graph (wrong time unit), and you just want 'frame'
+                        instead of time Choose 'frame' here.
+  -limitmat LIMITMAT, --limitmat LIMITMAT
+                        If the distance matrix is too long to generate choose
+                        a limit here. Default is 100000000
 ```
     
 ## USAGE: 
