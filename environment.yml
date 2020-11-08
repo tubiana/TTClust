@@ -12,3 +12,4 @@ dependencies:
 - conda-forge::mdtraj
 - scikit-learn
 - conda-forge::prettytable
+- numba

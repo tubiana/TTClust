@@ -20,12 +20,14 @@ import numpy as np
 import operator
 import progressbar as pg
 import scipy.cluster.hierarchy as sch
+from numba import jit, prange
 
-try :
-    #This if the "builded" import version
+
+try:
+    # This if the "builded" import version
     from .version import __version__
 except:
-    #for usage from sources
+    # for usage from sources
     from version import __version__
 
 from prettytable import PrettyTable
@@ -319,9 +321,10 @@ def parseArg():
         argcomplete.autocomplete(arguments)
     except:
         pass
-    arguments.add_argument('-f', "--traj", help="trajectory file(s). You can give a list of files.", required=True, nargs='+')
+    arguments.add_argument('-f', "--traj", help="trajectory file(s). You can give a list of files.", required=True,
+                           nargs='+')
     arguments.add_argument('-t', '--top', help="topfile", default=None)
-    arguments.add_argument('-s', '--stride', help="stride (read every Xth frames", default=1,type = int)
+    arguments.add_argument('-s', '--stride', help="stride (read every Xth frames", default=1, type=int)
     arguments.add_argument('-l', '--logfile', help="logfile (default : clustering.log). The "
                                                    "name of your output file will be the basename (name before the extention "
                                                    "of this logfile", default="clustering")
@@ -350,13 +353,13 @@ def parseArg():
     # Interactive mode for distance matrix:
     arguments.add_argument('-i', '--interactive', help="Use saved distance matrix ? (Y/n)", default="Y")
 
-
     # Optional for graphics
     arguments.add_argument('-axis', '--axis', help="if something is wrong in the axis of timed barplot graph "
                                                    "(wrong time unit), and you just want 'frame' instead of time "
                                                    " Choose 'frame' here.", default="default")
-    arguments.add_argument('-limitmat', '--limitmat', help= "If the distance matrix is too long to generate "
-                                                   "choose a limit here. Default is 100000000", default=100000000, type = int)
+    arguments.add_argument('-limitmat', '--limitmat', help="If the distance matrix is too long to generate "
+                                                           "choose a limit here. Default is 100000000",
+                           default=100000000, type=int)
     args = vars(arguments.parse_args())
 
     # Activate autoclustering if autoclust is True and if no values was specified for ngroup or cutoff
@@ -485,6 +488,21 @@ def calculate_representative_frame_spread(clusters_list, DM):
             cluster.spread = sum(mean_rmsd_per_frame.values()) / len(frames)
             cluster.spread *= 10
 
+@jit(nopython=True)
+def calc_rmsd_2frames(ref, frame):
+    """
+    RMSD calculation between a reference and a frame.
+    This function is "jitted" for better performances
+    """
+    dist = np.zeros(len(frame))
+    for atom in range(len(frame)):
+        dist[atom] = ((ref[atom][0] - frame[atom][0]) ** 2 +
+                      (ref[atom][1] - frame[atom][1]) ** 2 +
+                      (ref[atom][2] - frame[atom][2]) ** 2)
+
+    return (np.sqrt(dist.mean()))
+
+
 
 def create_DM(traj, args):
     """
@@ -503,6 +521,9 @@ def create_DM(traj, args):
         alignement_selection = return_selection_atom(use_for="ALIGNEMENT",
                                                      traj=traj,
                                                      args=args)
+
+        RMSD_selection = return_selection_atom("RMSD", traj=traj,
+                                               args=args)
 
         # Trajectory superposition  (aligment)
         traj_aligned = traj.superpose(traj[0],
@@ -529,14 +550,21 @@ def create_DM(traj, args):
         printScreenLogfile(" >Distance Matrix File Loaded!")
         return np.load(distance_file)
     else:  # otherwise
+
         pbar = pg.ProgressBar(widgets=WIDGETS, maxval=traj.n_frames).start()
         counter = 0
         # Pairwise RMSD calculation (matrix n²)
         for i in range(traj.n_frames):
-            distances[i] = md.rmsd(traj_aligned, traj_aligned, frame=i)
+            # distances[i] = md.rmsd(traj_aligned, traj_aligned, frame=i)
+
+            for j in range(i + 1, traj.n_frames):
+                rmsd = calc_rmsd_2frames(traj.xyz[i], traj.xyz[j])
+                distances[i][j] = rmsd
+                distances[j][i] = rmsd
             pbar.update(counter)
             counter += 1
         pbar.finish()
+
 
         # Finaly, we save the matrix if we want to load it again afterward
         print("Calculation ended - saving distance matrix")
@@ -561,6 +589,9 @@ def onclick(event):
         plt.close(1)
 
 
+
+
+
 def return_mapping_cluster(labels):
     """
     DESCRIPTION
@@ -580,7 +611,7 @@ def return_mapping_cluster(labels):
         clusters_list[cluster_num - 1].frames.append(i)
         # for DEBUG
         if cluster_num != clusters_list[cluster_num - 1].id:
-            print ("{0} - {0}".format(cluster_num, clusters_list[cluster_num - 1]))
+            print("{0} - {0}".format(cluster_num, clusters_list[cluster_num - 1]))
             sys.exit(1)
 
     for cluster in clusters_list:
@@ -631,6 +662,7 @@ def auto_clustering(matrix):
     kmeans.fit(matrix)
     # return(labels)
     return (kIdx)
+
 
 
 def create_cluster_table(traj, args):
@@ -728,10 +760,10 @@ def write_representative_frame(traj, cluster, logname):
     cluster_num = cluster.id
     frame = cluster.representative
     size = cluster.size
-    #bugfix in 4.6.8
+    # bugfix in 4.6.8
     traj[frame].save_pdb("{}/C{}-f{}-s{}.pdb".format(logname,
                                                      cluster_num,
-                                                     frame+1, # +1 to get the 1 index based frame
+                                                     frame + 1,  # +1 to get the 1 index based frame
                                                      size))
 
 
@@ -786,7 +818,7 @@ def plot_barplot(clusters_list, logname, size, traj, args):
     fig, ax = plt.subplots(figsize=(10, 1.5))
 
     # get time if present
-    if traj.time.sum() < 0.0000005 or args["axis"].lower() == "frame" :
+    if traj.time.sum() < 0.0000005 or args["axis"].lower() == "frame":
         timeMin, timeMax = 0, np.shape(data)[1]
         plt.xlabel("Frame")
 
@@ -874,7 +906,7 @@ def plot_hist(clusters_list, logname, colors_list):
 def plot_distmat(distances, logname):
     """
     DESCRIPTION
-    
+
     """
 
     fig, ax = plt.subplots()
@@ -1092,7 +1124,6 @@ def generate_graphs(clusters_list, output, size, linkage, cutoff, distances, tra
     plot_dendro(linkage, output, cutoff, colors_list, clusters_list)
     plot_hist(clusters_list, output, colors_list)
 
-
     if (distances.shape[0] < args["limitmat"]):
         plot_distmat(distances, output)
     else:
@@ -1185,10 +1216,10 @@ def Cluster_analysis_call(args):
                 trajList.append(md.load_pdb(t))
             else:
                 trajList.append(md.load(t,
-                               top=topfile,stride=args["stride"]))
+                                        top=topfile, stride=args["stride"]))
         traj = md.join(trajList)
 
-        #resting the timetable
+        # resting the timetable
         if traj.timestep > 0:
             traj.time = np.asarray(list(range(0, int(len(traj) * traj.timestep), int(traj.timestep))))
 

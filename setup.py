@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
 MAJOR = 4
-MINOR = 7
-PATCH = 4
+MINOR = 8
+PATCH = 2
 VERSION = "{}.{}.{}".format(MAJOR, MINOR, PATCH)
 
 with open("ttclust/version.py", "w") as f:
@@ -29,6 +29,7 @@ setup(
                       'pandas',
                       'scipy >= 0.18',
                       'scikit-learn',
+                      'numba',
                       'mdtraj >= 1.7'],
 
     entry_points={'console_scripts':['ttclust=ttclust.ttclust:main']},
