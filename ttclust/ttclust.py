@@ -488,7 +488,7 @@ def calculate_representative_frame_spread(clusters_list, DM):
             cluster.spread = sum(mean_rmsd_per_frame.values()) / len(frames)
             cluster.spread *= 10
 
-@jit(nopython=True)
+@jit(nopython=True, parallel=False, cache=True, nogil=True)
 def calc_rmsd_2frames(ref, frame):
     """
     RMSD calculation between a reference and a frame.
@@ -700,13 +700,14 @@ def create_cluster_table(traj, args):
     else:
         print("         Matrix shape: {}".format(distances.shape))
         print("         Scipy linkage in progress. Please wait. It can be long")
-        try:
+        # linkage method from https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html
+        linkage_methods = ['single','average','complete','weighted','centroid','median','ward']
+        if args["method"] in linkage_methods:
             linkage = sch.linkage(distances, method=args["method"])
-        except:
+        else:
             printScreenLogfile("ERROR : method name given for clustering didn't recognized")
             printScreenLogfile("      : methods are : single; complete; average; weighted; centroid; ward.")
-            printScreenLogfile("      : check https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/sc"
-                               "ipy.cluster.hierarchy.linkage.html for more info")
+            printScreenLogfile("      : check https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html")
             sys.exit(1)
         print("         >Done!")
         print("         ...Saving linkage matrix...")

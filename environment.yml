@@ -1,6 +1,7 @@
 name: ttclust
 channels:
 - defaults
+- conda-forge
 dependencies:
 - argcomplete
 - cython
@@ -9,7 +10,7 @@ dependencies:
 - numpy
 - pandas
 - scipy >= 0.18
-- conda-forge::mdtraj
+- mdtraj
 - scikit-learn
-- conda-forge::prettytable
+- prettytable
 - numba
