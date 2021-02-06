@@ -540,7 +540,7 @@ def create_DM(traj, args):
         print("NOTE : Extraction of subtrajectory for time optimisation")
         traj_aligned = extract_selected_atoms(rmsd_string, traj_aligned, args["logname"])
     # matrix initialization
-    distances = np.empty((traj.n_frames, traj.n_frames))
+    distances = np.zeros((traj.n_frames, traj.n_frames))
 
     # Searching if a distance file already exist
     distance_file = search_dist_mat(untouch_rmsd_string, args)
