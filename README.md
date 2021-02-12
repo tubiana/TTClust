@@ -20,13 +20,13 @@ Link to the GUI : https://github.com/tubiana/ttclustGUI
 
 ## Installation
 
-### Instalation with Conda
+### Installation with Conda
 If you want an easy installation of ttclust, I suggest these steps: 
 
 1. If you don't have conda (or Python) installed, Install miniconda (https://docs.conda.io/en/latest/miniconda.html) (with Python3, it's the future...)
 2. Install with the command `conda install -c tubiana -c conda-forge ttclust`
 
-### Instalation with PIP
+### Installation with PIP
 1. Install numpy and cython with pip : `pip install cython numpy`
 2. Install ttclust `pip install ttclust`
 
@@ -97,7 +97,7 @@ Following packages are needed:
   - gooey (FOR GUI)
 
 #### Atoms selection
-For Selection syntax, use the one from MDTraj (http://mdtraj.org/1.9.3/atom_selection.html).
+For Selection syntax, use the one from MDTraj (https://mdtraj.org/1.9.4/atom_selection.html).
 You can specify different selections for the calculation: 
  - **st** is used to extract a part of the trajectory (if this one is too big).
  ..* leave this blank if you want to keep your trajectory intact.
