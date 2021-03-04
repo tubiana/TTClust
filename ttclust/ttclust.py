@@ -21,6 +21,7 @@ import operator
 import progressbar as pg
 import scipy.cluster.hierarchy as sch
 from numba import jit, prange
+from hashlib import md5
 
 
 try:
@@ -262,7 +263,7 @@ def return_selection_atom(use_for, traj, args):
     return selection
 
 
-def save_dist_mat(distmat, rmsd_string):
+def save_dist_mat(distmat, rmsd_string, maxtrixtype):
     """
     DESCRIPTION
     Save the numpy matrix to reused afterward
@@ -275,10 +276,20 @@ def save_dist_mat(distmat, rmsd_string):
     """
     if rmsd_string:
         name = rmsd_string.replace(" ", "_")
+
     else:
         name = "matrix_all"
-    np.save(name, distmat)
-    printScreenLogfile("Saving distance matrix : {0}.npy".format(name))
+
+    try:
+        np.save(name, distmat)
+        printScreenLogfile("Saving {0} : {1}.npy".format(maxtrixtype, name))
+    except OSError as error:
+        print("Selection line too long to be used as filename. TTClust will hash it")
+        namehashed = md5(name.encode()).hexdigest()
+        print(f"{name} -> {namehashed}")
+        np.save(namehashed, distmat)
+        printScreenLogfile("Saving {0}: {1}.npy".format(maxtrixtype, namehashed))
+
 
 
 def reorder_cluster(clusters):
@@ -412,7 +423,7 @@ def ask_choice(args, name):
         npy_files = glob.glob("*.npy")
         for i, file in enumerate(npy_files):
             print("  {0} - {1}".format(i + 1, file))
-        print(" -->Please chooce and press Enter")
+        print(" -->Please choose and press Enter")
         # Check if the user give a good answer
         choice_file = input()
         try:
@@ -440,12 +451,18 @@ def search_dist_mat(rmsd_string, args):
     else:
         name = "matrix_all"
     # Searching all npy file in the folder
-    npy_files = glob.glob("*.npy")
+    namehashed = md5(name.encode()).hexdigest()
+    namehashed += '.npy'
+
     if not name[-4:] == ".npy":
         name += ".npy"
 
+    npy_files = glob.glob("*.npy")
+
     if name in npy_files and not args["interactive"].lower() == "n":
         return ask_choice(args, name)
+    elif namehashed in npy_files and not args["interactive"].lower() == "n":
+        return ask_choice(args, namehashed)
     else:
         return None
 
@@ -568,7 +585,7 @@ def create_DM(traj, args):
 
         # Finaly, we save the matrix if we want to load it again afterward
         print("Calculation ended - saving distance matrix")
-        save_dist_mat(distances, args["select_rmsd"])
+        save_dist_mat(distances, args["select_rmsd"], "distance matrix")
 
         return distances
 
@@ -693,7 +710,7 @@ def create_cluster_table(traj, args):
     if select_rmsd == None:
         select_rmsd = "None"
 
-    linkage_file = search_dist_mat(untouch_select_rmsd + " linkage " + args["method"], args)
+    linkage_file = search_dist_mat(select_align+'--'+untouch_select_rmsd + " linkage " + args["method"], args)
 
     if linkage_file:
         linkage = np.load(linkage_file)
@@ -711,7 +728,7 @@ def create_cluster_table(traj, args):
             sys.exit(1)
         print("         >Done!")
         print("         ...Saving linkage matrix...")
-        save_dist_mat(linkage, untouch_select_rmsd + " linkage " + args["method"])
+        save_dist_mat(linkage, select_align+'--'+untouch_select_rmsd + " linkage " + args["method"], "linkage matrix")
         print("         >Done!")
 
     # if a cuttof for distance cuting is given
