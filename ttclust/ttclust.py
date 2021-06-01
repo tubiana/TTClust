@@ -539,8 +539,8 @@ def create_DM(traj, args):
                                                      traj=traj,
                                                      args=args)
 
-        RMSD_selection = return_selection_atom("RMSD", traj=traj,
-                                               args=args)
+        # RMSD_selection = return_selection_atom("RMSD", traj=traj,
+        #                                        args=args)
 
         # Trajectory superposition  (aligment)
         traj_aligned = traj.superpose(traj[0],
@@ -549,12 +549,15 @@ def create_DM(traj, args):
     else:
         traj_aligned = traj
 
-    select_align = improve_nucleic_acid(args["select_alignement"])
+    # select_align = improve_nucleic_acid(args["select_alignement"])
+    # Transform the RMSD string for nucleic acids.
     untouch_rmsd_string = args["select_rmsd"]
     rmsd_string = improve_nucleic_acid(args["select_rmsd"])
 
+    # If the RMSD string is not empty
     if rmsd_string:
         print("NOTE : Extraction of subtrajectory for time optimisation")
+        # Extract the subpart.
         traj_aligned = extract_selected_atoms(rmsd_string, traj_aligned, args["logname"])
     # matrix initialization
     distances = np.zeros((traj.n_frames, traj.n_frames))
@@ -568,14 +571,14 @@ def create_DM(traj, args):
         return np.load(distance_file)
     else:  # otherwise
 
-        pbar = pg.ProgressBar(widgets=WIDGETS, maxval=traj.n_frames).start()
+        pbar = pg.ProgressBar(widgets=WIDGETS, maxval=traj_aligned.n_frames).start()
         counter = 0
         # Pairwise RMSD calculation (matrix n²)
-        for i in range(traj.n_frames):
+        for i in range(traj_aligned.n_frames):
             # distances[i] = md.rmsd(traj_aligned, traj_aligned, frame=i)
 
-            for j in range(i + 1, traj.n_frames):
-                rmsd = calc_rmsd_2frames(traj.xyz[i], traj.xyz[j])
+            for j in range(i + 1, traj_aligned.n_frames):
+                rmsd = calc_rmsd_2frames(traj_aligned.xyz[i], traj_aligned.xyz[j])
                 distances[i][j] = rmsd
                 distances[j][i] = rmsd
             pbar.update(counter)

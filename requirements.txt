@@ -15,3 +15,4 @@ scipy >= 0.18
 scitkit-learn
 mdtraj >= 1.7
 numba
+hashlib
