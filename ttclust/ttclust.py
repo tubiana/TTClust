@@ -560,7 +560,7 @@ def create_DM(traj, args):
         # Extract the subpart.
         traj_aligned = extract_selected_atoms(rmsd_string, traj_aligned, args["logname"])
     # matrix initialization
-    distances = np.zeros((traj.n_frames, traj.n_frames))
+    distances = np.zeros((traj.n_frames, traj.n_frames),dtype=np.float32)
 
     # Searching if a distance file already exist
     distance_file = search_dist_mat(untouch_rmsd_string, args)
@@ -962,7 +962,7 @@ def plot_dendro(linkage, logname, cutoff, color_list, clusters_list):
         STYLE = "classic"
         if STYLE in plt.style.available:
             plt.style.use(STYLE)
-    fig = plt.figure()
+    fig,ax = plt.subplots()
     # Convert RGB color to HEX color
     color_hex = [mpl.colors.rgb2hex(x) for x in color_list]
     sch.set_link_color_palette(color_hex)
@@ -986,7 +986,6 @@ def plot_dendro(linkage, logname, cutoff, color_list, clusters_list):
 
     # Graph parameters
     plt.title("Clustering Dendrogram")
-    ax = plt.axes()
     ax.set_xticklabels([])
     plt.axhline(y=float(cutoff), color="grey")  # cutoff value vertical line
     ax.set_ylabel("Distance (AU)")
@@ -1291,7 +1290,6 @@ def define_LOGFILE(log):
     """
     global LOGFILE
     LOGFILE = log
-
 
 def main():
     """
