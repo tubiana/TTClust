@@ -22,6 +22,8 @@ import progressbar as pg
 import scipy.cluster.hierarchy as sch
 from numba import jit, prange
 from hashlib import md5
+from scipy.spatial.distance import is_valid_dm
+
 
 
 try:
@@ -660,7 +662,7 @@ def auto_clustering(matrix):
     distorsions = []
     K = range(2, 15)
     for k in K:
-        kmeans = KMeans(n_clusters=k)
+        kmeans = KMeans(n_clusters=k,n_init=10)
         kmeans.fit(matrix)
 
         distorsions.append(sum(np.min(cdist(matrix, kmeans.cluster_centers_, 'euclidean'), axis=1)) / matrix.shape[0])
@@ -678,7 +680,7 @@ def auto_clustering(matrix):
 
     kIdx = np.argmax(seg_gains > seg_threshold)
 
-    kmeans = KMeans(n_clusters=kIdx)
+    kmeans = KMeans(n_clusters=kIdx, n_init=10)
     kmeans.fit(matrix)
     # return(labels)
     return (kIdx)
@@ -723,6 +725,10 @@ def create_cluster_table(traj, args):
         # linkage method from https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html
         linkage_methods = ['single','average','complete','weighted','centroid','median','ward']
         if args["method"] in linkage_methods:
+            if not is_valid_dm(distances):
+                print("THE DISTANCE MATRIX IS NOT VALID! THREAT THE RESULTS CAREFULLY. Raise a issue to https://www.github.com/tubiana/TTClust with your files or npy files if you can.")
+            else:
+                print("The distance has been tested and is VALID. Ignore the next ClusterWarning message from scipy.")
             linkage = sch.linkage(distances, method=args["method"])
         else:
             printScreenLogfile("ERROR : method name given for clustering didn't recognized")
@@ -1034,7 +1040,7 @@ def plot_2D_distance_projection(rmsd_m, clusters_list, colors, logname):
     rmsd_norm = symmetrize_matrix(rmsd_norm)
     # 2 - create the MDS methods
     # mds = manifold.MDS(n_components=2, dissimilarity="euclidean", random_state=4)
-    mds = manifold.MDS(n_components=2, dissimilarity="precomputed")  # , random_state=2)
+    mds = manifold.MDS(n_components=2, dissimilarity="precomputed", normalized_stress="auto")  # , random_state=2)
 
     # 3 - MDS projection
     rmsd_mds = mds.fit(rmsd_norm)
@@ -1219,6 +1225,8 @@ def Cluster_analysis_call(args):
     args["select_traj"] = improve_nucleic_acid(args["select_traj"])
     args["select_alignement"] = improve_nucleic_acid(args["select_alignement"])
 
+    print("NOTE : Per default the clustering is made on the BACKBONE of a PROTEIN")
+    print("       PLEASE READ THE DOCUMENTATION AT https://www.github.com/tubiana/TTClust FOR PROPER USAGE \n")
     print("======= TRAJECTORY READING =======")
     if len(trajfile) == 1:
         trajfile = trajfile[0]
