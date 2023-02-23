@@ -11,7 +11,10 @@ dependencies:
 - pandas
 - scipy >= 0.18
 - mdtraj
+- pip
 - scikit-learn
 - prettytable
 - numba
 - hashlib
+- pip:
+  - hlib

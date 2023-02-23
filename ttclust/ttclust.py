@@ -628,7 +628,7 @@ def return_mapping_cluster(labels):
         clusters_list.append(Cluster(cluster_num))  # create new instance of cluster
 
     for i, cluster_num in enumerate(labels):
-        clusters_list[cluster_num - 1].frames.append(i)
+        clusters_list[cluster_num - 1].frames.append(i) # Here the frame number is 0 BASED
         # for DEBUG
         if cluster_num != clusters_list[cluster_num - 1].id:
             print("{0} - {0}".format(cluster_num, clusters_list[cluster_num - 1]))
@@ -1272,7 +1272,7 @@ def Cluster_analysis_call(args):
         printScreenLogfile("cluster {}".format(cluster.id))
         printScreenLogfile("    size = {}".format(cluster.size))
         printScreenLogfile("    representative frame={}".format(
-            cluster.representative))
+            cluster.representative +1))
         printScreenLogfile("    spread  : {0:.2f} ".format(cluster.spread))
         printScreenLogfile("    Frames : {} ".format(str([x + 1 for x in cluster.frames])))
         write_representative_frame(traj, cluster, logname)
