@@ -1,4 +1,6 @@
 [![DOI](https://img.shields.io/badge/DOI-10.1021%2Facs.jcim.8b00512-blue.svg)](https://doi.org/10.1021/acs.jcim.8b00512)
+[![Downloads](https://static.pepy.tech/badge/ttclust)](https://pepy.tech/project/ttclust)
+[![Downloads](https://static.pepy.tech/badge/ttclust/month)](https://pepy.tech/project/ttclust)
 
 ![](images/ttclust_logo.png "logo" )
 
