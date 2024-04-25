@@ -709,7 +709,7 @@ def create_cluster_table(traj, args):
     untouch_select_rmsd = args["select_rmsd"]
     select_rmsd = improve_nucleic_acid(args["select_rmsd"])
     cutoff = args["cutoff"]
-    ncluster = args["ngroup"]
+    ncluster = int(args["ngroup"])
     # Creation of the distance matrix
 
     if select_rmsd == None:
@@ -742,6 +742,7 @@ def create_cluster_table(traj, args):
 
     # if a cuttof for distance cuting is given
     if cutoff:
+        cutoff = float(cutoff)
         clustering_result = sch.fcluster(linkage, cutoff, "distance")
     # otherwise we choose it on the screen by cliking on the matplotlib windows
     # If a number of wanted cluster is given

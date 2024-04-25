@@ -10,7 +10,8 @@ dependencies:
 - numpy
 - pandas
 - scipy >= 0.18
-- conda-forge::mdtraj
+- mdtraj>=1.9.6
+- pip
 - scikit-learn
-- conda-forge::prettytable
+- prettytable
 - numba

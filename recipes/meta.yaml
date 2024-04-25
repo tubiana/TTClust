@@ -14,13 +14,13 @@ source:
     path: ../
 
 
-chanels:
+channels:
   - tubiana
   - conda-forge
 build:
   number: 0
   noarch: python
-  script: "{{ PYTHON }} setup.py install --single-version-externally-managed --record=record.txt "
+  script: "{{ PYTHON }} -m pip install . --no-deps -vv"
   entry_points:
     - ttclust = ttclust.ttclust:main
 
@@ -28,12 +28,11 @@ requirements:
   build:
     - python
     - cython
-    - mdtraj
+    - mdtraj>=1.9.6
     - argcomplete
     - progressbar2
     - matplotlib
     - numpy
-    - prettytable
     - pandas
     - scikit-learn
     - prettytable
@@ -49,7 +48,6 @@ requirements:
     - prettytable
     - pandas
     - scikit-learn
-    - prettytable
     - numba
 
 
