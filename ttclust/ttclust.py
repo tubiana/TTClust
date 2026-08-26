@@ -709,7 +709,9 @@ def create_cluster_table(traj, args):
     untouch_select_rmsd = args["select_rmsd"]
     select_rmsd = improve_nucleic_acid(args["select_rmsd"])
     cutoff = args["cutoff"]
-    ncluster = int(args["ngroup"])
+    ncluster = args["ngroup"]
+    if ncluster is not None and ncluster != "auto":
+        ncluster = int(ncluster)
     # Creation of the distance matrix
 
     if select_rmsd == None:
