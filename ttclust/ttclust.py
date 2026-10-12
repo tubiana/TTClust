@@ -751,7 +751,7 @@ def create_cluster_table(traj, args):
             # clustering_result = sch.fcluster(linkage,4, 'distance')
             # clustering_result = auto_clustering(distances)
             ncluster = auto_clustering(distances)
-        clustering_result = sch.fcluster(linkage, t=ncluster, criterion="maxclust")
+        clustering_result = sch.fcluster(linkage, t=int(ncluster), criterion="maxclust")
         # print(len(clustering_result))
         n_group = len(np.unique(clustering_result))
         cutoff = linkage[-(n_group - 1), 2]
